@@ -21,4 +21,10 @@ dependencyResolutionManagement {
 
 rootProject.name = "journeydex"
 include(":app")
- 
+include(":core:data")
+include(":core:auth")
+include(":feature:login")
+include(":feature:home")
+include(":feature:dex")
+include(":feature:reward")
+include(":feature:map")
