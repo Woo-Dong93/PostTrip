@@ -16,9 +16,16 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url = java.net.URI("https://devrepo.kakao.com/nexus/content/groups/public/") }
     }
 }
 
 rootProject.name = "journeydex"
 include(":app")
- 
+include(":core:data")
+include(":core:auth")
+include(":feature:login")
+include(":feature:home")
+include(":feature:dex")
+include(":feature:reward")
+include(":feature:map")
