@@ -85,6 +85,10 @@ dependencies {
     implementation(libs.kakao.login)
 
     implementation(project(":feature:login"))
+    implementation(project(":feature:home"))
+    implementation(project(":feature:dex"))
+    implementation(project(":feature:map"))
+    implementation(project(":feature:reward"))
     implementation(project(":core:auth"))
 
 }
