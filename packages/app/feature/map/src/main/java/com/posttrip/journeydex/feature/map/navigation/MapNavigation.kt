@@ -1,7 +1,9 @@
 package com.posttrip.journeydex.feature.map.navigation
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
@@ -17,7 +19,9 @@ fun NavGraphBuilder.mapScreen() {
     composable(
         route = mapNavigationRoute
     ) {
-        Box{
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ){
             Text(text = mapNavigationRoute)
         }
     }
