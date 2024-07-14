@@ -35,6 +35,7 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.5"
@@ -53,6 +54,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.ui.viewbinding)
 
     //hilt
     implementation(libs.androidx.hilt.navigation.compose)
@@ -61,4 +63,8 @@ dependencies {
 
     //navigation-compose
     implementation(libs.androidx.navigation.compose)
+
+    //kakao-map
+    implementation(libs.kakao.map)
+
 }

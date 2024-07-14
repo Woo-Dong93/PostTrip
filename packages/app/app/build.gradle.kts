@@ -83,6 +83,7 @@ dependencies {
 
     //kakao
     implementation(libs.kakao.login)
+    implementation(libs.kakao.map)
 
     implementation(project(":feature:login"))
     implementation(project(":feature:home"))
