@@ -61,4 +61,7 @@ dependencies {
 
     //navigation-compose
     implementation(libs.androidx.navigation.compose)
+
+    implementation(project(":core:auth"))
+
 }

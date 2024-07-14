@@ -1,3 +1,5 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -19,6 +21,9 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+
+        buildConfigField("String", "KAKAO_APP_KEY", gradleLocalProperties(rootDir, providers).getProperty("KAKAO_APP_KEY"))
+
     }
 
     buildTypes {
@@ -75,4 +80,11 @@ dependencies {
 
     //navigation-compose
     implementation(libs.androidx.navigation.compose)
+
+    //kakao
+    implementation(libs.kakao.login)
+
+    implementation(project(":feature:login"))
+    implementation(project(":core:auth"))
+
 }
