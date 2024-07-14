@@ -31,6 +31,7 @@ androidx-compose-material = "1.6.8"
 ksp = "2.0.0-1.0.22"
 
 kakao-login = "2.20.1"
+kakao-map = "2.9.5"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -54,7 +55,7 @@ androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-ru
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle_version" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation-compose" }
 androidx-compose-material = { module = "androidx.compose.material:material" ,version.ref = "androidx-compose-material"  }
-
+androidx-ui-viewbinding = { group = "androidx.compose.ui", name = "ui-viewbinding"}
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hilt-navigation-compose" }
 
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt-android" }
@@ -62,7 +63,7 @@ hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hil
 hilt-core = { module = "com.google.dagger:hilt-core", version.ref = "hilt-compiler" }
 
 kakao-login = { module = "com.kakao.sdk:v2-user", version.ref = "kakao-login" }
-
+kakao-map = { module = "com.kakao.maps.open:android", version.ref = "kakao-map" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

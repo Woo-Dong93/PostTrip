@@ -1,5 +1,3 @@
-import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -83,8 +81,13 @@ dependencies {
 
     //kakao
     implementation(libs.kakao.login)
+    implementation(libs.kakao.map)
 
     implementation(project(":feature:login"))
+    implementation(project(":feature:home"))
+    implementation(project(":feature:dex"))
+    implementation(project(":feature:map"))
+    implementation(project(":feature:reward"))
     implementation(project(":core:auth"))
 
 }

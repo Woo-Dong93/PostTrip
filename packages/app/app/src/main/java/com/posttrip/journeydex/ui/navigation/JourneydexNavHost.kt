@@ -4,9 +4,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import com.posttrip.journeydex.core.auth.KakaoAuthHelper
-import com.posttrip.journeydex.feature.login.navigation.loginNavigationRoute
-import com.posttrip.journeydex.feature.login.navigation.loginScreen
+import com.posttrip.journeydex.feature.dex.navigation.dexScreen
+import com.posttrip.journeydex.feature.home.navigation.homeNavigationRoute
+import com.posttrip.journeydex.feature.home.navigation.homeScreen
+import com.posttrip.journeydex.feature.map.navigation.mapScreen
+import com.posttrip.journeydex.feature.reward.navigation.rewardScreen
 
 @Composable
 fun JourneydexNavHost(
@@ -16,8 +18,11 @@ fun JourneydexNavHost(
     NavHost(
         modifier = modifier,
         navController = navController,
-        startDestination = loginNavigationRoute
-    ){
-        loginScreen()
+        startDestination = homeNavigationRoute
+    ) {
+        homeScreen()
+        mapScreen()
+        dexScreen()
+        rewardScreen()
     }
 }
