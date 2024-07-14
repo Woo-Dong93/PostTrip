@@ -2,6 +2,7 @@ package com.posttrip.journeydex.feature.reward.navigation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
@@ -19,10 +20,12 @@ fun NavGraphBuilder.rewardScreen() {
     composable(
         route = rewardNavigationRoute
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ){
-            Text(text = rewardNavigationRoute)
+        Surface {
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Text(text = rewardNavigationRoute)
+            }
         }
     }
 }

@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -37,52 +38,56 @@ data class Mission(
 fun HomeScreen(
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(vertical = 24.dp, horizontal = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        item {
-            HomeCharacter()
-            HomeMission()
-        }
-        items(listOf(
-            Mission("숙박비 10% 쿠폰", "참여중"),
-            Mission("외식 10% 쿠폰", "완료"),
-            Mission("숙박비 50% 쿠폰", "미참여")
-        )){
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(40.dp),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Row(
+    Surface {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(vertical = 24.dp, horizontal = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            item {
+                HomeCharacter()
+                HomeMission()
+            }
+            items(listOf(
+                Mission("숙박비 10% 쿠폰", "참여중"),
+                Mission("외식 10% 쿠폰", "완료"),
+                Mission("숙박비 50% 쿠폰", "미참여")
+            )){
+                Card(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ){
-                    Text(
+                        .fillMaxWidth()
+                        .height(40.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Row(
                         modifier = Modifier
-                            .weight(1f)
-                            .wrapContentHeight(),
-                        text = it.title
-                    )
-                    Text(
-                        modifier = Modifier
-                            .weight(1f)
-                            .wrapContentHeight(),
-                        textAlign = TextAlign.End,
-                        text = it.title
-                    )
+                            .fillMaxSize()
+                            .padding(horizontal = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ){
+                        Text(
+                            modifier = Modifier
+                                .weight(1f)
+                                .wrapContentHeight(),
+                            text = it.title
+                        )
+                        Text(
+                            modifier = Modifier
+                                .weight(1f)
+                                .wrapContentHeight(),
+                            textAlign = TextAlign.End,
+                            text = it.title
+                        )
+                    }
                 }
             }
+            item {
+                HomeCourse()
+            }
         }
-        item {
-            HomeCourse()
-        }
+
     }
+
 }
 
 @Composable

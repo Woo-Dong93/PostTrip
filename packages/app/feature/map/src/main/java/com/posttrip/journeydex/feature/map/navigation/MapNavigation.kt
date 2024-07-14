@@ -8,6 +8,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import com.posttrip.journeydex.feature.map.MapScreen
 
 const val mapNavigationRoute = "map_route"
 
@@ -19,10 +20,6 @@ fun NavGraphBuilder.mapScreen() {
     composable(
         route = mapNavigationRoute
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ){
-            Text(text = mapNavigationRoute)
-        }
+        MapScreen()
     }
 }
