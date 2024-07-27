@@ -15,6 +15,9 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+        vectorDrawables {
+            useSupportLibrary = true
+        }
     }
 
     buildTypes {
@@ -39,6 +42,11 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.5"
     }
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
 }
 
 dependencies {
@@ -57,11 +65,15 @@ dependencies {
     //hilt
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
     ksp(libs.hilt.compiler)
 
     //navigation-compose
     implementation(libs.androidx.navigation.compose)
 
     implementation(project(":core:auth"))
-
+    implementation(libs.kakao.login)
 }
