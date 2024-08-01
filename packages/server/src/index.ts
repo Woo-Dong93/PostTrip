@@ -4,10 +4,12 @@ import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import Router from './routes';
 import { swaggerOptions } from './swagger';
+import { connectMongoDB } from './env';
 
 const PORT = process.env.PORT || 3000;
 
 const app: Application = express();
+connectMongoDB();
 
 const swaggerSpec = swaggerJSDoc(swaggerOptions);
 
