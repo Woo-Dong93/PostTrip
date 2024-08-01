@@ -10,11 +10,12 @@ const swaggerDefinition: swaggerJSDoc.SwaggerDefinition = {
       url: 'https://spdx.org/licenses/MIT.html',
     },
   },
+  openapi: '3.1.0',
 };
 
 const swaggerOptions = {
   swaggerDefinition,
-  apis: ['../routes/*.ts'],
+  apis: ['src/routes/*.ts'],
 };
 
 export default swaggerOptions;
