@@ -75,5 +75,6 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
 
     implementation(project(":core:auth"))
+    implementation(project(":core:data"))
     implementation(libs.kakao.login)
 }
