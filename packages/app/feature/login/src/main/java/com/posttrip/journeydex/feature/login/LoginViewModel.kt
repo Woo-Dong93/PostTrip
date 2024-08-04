@@ -1,30 +1,60 @@
 package com.posttrip.journeydex.feature.login
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.posttrip.journeydex.core.data.model.LoginBody
+import com.posttrip.journeydex.core.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-enum class LoginEvent {
-    Kakao_Login
+sealed class LoginEvent {
+    data object LoginByKakao : LoginEvent()
+    data class LoginSuccess(val needsOnboarding : Boolean) : LoginEvent()
 }
+
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val _loginEvent = MutableSharedFlow<LoginEvent>()
     val loginEvent : SharedFlow<LoginEvent> = _loginEvent.asSharedFlow()
 
+    fun login(
+        id : String,
+        nickname : String,
+        authProvider : AuthProvider
+    ){
+        viewModelScope.launch {
+            userRepository.login(
+                body = LoginBody(
+                    id = id,
+                    nickname = nickname,
+                    authProvider = authProvider.name
+                )
+            ).catch {
+
+            }.collect {
+                _loginEvent.emit(LoginEvent.LoginSuccess(it.onboarding.not()))
+            }
+        }
+    }
+
     fun updatedEvent(event : LoginEvent){
         viewModelScope.launch {
             _loginEvent.emit(event)
+        }
+    }
+
+    companion object {
+        enum class AuthProvider {
+            kakao
         }
     }
 }

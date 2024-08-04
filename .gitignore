@@ -1,0 +1,3 @@
+packages/server/node_modules
+packages/server/build
+packages/server/.env
