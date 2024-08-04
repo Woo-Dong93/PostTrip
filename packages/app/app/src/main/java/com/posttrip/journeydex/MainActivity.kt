@@ -23,10 +23,8 @@ class MainActivity : ComponentActivity() {
     private var resultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
             if(it.resultCode == Activity.RESULT_OK){
-                val nickname = it.data?.getStringExtra("nickname")
-                val uId = it.data?.getStringExtra("uId")
-                Toast.makeText(this, "nickname : ${nickname}, uId : $uId",Toast.LENGTH_SHORT).show()
-                viewModel.updateData(uId?.isNotBlank() == true)
+                val needsOnboarding = it.data?.getBooleanExtra("needsOnboarding",true) ?: true
+                viewModel.updateData(needsOnboarding)
             }
         }
 
@@ -37,11 +35,13 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         initObserver()
         setContent {
-            val isLogged by viewModel.isLogged.collectAsState()
-            if(isLogged){
+            val typeFromLogin by viewModel.typeFromLogin.collectAsState()
+            if(typeFromLogin != MainViewModel.Companion.TypeFromLogin.None){
                 JourneydexTheme {
                     JourneydexApp()
                 }
+            }else {
+
             }
 
         }
@@ -49,13 +49,12 @@ class MainActivity : ComponentActivity() {
 
     private fun initObserver(){
         lifecycleScope.launch {
-            viewModel.isLogged.collect {
-                if(!it){
+            viewModel.typeFromLogin .collect {
+                if(it == MainViewModel.Companion.TypeFromLogin.None){
                     val intent = Intent(this@MainActivity, LoginActivity::class.java)
                     resultLauncher.launch(intent)
                 }
             }
         }
     }
-
 }
