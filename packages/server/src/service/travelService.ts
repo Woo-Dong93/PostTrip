@@ -61,3 +61,61 @@ export const travelCourse = async (req: express.Request<{ id: string }, any, any
     res.status(500).json({ message: error.message });
   }
 };
+
+export const getTravelDetailCourse = async (
+  req: express.Request<{ contentId: string }, any, any>,
+  res: express.Response,
+) => {
+  try {
+    const { contentId } = req.params;
+
+    const result = await axios.get(
+      `${process.env.API_URL}/detailInfo1?MobileOS=AND&MobileApp=PostTrip&serviceKey=${process.env.API_KEY}&contentId=${contentId}&contentTypeId=25&_type=json`,
+    );
+
+    const course = result.data.response.body.items;
+
+    if (!course) {
+      return res.status(500).json({ message: 'course information not found' });
+    }
+
+    const courseDetailInfo = await Promise.all(
+      course.item.map(async (info: any) => {
+        const contentId = info.subcontentid;
+
+        try {
+          const info = await axios.get(
+            `${process.env.API_URL}/detailCommon1?MobileOS=AND&MobileApp=PostTrip&serviceKey=${process.env.API_KEY}&contentId=${contentId}&defaultYN=Y&overviewYN=Y&mapinfoYN=Y&addrinfoYN=Y&firstImageYN=Y&_type=json`,
+          );
+
+          if (!info.data.response.body.items) {
+            return null;
+          }
+
+          const { contentid, contenttypeid, title, firstimage, firstimage2, addr1, addr2, mapx, mapy, overview } =
+            info.data.response.body.items.item[0];
+
+          return {
+            contentId: contentid,
+            contentTypeId: contenttypeid,
+            title,
+            firstAddress: addr1,
+            secondAddress: addr2,
+            firstImage: firstimage,
+            secondImage: firstimage2,
+            x: mapx,
+            y: mapy,
+            overview,
+          };
+        } catch (error) {
+          return null;
+        }
+      }),
+    );
+
+    return res.status(200).json({ data: courseDetailInfo.filter(Boolean) });
+  } catch (error: any) {
+    console.log(error);
+    res.status(500).json({ message: error.message });
+  }
+};
