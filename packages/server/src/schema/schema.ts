@@ -46,3 +46,23 @@ export interface ICourse {
   destinationTypeKeyword?: string;
   travelTypeKeyword?: string;
 }
+
+export interface IOnboarding {
+  id: string;
+  keywords: {
+    travelStyleKeyword: string;
+    destinationTypeKeyword: string;
+    travelTypeKeyword: string;
+  };
+}
+
+const onboardingSchema = new Schema<IOnboarding>({
+  id: String,
+  keywords: {
+    travelStyleKeyword: String,
+    destinationTypeKeyword: String,
+    travelTypeKeyword: String,
+  },
+});
+
+export const Onboarding = mongoose.model('Onboarding', onboardingSchema);

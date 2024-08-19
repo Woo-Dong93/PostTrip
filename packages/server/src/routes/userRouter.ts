@@ -1,5 +1,5 @@
 import express from 'express';
-import { login } from '../service';
+import { login, saveOnboarding } from '../service';
 
 const router = express.Router();
 
@@ -50,5 +50,53 @@ const router = express.Router();
  *                  example: true
  */
 router.post('/login', login);
+
+/**
+ * @swagger
+ * /user/onboarding:
+ *  post:
+ *    summary: User Onboarding
+ *    tags: [User]
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              id:
+ *                type: string
+ *                example: "id"
+ *              keywords:
+ *                type: object
+ *                properties:
+ *                  travelStyleKeyword:
+ *                    type: string
+ *                  destinationTypeKeyword:
+ *                    type: string
+ *                  travelTypeKeyword:
+ *                    type: string
+ *    responses:
+ *      200:
+ *        description: 성공
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                id:
+ *                  type: string
+ *                  example: 'id'
+ *                keywords:
+ *                  type: object
+ *                  properties:
+ *                    travelStyleKeyword:
+ *                      type: string
+ *                    destinationTypeKeyword:
+ *                      type: string
+ *                    travelTypeKeyword:
+ *                      type: string
+ */
+router.post('/onboarding', saveOnboarding);
 
 export default router;
