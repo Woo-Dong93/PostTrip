@@ -142,21 +142,18 @@ router.get('/detail/:contentId', getTravelDetailCourse);
  *            schema:
  *              type: object
  *              properties:
- *                contentId:
- *                  type: string
- *                  example: 'contentId'
- *                contentTypeId:
- *                  type: string
- *                  example: 'contentId'
- *                title:
- *                  type: string
- *                  example: 'title'
  *                firstAddress:
  *                  type: string
  *                  example: 'firstAddress'
  *                secondAddress:
  *                  type: string
  *                  example: 'secondAddress'
+ *                areaCode:
+ *                  type: string
+ *                  example: 'areaCode'
+ *                contentId:
+ *                  type: string
+ *                  example: 'contentId'
  *                firstImage:
  *                  type: string
  *                  example: 'firstImage'
@@ -169,9 +166,18 @@ router.get('/detail/:contentId', getTravelDetailCourse);
  *                y:
  *                  type: string
  *                  example: 'y'
- *                overview:
+ *                title:
  *                  type: string
- *                  example: 'overview'
+ *                  example: 'title'
+ *                travelStyleKeyword:
+ *                  type: string
+ *                  example: 'travelStyleKeyword'
+ *                destinationTypeKeyword:
+ *                  type: string
+ *                  example: 'destinationTypeKeyword'
+ *                travelTypeKeyword:
+ *                  type: string
+ *                  example: 'travelTypeKeyword'
  */
 router.get('/course/recommended/:id', getRecommendedCourse);
 
