@@ -1,5 +1,5 @@
 import express from 'express';
-import { getTravelDetailCourse, travelCourse } from '../service';
+import { getRecommendedCourse, getTravelDetailCourse, travelCourse } from '../service';
 
 const router = express.Router();
 
@@ -121,5 +121,58 @@ router.get('/course/:id', travelCourse);
  *                  example: 'overview'
  */
 router.get('/detail/:contentId', getTravelDetailCourse);
+
+/**
+ * @swagger
+ * /travel/course/recommended/{id}:
+ *  get:
+ *    summary: Recommended Course
+ *    tags: [Travel]
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        required: true
+ *        schema:
+ *          type: string
+ *    responses:
+ *      200:
+ *        description: 성공
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                contentId:
+ *                  type: string
+ *                  example: 'contentId'
+ *                contentTypeId:
+ *                  type: string
+ *                  example: 'contentId'
+ *                title:
+ *                  type: string
+ *                  example: 'title'
+ *                firstAddress:
+ *                  type: string
+ *                  example: 'firstAddress'
+ *                secondAddress:
+ *                  type: string
+ *                  example: 'secondAddress'
+ *                firstImage:
+ *                  type: string
+ *                  example: 'firstImage'
+ *                secondImage:
+ *                  type: string
+ *                  example: 'secondImage'
+ *                x:
+ *                  type: string
+ *                  example: 'x'
+ *                y:
+ *                  type: string
+ *                  example: 'y'
+ *                overview:
+ *                  type: string
+ *                  example: 'overview'
+ */
+router.get('/course/recommended/:id', getRecommendedCourse);
 
 export default router;
