@@ -132,7 +132,7 @@ export const getRecommendedCourse = async (req: express.Request<{ id: string }, 
     const onboarding = await Onboarding.findOne({ id: userId });
 
     if (!onboarding) {
-      return res.status(500).json({ message: 'Onboarding already exists' });
+      return res.status(500).json({ message: 'Onboarding does not exist' });
     }
 
     const {
