@@ -30,7 +30,7 @@ const travelStyleKeywords = ['healing', 'culture', 'gourmet', 'activity'];
 const destinationTypeKeywords = ['beach', 'mountain', 'city', 'island'];
 const travelTypeKeywords = ['solo', 'family', 'couple', 'friends'];
 
-const validateKeywords = (keywords: IOnboarding['keywords']) => {
+export const validateKeywords = (keywords: IOnboarding['keywords']) => {
   const { travelStyleKeyword, destinationTypeKeyword, travelTypeKeyword } = keywords;
 
   const isValidTravelStyle = travelStyleKeywords.includes(travelStyleKeyword);
