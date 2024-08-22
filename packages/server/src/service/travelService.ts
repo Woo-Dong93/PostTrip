@@ -1,5 +1,5 @@
 import express from 'express';
-import { ICourse, User, Course, ICourseKey, Onboarding } from '../schema';
+import { ICourse, User, Course, ICourseKey, Onboarding, IOnboarding } from '../schema';
 const axios = require('axios');
 
 export const travelCourse = async (req: express.Request<{ id: string }, any, any>, res: express.Response) => {
@@ -229,6 +229,123 @@ export const getRecommendedCourse = async (req: express.Request<{ id: string }, 
       .filter((course) => course);
 
     return res.status(200).json({ data: courseList });
+  } catch (error: any) {
+    console.log(error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const travelStyleKeywords = ['', 'healing', 'culture', 'gourmet', 'activity'];
+const destinationTypeKeywords = ['', 'beach', 'mountain', 'city', 'island'];
+const travelTypeKeywords = ['', 'solo', 'family', 'couple', 'friends'];
+
+const validateKeywords = (keywords: IOnboarding['keywords']) => {
+  const { travelStyleKeyword, destinationTypeKeyword, travelTypeKeyword } = keywords;
+
+  const isValidTravelStyle = travelStyleKeywords.includes(travelStyleKeyword);
+  const isValidDestinationType = destinationTypeKeywords.includes(destinationTypeKeyword);
+  const isValidTravelType = travelTypeKeywords.includes(travelTypeKeyword);
+
+  return isValidTravelStyle && isValidDestinationType && isValidTravelType;
+};
+
+const filterCourses = (courseList: ICourse[], keywords: IOnboarding['keywords']) => {
+  return courseList.filter((course) => {
+    const isTravelStyleMatch =
+      keywords.travelStyleKeyword && course.travelStyleKeyword
+        ? course.travelStyleKeyword.includes(keywords.travelStyleKeyword)
+        : true;
+
+    const isDestinationTypeMatch =
+      keywords.destinationTypeKeyword && course.destinationTypeKeyword
+        ? course.destinationTypeKeyword.includes(keywords.destinationTypeKeyword)
+        : true;
+
+    const isTravelTypeMatch =
+      keywords.travelTypeKeyword && course.travelTypeKeyword
+        ? course.travelTypeKeyword.includes(keywords.travelTypeKeyword)
+        : true;
+
+    return isTravelStyleMatch && isDestinationTypeMatch && isTravelTypeMatch;
+  });
+};
+
+export const getTypeBasedCourse = async (
+  req: express.Request<
+    { id: string },
+    any,
+    { travelStyleKeyword: string; destinationTypeKeyword: string; travelTypeKeyword: string; area: string }
+  >,
+  res: express.Response,
+) => {
+  try {
+    const { id: userId } = req.params;
+    const { area, travelStyleKeyword, destinationTypeKeyword, travelTypeKeyword } = req.body;
+    const userExisted = await User.findOne({ id: userId });
+
+    if (!userExisted) {
+      return res.status(500).json({ message: 'User information not found' });
+    }
+
+    if (!validateKeywords({ travelStyleKeyword, destinationTypeKeyword, travelTypeKeyword })) {
+      return res.status(500).json({ message: 'Invalid travelStyleKeyword' });
+    }
+
+    const result = await axios.get(
+      `${process.env.API_URL}/areaBasedList1?MobileOS=AND&MobileApp=Journeydex&serviceKey=${process.env.API_KEY}&contentTypeId=25&_type=json&numOfRows=1070&areaCode=${area}`,
+    );
+
+    if (!result.data.response.body.items) {
+      return res.status(500).json({ message: 'No data available' });
+    }
+
+    const originCourseList: ICourse[] = result.data.response.body.items.item.map((item: any) => {
+      return {
+        firstAddress: item.addr1,
+        secondAddress: item.addr2,
+        areaCode: item.areacode,
+        contentId: item.contentid,
+        firstImage: item.firstimage,
+        secondImage: item.firstimage2,
+        x: item.mapx,
+        y: item.mapy,
+        title: item.title,
+      };
+    });
+
+    const contentIds = originCourseList.map((course) => {
+      return course.contentId;
+    });
+
+    const existedCourseKeyword: ICourseKey[] = await Course.find({ contentId: { $in: contentIds } });
+    const contentIdMap = existedCourseKeyword.reduce<{ [ket in string]: Omit<ICourseKey, 'contentId'> }>(
+      (map, courseKeyword) => {
+        const { contentId, travelStyleKeyword, destinationTypeKeyword, travelTypeKeyword } = courseKeyword;
+        return {
+          ...map,
+          [contentId]: {
+            travelStyleKeyword,
+            destinationTypeKeyword,
+            travelTypeKeyword,
+          },
+        };
+      },
+      {},
+    );
+
+    const courseList = originCourseList
+      .map((course) => {
+        return Boolean(contentIdMap[course.contentId]) ? { ...course, ...contentIdMap[course.contentId] } : false;
+      })
+      .filter((course) => course) as ICourse[];
+
+    const filteredCourses = filterCourses(courseList, {
+      travelStyleKeyword,
+      destinationTypeKeyword,
+      travelTypeKeyword,
+    });
+
+    return res.status(200).json({ data: filteredCourses });
   } catch (error: any) {
     console.log(error);
     res.status(500).json({ message: error.message });
