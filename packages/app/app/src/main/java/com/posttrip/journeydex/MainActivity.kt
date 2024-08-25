@@ -33,16 +33,19 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        initObserver()
+       // initObserver()
         setContent {
-            val typeFromLogin by viewModel.typeFromLogin.collectAsState()
-            if(typeFromLogin != MainViewModel.Companion.TypeFromLogin.None){
-                JourneydexTheme {
-                    JourneydexApp()
-                }
-            }else {
-
+            JourneydexTheme {
+                JourneydexApp()
             }
+//            val typeFromLogin by viewModel.typeFromLogin.collectAsState()
+//            if(typeFromLogin != MainViewModel.Companion.TypeFromLogin.None){
+//                JourneydexTheme {
+//                    JourneydexApp()
+//                }
+//            }else {
+//
+//            }
 
         }
     }
