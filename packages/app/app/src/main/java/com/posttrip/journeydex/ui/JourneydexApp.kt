@@ -32,34 +32,49 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.posttrip.journeydex.MainViewModel
+import com.posttrip.journeydex.MainViewModel.Companion.TypeFromLogin
+import com.posttrip.journeydex.Onboarding
+import com.posttrip.journeydex.OnboardingScreen
 import com.posttrip.journeydex.ui.navigation.JourneydexNavHost
 import com.posttrip.journeydex.ui.navigation.TopLevelDestination
 
 @Composable
-fun JourneydexApp() {
-    val navController = rememberNavController()
+fun JourneydexApp(
+    typeFromLogin : TypeFromLogin,
+    onTypeFormLoginChanged : (TypeFromLogin) -> Unit
+) {
+    if (typeFromLogin == MainViewModel.Companion.TypeFromLogin.None) {
+        OnboardingScreen()
+    } else {
+        val navController = rememberNavController()
 
-    Scaffold(
-        bottomBar = {
-            JourneydexBottomBar(
-                destinations = TopLevelDestination.entries,
-                currentDestination = navController.currentBackStackEntryAsState().value?.destination,
-                onNavigateToDestination = {
-                    navController.navigate(it.route)
-                }
-            )
-        }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-            JourneydexNavHost(
-                navController = navController,
-            )
+        Scaffold(
+            bottomBar = {
+                JourneydexBottomBar(
+                    destinations = TopLevelDestination.entries,
+                    currentDestination = navController.currentBackStackEntryAsState().value?.destination,
+                    onNavigateToDestination = {
+                        navController.navigate(it.route)
+                    }
+                )
+            }
+        ) { padding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+            ) {
+                JourneydexNavHost(
+                    navController = navController,
+                )
+            }
         }
     }
+
+
+
+
 }
 
 @Composable

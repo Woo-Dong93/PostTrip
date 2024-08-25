@@ -9,6 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -22,47 +23,36 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private var resultLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
-            if(it.resultCode == Activity.RESULT_OK){
-                val needsOnboarding = it.data?.getBooleanExtra("needsOnboarding",true) ?: true
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == Activity.RESULT_OK) {
+                val needsOnboarding = it.data?.getBooleanExtra("needsOnboarding", true) ?: true
                 viewModel.updateData(needsOnboarding)
             }
         }
 
-    private val viewModel : MainViewModel by viewModels()
+    private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        initObserver()
+      //  initObserver()
         setContent {
             val typeFromLogin by viewModel.typeFromLogin.collectAsState()
-            val step by viewModel.step.collectAsState()
+            JourneydexTheme {
+                JourneydexApp(
+                    typeFromLogin = typeFromLogin,
+                    onTypeFormLoginChanged = {
 
-            if(typeFromLogin != MainViewModel.Companion.TypeFromLogin.None){
-                JourneydexTheme {
-                    if (step <= 3) {
-                        Onboarding(
-                            step = step,
-                            onClick = {
-                                viewModel.updateStep(step + 1)
-                            },
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    } else {
-                        JourneydexApp()
                     }
-                }
-            }else {
-
+                )
             }
         }
     }
 
-    private fun initObserver(){
+    private fun initObserver() {
         lifecycleScope.launch {
-            viewModel.typeFromLogin .collect {
-                if(it == MainViewModel.Companion.TypeFromLogin.None){
+            viewModel.typeFromLogin.collect {
+                if (it == MainViewModel.Companion.TypeFromLogin.None) {
                     val intent = Intent(this@MainActivity, LoginActivity::class.java)
                     resultLauncher.launch(intent)
                 }

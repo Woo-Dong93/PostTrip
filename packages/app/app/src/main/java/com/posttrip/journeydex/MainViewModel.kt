@@ -17,18 +17,12 @@ class MainViewModel @Inject constructor(
     private val _typeFromLogin = MutableStateFlow<TypeFromLogin>(TypeFromLogin.None)
     val typeFromLogin : StateFlow<TypeFromLogin> = _typeFromLogin.asStateFlow()
 
-    var step = MutableStateFlow(0)
 
     fun updateData(needsOnboarding : Boolean){
         viewModelScope.launch {
             _typeFromLogin.emit(
                 if(needsOnboarding) TypeFromLogin.NeedsOnboarding else TypeFromLogin.GoToHome
             )
-        }
-    }
-    fun updateStep(data : Int){
-        viewModelScope.launch {
-            step.emit(data)
         }
     }
     companion object {
