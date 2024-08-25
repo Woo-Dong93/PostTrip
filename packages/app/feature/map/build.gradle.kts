@@ -67,4 +67,6 @@ dependencies {
     //kakao-map
     implementation(libs.kakao.map)
 
+    implementation(project(":core:data"))
+
 }

@@ -2,6 +2,7 @@ package com.posttrip.journeydex.core.data.di
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.posttrip.journeydex.core.data.BuildConfig
+import com.posttrip.journeydex.core.data.api.TravelService
 import com.posttrip.journeydex.core.data.api.UserService
 import dagger.Module
 import dagger.Provides
@@ -24,6 +25,7 @@ object NetworkModule {
     @Singleton
     fun providesNetworkJson(): Json = Json {
         ignoreUnknownKeys = true
+        coerceInputValues = true
     }
 
     @Provides
@@ -39,6 +41,13 @@ object NetworkModule {
     fun provideUserService(retrofit: Retrofit): UserService =
         retrofit.create(
             UserService::class.java
+        )
+
+    @Singleton
+    @Provides
+    fun provideTravelService(retrofit: Retrofit) : TravelService =
+        retrofit.create(
+            TravelService::class.java
         )
 
     @Singleton
