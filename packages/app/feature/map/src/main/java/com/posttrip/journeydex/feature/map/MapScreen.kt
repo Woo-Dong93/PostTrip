@@ -44,10 +44,10 @@ fun MapScreen(
         y: Double
     ) {
         kakaoMap?.let { kakaoMap ->
-            val styles =
-                kakaoMap.labelManager?.addLabelStyles(LabelStyles.from(LabelStyle.from(com.posttrip.journeydex.feature.map.R.drawable.pin)))
-            val options = LabelOptions.from(LatLng.from(y,x)).setStyles(styles)
-            kakaoMap.labelManager?.layer?.addLabel(options)
+//            val styles =
+//                kakaoMap.labelManager?.addLabelStyles(LabelStyles.from(LabelStyle.from(com.posttrip.journeydex.feature.map.R.drawable.pin)))
+//            val options = LabelOptions.from(LatLng.from(y,x)).setStyles(styles)
+//            kakaoMap.labelManager?.layer?.addLabel(options)
 
         }
     }
