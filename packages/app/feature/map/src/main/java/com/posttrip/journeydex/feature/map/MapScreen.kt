@@ -1,7 +1,5 @@
 package com.posttrip.journeydex.feature.map
 
-import android.R
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -45,7 +43,7 @@ fun MapScreen(
     ) {
         kakaoMap?.let { kakaoMap ->
 //            val styles =
-//                kakaoMap.labelManager?.addLabelStyles(LabelStyles.from(LabelStyle.from(com.posttrip.journeydex.feature.map.R.drawable.pin)))
+//                kakaoMap.labelManager?.addLabelStyles(LabelStyles.from(LabelStyle.from(R.drawable.pin)))
 //            val options = LabelOptions.from(LatLng.from(y,x)).setStyles(styles)
 //            kakaoMap.labelManager?.layer?.addLabel(options)
 
@@ -69,7 +67,7 @@ fun MapScreen(
     }
 
     LaunchedEffect(key1 = Unit) {
-        viewModel.getCourse("3626185165")
+        viewModel.getCourse("")
     }
 
     LaunchedEffect(key1 = course) {

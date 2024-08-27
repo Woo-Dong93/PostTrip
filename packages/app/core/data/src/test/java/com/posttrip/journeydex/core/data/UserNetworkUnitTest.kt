@@ -3,7 +3,7 @@ package com.posttrip.journeydex.core.data
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.posttrip.journeydex.core.data.api.UserService
-import com.posttrip.journeydex.core.data.model.LoginBody
+import com.posttrip.journeydex.core.data.model.user.LoginBody
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType

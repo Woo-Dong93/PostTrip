@@ -36,17 +36,24 @@ import com.posttrip.journeydex.MainViewModel
 import com.posttrip.journeydex.MainViewModel.Companion.TypeFromLogin
 import com.posttrip.journeydex.Onboarding
 import com.posttrip.journeydex.OnboardingScreen
+import com.posttrip.journeydex.core.data.model.response.LoginData
 import com.posttrip.journeydex.ui.navigation.JourneydexNavHost
 import com.posttrip.journeydex.ui.navigation.TopLevelDestination
 
 @Composable
 fun JourneydexApp(
     typeFromLogin : TypeFromLogin,
+    loginData : LoginData,
     onTypeFormLoginChanged : (TypeFromLogin) -> Unit
 ) {
-    if (typeFromLogin == MainViewModel.Companion.TypeFromLogin.None) {
-        OnboardingScreen()
-    } else {
+    if (typeFromLogin == MainViewModel.Companion.TypeFromLogin.NeedsOnboarding) {
+        OnboardingScreen(
+            loginData = loginData,
+            onSetOnboarding = {
+                onTypeFormLoginChanged(TypeFromLogin.GoToHome)
+            }
+        )
+    } else if(typeFromLogin == MainViewModel.Companion.TypeFromLogin.GoToHome){
         val navController = rememberNavController()
 
         Scaffold(

@@ -1,4 +1,4 @@
-package com.posttrip.journeydex.core.data.model
+package com.posttrip.journeydex.core.data.model.response
 
 import kotlinx.serialization.Serializable
 

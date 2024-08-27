@@ -23,15 +23,15 @@ class MapViewModel @Inject constructor(
     var cachecd : List<Course> = emptyList()
 
     fun getCourse(id : String) {
-         viewModelScope.launch {
-             travelRepository.getCourse(id)
-                 .catch {
+        viewModelScope.launch {
+            travelRepository.getCourse(id)
+                .catch {
 
-                 }.collect {
-                     _courses.emit(it.courses)
-                     cachecd = it.courses
-                 }
-         }
+                }.collect {
+                    _courses.emit(it.courses)
+                    cachecd = it.courses
+                }
+        }
     }
 
     fun getCourseDetail(contentId : String) {
