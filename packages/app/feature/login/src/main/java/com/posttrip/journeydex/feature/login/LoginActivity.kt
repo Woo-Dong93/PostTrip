@@ -53,6 +53,8 @@ class LoginActivity : ComponentActivity() {
                     }
                     is LoginEvent.LoginSuccess -> {
                         intent.putExtra("needsOnboarding", it.needsOnboarding)
+                        intent.putExtra("nickname", it.nickname)
+                        intent.putExtra("id", it.id)
                         setResult(RESULT_OK, intent)
                         finish()
                     }

@@ -1,4 +1,4 @@
-package com.posttrip.journeydex.core.data.model
+package com.posttrip.journeydex.core.data.model.user
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

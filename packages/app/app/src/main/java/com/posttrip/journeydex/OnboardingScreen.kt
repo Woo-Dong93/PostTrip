@@ -19,6 +19,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -31,28 +32,46 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.posttrip.journeydex.core.data.model.response.LoginData
 import com.posttrip.journeydex.model.OnboardingStepModel
 import com.posttrip.journeydex.ui.JourneydexApp
 
 @Composable
 fun OnboardingScreen(
     modifier: Modifier = Modifier,
+    onSetOnboarding : () -> Unit,
+    loginData : LoginData,
     viewModel: OnboardingViewModel = hiltViewModel()
 ) {
     val step by viewModel.onboardingStep.collectAsState()
+
+    LaunchedEffect(key1 = Unit) {
+        viewModel.event.collect {
+            onSetOnboarding()
+        }
+    }
     Onboarding(
         step = step,
         onClick = {
-            viewModel.updateStepIndex(
-                step.index + 1
-            )
+            if (step.index <= 1) {
+                viewModel.updateStepIndex(
+                    step.index + 1
+                )
+            } else if (step.index == 2 &&
+                step.style.isNotEmpty() &&
+                step.type.isNotEmpty() &&
+                step.destination.isNotEmpty()
+            ) {
+                viewModel.setOnboarding(loginData.id)
+            }
+
         },
         onClickCard = {
-            if(step.index == 0){
+            if (step.index == 0) {
                 viewModel.updateStepStyle(it)
-            }else if(step.index == 1){
+            } else if (step.index == 1) {
                 viewModel.updateStepDestination(it)
-            }else {
+            } else {
                 viewModel.updateStepType(it)
             }
         },
@@ -65,7 +84,7 @@ fun OnboardingScreen(
 fun Onboarding(
     step: OnboardingStepModel,
     onClick: () -> Unit,
-    onClickCard : (String) -> Unit,
+    onClickCard: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -216,7 +235,7 @@ fun NextButton(
 @Composable
 fun OnboardingCard(
     step: OnboardingStepModel,
-    index : Int,
+    index: Int,
     onClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -239,7 +258,7 @@ fun OnboardingCard(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = 8.dp)
-        ){
+        ) {
             CardText(
                 text = text,
                 selected = step.isSelected(
@@ -255,7 +274,7 @@ fun OnboardingCard(
 @Composable
 fun CardText(
     text: String,
-    selected : Boolean
+    selected: Boolean
 ) {
-    Text(text = text + if(selected) " O" else "")
+    Text(text = text + if (selected) " O" else "")
 }
