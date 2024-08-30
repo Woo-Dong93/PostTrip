@@ -73,7 +73,7 @@ router.get('/course/:id', travelCourse);
  * @swagger
  * /travel/detail/{contentId}:
  *  get:
- *    summary: Travel Course
+ *    summary: Travel Detail Course
  *    tags: [Travel]
  *    parameters:
  *      - in: path
@@ -178,6 +178,9 @@ router.get('/detail/:contentId', getTravelDetailCourse);
  *                travelTypeKeyword:
  *                  type: string
  *                  example: 'travelTypeKeyword'
+ *                favorite:
+ *                  type: boolean
+ *                  example: true / false
  */
 router.get('/course/recommended/:id', getRecommendedCourse);
 
