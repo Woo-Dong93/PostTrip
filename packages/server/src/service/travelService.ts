@@ -1,5 +1,5 @@
 import express from 'express';
-import { ICourse, User, Course, ICourseKey, Onboarding, IOnboarding } from '../schema';
+import { ICourse, User, Course, ICourseKey, Onboarding, IOnboarding, Favorite } from '../schema';
 const axios = require('axios');
 
 export const travelCourse = async (req: express.Request<{ id: string }, any, any>, res: express.Response) => {
@@ -226,9 +226,18 @@ export const getRecommendedCourse = async (req: express.Request<{ id: string }, 
       .map((course) => {
         return Boolean(contentIdMap[course.contentId]) ? { ...course, ...contentIdMap[course.contentId] } : false;
       })
-      .filter((course) => course);
+      .filter((course) => course) as ICourse[];
 
-    return res.status(200).json({ data: courseList });
+    const contentIds = courseList.map((course) => course.contentId);
+    const favorites = await Favorite.find({ id: userId, contentId: { $in: contentIds } });
+    const favoriteContentIds = new Set(favorites.map((favorite) => favorite.contentId));
+
+    const courseListByFavorite = courseList.map((course) => ({
+      ...course,
+      favorite: favoriteContentIds.has(course.contentId),
+    }));
+
+    return res.status(200).json({ data: courseListByFavorite });
   } catch (error: any) {
     console.log(error);
     res.status(500).json({ message: error.message });

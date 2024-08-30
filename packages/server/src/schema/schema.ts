@@ -45,6 +45,7 @@ export interface ICourse {
   travelStyleKeyword?: string;
   destinationTypeKeyword?: string;
   travelTypeKeyword?: string;
+  favorite?: boolean;
 }
 
 export interface IOnboarding {
@@ -66,3 +67,15 @@ const onboardingSchema = new Schema<IOnboarding>({
 });
 
 export const Onboarding = mongoose.model('Onboarding', onboardingSchema);
+
+export interface IFavorite {
+  id: string;
+  contentId: string;
+}
+
+const favoriteSchema = new Schema<IFavorite>({
+  id: String,
+  contentId: String,
+});
+
+export const Favorite = mongoose.model('Favorite', favoriteSchema);
