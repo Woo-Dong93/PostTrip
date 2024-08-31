@@ -16,5 +16,6 @@ data class Course(
     val travelTypeKeyword: String = "",
     val x: String = "",
     val y: String = "",
-    val isDetail : Boolean = false
+    val isDetail : Boolean = false,
+    val favorite : Boolean
 )

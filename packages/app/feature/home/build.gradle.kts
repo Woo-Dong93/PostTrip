@@ -57,8 +57,11 @@ dependencies {
     //hilt
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
+    implementation(project(":core:data"))
     ksp(libs.hilt.compiler)
 
     //navigation-compose
     implementation(libs.androidx.navigation.compose)
+
+    implementation(libs.coil.compose)
 }

@@ -7,167 +7,224 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
+import com.posttrip.journeydex.core.data.model.travel.Course
 
-data class Mission(
-    val title : String,
-    val state : String
-)
 
 @Composable
 fun HomeScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: HomeViewModel = hiltViewModel()
 ) {
-    Surface {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(vertical = 24.dp, horizontal = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+    val recommendedCourse by viewModel.courses.collectAsStateWithLifecycle()
+
+    LaunchedEffect(key1 = Unit) {
+        viewModel.getRecommendedCourse("")
+    }
+
+    HomeScreen(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color(0xFFFaFaFa)),
+        recommendedCourse = recommendedCourse,
+        onFavoriteClick = {
+            viewModel.favoriteCourse("",it)
+        }
+    )
+}
+
+@Composable
+fun HomeScreen(
+    recommendedCourse: List<Course>,
+    onFavoriteClick: (Course) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        UserProfileSection(name = "WWWWWWWWWW 님")
+        Spacer(modifier = Modifier.height(16.dp))
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            contentPadding = PaddingValues(8.dp),
         ) {
-            item {
-                HomeCharacter()
-                HomeMission()
-            }
-            items(listOf(
-                Mission("숙박비 10% 쿠폰", "참여중"),
-                Mission("외식 10% 쿠폰", "완료"),
-                Mission("숙박비 50% 쿠폰", "미참여")
-            )){
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(40.dp),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ){
-                        Text(
-                            modifier = Modifier
-                                .weight(1f)
-                                .wrapContentHeight(),
-                            text = it.title
-                        )
-                        Text(
-                            modifier = Modifier
-                                .weight(1f)
-                                .wrapContentHeight(),
-                            textAlign = TextAlign.End,
-                            text = it.title
-                        )
-                    }
+            item(span = {
+                GridItemSpan(2)
+            }) {
+                Column {
+                    MissionCouponSection()
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(text = "추천 여행 코스", fontSize = 16.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+
                 }
             }
-            item {
-                HomeCourse()
+
+            items(recommendedCourse) { course ->
+                TravelCourseItem(
+                    course = course,
+                    onFavoriteClick = onFavoriteClick
+                )
             }
         }
-
     }
-
 }
 
 @Composable
-fun HomeCharacter() {
+fun UserProfileSection(name: String) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(32.dp, Alignment.CenterHorizontally),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Box(
-            modifier = Modifier
-                .wrapContentHeight()
-                .weight(1f),
-            contentAlignment = Alignment.Center
-        ){
-            Spacer(modifier = Modifier
-                .size(90.dp)
-                .clip(CircleShape)
-                .background(Color.Gray)
-            )
+        Spacer(modifier = Modifier.width(16.dp))
+        Column {
+            Text(text = "$name 안녕하세요!", fontSize = 24.sp)
+            Text(text = "저니넥스에 오신 것을 환영해요!", fontSize = 12.sp)
         }
-
-        Text(
-            modifier = Modifier
-                .wrapContentHeight()
-                .weight(1f),
-            text = "대표 캐릭터명"
-        )
     }
 }
 
 @Composable
-fun HomeMission(){
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 32.dp)
-    ){
+fun MissionCouponSection() {
+    Column {
         Row(
             modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
-        ){
-            Text(
-                modifier = Modifier
-                    .wrapContentHeight()
-                    .weight(1f),
-                text = "미션하고 혜택받기",
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                modifier = Modifier
-                    .wrapContentHeight()
-                    .weight(1f),
-                text = "전체보기",
-                textAlign = TextAlign.End
-            )
+        ) {
+            Text(text = "미션 쿠폰", fontSize = 16.sp)
+            Text(text = "전체보기", color = Color.Gray, fontSize = 12.sp)
         }
+        Spacer(modifier = Modifier.height(8.dp))
+        CouponItem(couponName = "○○리조트 10% 쿠폰", status = "사용하기", statusColor = Color(0xFFFFC8D5))
+        CouponItem(couponName = "○○리조트 10% 쿠폰", status = "참여중", statusColor = Color(0xFFAEF4A9))
+        CouponItem(couponName = "○○리조트 10% 쿠폰", status = "참여하기", statusColor = Color(0xFFADDCFF))
+    }
+}
+
+@Composable
+fun CouponItem(couponName: String, status: String, statusColor: Color) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .background(Color.White, shape = RoundedCornerShape(8.dp))
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = couponName)
         Text(
-            modifier = Modifier.padding(top = 8.dp),
-            text = "인기 미션",
+            text = status,
+            color = Color.Black,
+            fontSize = 12.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .background(statusColor, shape = RoundedCornerShape(4.dp))
+                .width(62.dp)
+                .padding(horizontal = 4.dp, vertical = 4.dp)
         )
     }
 }
 
 @Composable
-fun HomeCourse(){
-    Column(
+fun TravelCourseItem(
+    course: Course,
+    onFavoriteClick: (Course) -> Unit
+) {
+    Card(
         modifier = Modifier
-            .fillMaxWidth()
-    ){
-        Text(
-            modifier = Modifier
-                .wrapContentHeight()
-                .weight(1f),
-            text = "나의 여행 코스",
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            modifier = Modifier.padding(top = 8.dp),
-            text = "OOO를 위한 추천 코스"
-        )
+            .padding(8.dp)
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+    ) {
+        Box {
+            AsyncImage(
+                modifier = Modifier
+                    .height(150.dp)
+                    .fillMaxWidth(),
+                contentScale = ContentScale.Crop,
+                model = course.firstImage,
+                contentDescription = null
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.4f))
+            )
+            Text(
+                text = course.title,
+                color = Color.White,
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(8.dp)
+            )
+            IconButton(
+                onClick = {
+                    onFavoriteClick(course)
+                },
+                modifier = Modifier.align(Alignment.TopEnd)
+            ) {
+                if (course.favorite) {
+                    Icon(
+                        imageVector = Icons.Default.Favorite,
+                        contentDescription = "Favorite",
+                        tint = Color.White
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.FavoriteBorder,
+                        contentDescription = "Favorite",
+                        tint = Color.White
+                    )
+                }
+
+            }
+        }
     }
 }
+
+data class TravelCourse(val name: String, val imageResId: Int)
+

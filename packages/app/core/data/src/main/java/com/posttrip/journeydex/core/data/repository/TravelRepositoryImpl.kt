@@ -1,6 +1,7 @@
 package com.posttrip.journeydex.core.data.repository
 
 import com.posttrip.journeydex.core.data.api.TravelService
+import com.posttrip.journeydex.core.data.model.request.FavoriteCourse
 import com.posttrip.journeydex.core.data.model.response.CourseList
 import com.posttrip.journeydex.core.data.model.travel.Course
 import com.posttrip.journeydex.core.data.util.handleApi
@@ -16,5 +17,17 @@ class TravelRepositoryImpl @Inject constructor(
 
     override fun getCourseDetail(contentId: String): Flow<CourseList> = handleApi {
         travelService.getCourseDetail(contentId)
+    }
+
+    override fun getRecommendedCourse(id: String): Flow<CourseList> = handleApi {
+        travelService.getRecommendedCourse(id)
+    }
+
+    override fun likeCourse(favoriteCourse: FavoriteCourse): Flow<FavoriteCourse> = handleApi {
+        travelService.likeCourse(favoriteCourse)
+    }
+
+    override fun unlikeCourse(favoriteCourse: FavoriteCourse): Flow<FavoriteCourse> = handleApi {
+        travelService.unlikeCourse(favoriteCourse)
     }
 }
