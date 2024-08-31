@@ -70,6 +70,7 @@ okhttp3 = { module = "com.squareup.okhttp3:okhttp" , version.ref = "okhttp3" }
 okhttp3-logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor" , version.ref = "okhttp3" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json" , version.ref = "kotlinx-serialization-json" }
 retrofit2-kotlinx-serialization-converter = { module = "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter" , version.ref = "retrofit2-kotlinx-serialization-converter" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil-compose" }
 
 
 [plugins]
