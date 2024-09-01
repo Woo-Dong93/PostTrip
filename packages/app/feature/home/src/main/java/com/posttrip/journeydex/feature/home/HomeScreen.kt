@@ -1,65 +1,78 @@
 package com.posttrip.journeydex.feature.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.posttrip.journeydex.core.data.model.response.CourseList
 import com.posttrip.journeydex.core.data.model.travel.Course
+import com.posttrip.journeydex.feature.home.component.CourseDetailBottomSheet
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val recommendedCourse by viewModel.courses.collectAsStateWithLifecycle()
+    var courseList by remember { mutableStateOf<CourseList?>(null) }
 
     LaunchedEffect(key1 = Unit) {
         viewModel.getRecommendedCourse("")
+    }
+    
+    LaunchedEffect(key1 = Unit) {
+        viewModel.courseDetail.collect {
+            courseList = it
+        }
+    }
+
+    if(courseList != null ){
+        CourseDetailBottomSheet(
+            courseList = courseList!!,
+            onDismiss = {
+                courseList = null
+            }
+        )
     }
 
     HomeScreen(
@@ -67,15 +80,20 @@ fun HomeScreen(
             .fillMaxSize()
             .background(Color(0xFFFaFaFa)),
         recommendedCourse = recommendedCourse,
+        onClick = {
+            viewModel.getCourseDetail(it)
+        },
         onFavoriteClick = {
             viewModel.favoriteCourse("",it)
         }
     )
+
 }
 
 @Composable
 fun HomeScreen(
     recommendedCourse: List<Course>,
+    onClick: (Course) -> Unit,
     onFavoriteClick: (Course) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -105,6 +123,7 @@ fun HomeScreen(
             items(recommendedCourse) { course ->
                 TravelCourseItem(
                     course = course,
+                    onClick = onClick,
                     onFavoriteClick = onFavoriteClick
                 )
             }
@@ -172,12 +191,16 @@ fun CouponItem(couponName: String, status: String, statusColor: Color) {
 @Composable
 fun TravelCourseItem(
     course: Course,
+    onClick : (Course) -> Unit,
     onFavoriteClick: (Course) -> Unit
 ) {
     Card(
         modifier = Modifier
             .padding(8.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable {
+                onClick(course)
+            },
         shape = RoundedCornerShape(8.dp),
     ) {
         Box {

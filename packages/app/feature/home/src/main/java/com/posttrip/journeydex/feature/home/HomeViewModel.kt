@@ -4,11 +4,15 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.posttrip.journeydex.core.data.model.request.FavoriteCourse
+import com.posttrip.journeydex.core.data.model.response.CourseList
 import com.posttrip.journeydex.core.data.model.travel.Course
 import com.posttrip.journeydex.core.data.repository.TravelRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
@@ -21,6 +25,8 @@ class HomeViewModel @Inject constructor(
     private val _courses = MutableStateFlow<List<Course>>(emptyList())
     val courses: StateFlow<List<Course>> = _courses.asStateFlow()
 
+    private val _courseDetail = MutableSharedFlow<CourseList>()
+    val courseDetail : SharedFlow<CourseList> = _courseDetail.asSharedFlow()
 
     fun getRecommendedCourse(id: String) {
         viewModelScope.launch {
@@ -29,6 +35,17 @@ class HomeViewModel @Inject constructor(
 
                 }.collect {
                     _courses.emit(it.courses.subList(0,6))
+                }
+        }
+    }
+
+    fun getCourseDetail(course : Course) {
+        viewModelScope.launch {
+            travelRepository.getCourseDetail(course.contentId)
+                .catch {
+
+                }.collect {
+                    _courseDetail.emit(it.copy(course = course))
                 }
         }
     }

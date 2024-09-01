@@ -62,13 +62,13 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun initObserver() {
-        lifecycleScope.launch {
-            viewModel.typeFromLogin.collect {
-                if (it == MainViewModel.Companion.TypeFromLogin.None) {
-                    val intent = Intent(this@MainActivity, LoginActivity::class.java)
-                    resultLauncher.launch(intent)
-                }
-            }
-        }
+//        lifecycleScope.launch {
+//            viewModel.typeFromLogin.collect {
+//                if (it == MainViewModel.Companion.TypeFromLogin.None) {
+//                    val intent = Intent(this@MainActivity, LoginActivity::class.java)
+//                    resultLauncher.launch(intent)
+//                }
+//            }
+//        }
     }
 }

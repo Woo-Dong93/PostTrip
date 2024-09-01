@@ -46,14 +46,14 @@ fun JourneydexApp(
     loginData : LoginData,
     onTypeFormLoginChanged : (TypeFromLogin) -> Unit
 ) {
-    if (typeFromLogin == MainViewModel.Companion.TypeFromLogin.NeedsOnboarding) {
-        OnboardingScreen(
-            loginData = loginData,
-            onSetOnboarding = {
-                onTypeFormLoginChanged(TypeFromLogin.GoToHome)
-            }
-        )
-    } else if(typeFromLogin == MainViewModel.Companion.TypeFromLogin.GoToHome){
+//    if (typeFromLogin == MainViewModel.Companion.TypeFromLogin.NeedsOnboarding) {
+//        OnboardingScreen(
+//            loginData = loginData,
+//            onSetOnboarding = {
+//                onTypeFormLoginChanged(TypeFromLogin.GoToHome)
+//            }
+//        )
+//    } else if(typeFromLogin == MainViewModel.Companion.TypeFromLogin.GoToHome){
         val navController = rememberNavController()
 
         Scaffold(
@@ -77,7 +77,7 @@ fun JourneydexApp(
                 )
             }
         }
-    }
+   // }
 
 
 
