@@ -85,7 +85,7 @@ router.delete('/', deleteFavoriteTravelCourse);
  * @swagger
  * /favorite/{id}:
  *  get:
- *    summary: Save Favorite Travel Course
+ *    summary: Favorite Travel Course
  *    tags: [Favorite]
  *    parameters:
  *      - in: path
