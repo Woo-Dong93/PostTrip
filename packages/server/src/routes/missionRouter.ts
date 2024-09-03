@@ -42,18 +42,18 @@ const router = express.Router();
  *            schema:
  *              type: object
  *              properties:
- *              id:
- *                type: string
- *                example: "missionId"
- *              contentId:
- *                type: string
- *                example: "contentsId"
- *              title:
- *                type: string
- *                example: "title"
- *              description:
- *                type: string
- *                example: "description"
+ *                id:
+ *                  type: string
+ *                  example: "missionId"
+ *                contentId:
+ *                  type: string
+ *                  example: "contentsId"
+ *                title:
+ *                  type: string
+ *                  example: "title"
+ *                description:
+ *                  type: string
+ *                  example: "description"
  */
 router.post('/', saveMission);
 
@@ -84,12 +84,12 @@ router.post('/', saveMission);
  *            schema:
  *              type: object
  *              properties:
- *              userId:
- *                type: string
- *                example: "userId"
- *              id:
- *                type: string
- *                example: "missionId"
+ *                userId:
+ *                  type: string
+ *                  example: "userId"
+ *                id:
+ *                  type: string
+ *                  example: "missionId"
  */
 router.post('/user', startUserMission);
 
@@ -120,12 +120,12 @@ router.post('/user', startUserMission);
  *            schema:
  *              type: object
  *              properties:
- *              userId:
- *                type: string
- *                example: "userId"
- *              id:
- *                type: string
- *                example: "missionId"
+ *                userId:
+ *                  type: string
+ *                  example: "userId"
+ *                id:
+ *                  type: string
+ *                  example: "missionId"
  */
 router.delete('/user', deleteUserMission);
 
@@ -154,24 +154,24 @@ router.delete('/user', deleteUserMission);
  *            schema:
  *              type: object
  *              properties:
- *              userId:
- *                type: string
- *                example: "userId"
- *              id:
- *                type: string
- *                example: "missionId"
- *              contentId:
- *                type: string
- *                example: "contentsId"
- *              title:
- *                type: string
- *                example: "title"
- *              description:
- *                type: string
- *                example: "description"
- *              starting:
- *                type: boolean
- *                example: true / false
+ *                userId:
+ *                  type: string
+ *                  example: "userId"
+ *                id:
+ *                  type: string
+ *                  example: "missionId"
+ *                contentId:
+ *                  type: string
+ *                  example: "contentsId"
+ *                title:
+ *                  type: string
+ *                  example: "title"
+ *                description:
+ *                  type: string
+ *                  example: "description"
+ *                starting:
+ *                  type: boolean
+ *                  example: true / false
  */
 router.get('/user/:id/:contentId', getMissionByCourse);
 
