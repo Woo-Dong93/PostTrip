@@ -79,3 +79,31 @@ const favoriteSchema = new Schema<IFavorite>({
 });
 
 export const Favorite = mongoose.model('Favorite', favoriteSchema);
+
+export interface IMission {
+  id: string;
+  contentId: string;
+  title: string;
+  description: string;
+}
+
+const missionSchema = new Schema<IMission>({
+  id: String,
+  contentId: String,
+  title: String,
+  description: String,
+});
+
+export const Mission = mongoose.model('Mission', missionSchema);
+
+export interface IUserMission {
+  userId: string;
+  id: string;
+}
+
+const userMissionSchema = new Schema<IUserMission>({
+  userId: String,
+  id: String,
+});
+
+export const UserMission = mongoose.model('UserMission', userMissionSchema);

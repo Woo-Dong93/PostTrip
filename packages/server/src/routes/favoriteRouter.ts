@@ -1,5 +1,5 @@
 import express from 'express';
-import { deleteFavoriteTravelCourse, saveFavoriteTravelCourse } from '../service';
+import { deleteFavoriteTravelCourse, getFavoriteTravelCourse, saveFavoriteTravelCourse } from '../service';
 
 const router = express.Router();
 
@@ -80,5 +80,64 @@ router.post('/', saveFavoriteTravelCourse);
  *                  example: 'contentsId'
  */
 router.delete('/', deleteFavoriteTravelCourse);
+
+/**
+ * @swagger
+ * /favorite/{id}:
+ *  get:
+ *    summary: Favorite Travel Course
+ *    tags: [Favorite]
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        required: true
+ *        schema:
+ *          type: string
+ *    responses:
+ *      200:
+ *        description: 성공
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                firstAddress:
+ *                  type: string
+ *                  example: 'firstAddress'
+ *                secondAddress:
+ *                  type: string
+ *                  example: 'secondAddress'
+ *                areaCode:
+ *                  type: string
+ *                  example: 'areaCode'
+ *                contentId:
+ *                  type: string
+ *                  example: 'contentId'
+ *                firstImage:
+ *                  type: string
+ *                  example: 'firstImage'
+ *                secondImage:
+ *                  type: string
+ *                  example: 'secondImage'
+ *                x:
+ *                  type: string
+ *                  example: 'x'
+ *                y:
+ *                  type: string
+ *                  example: 'y'
+ *                title:
+ *                  type: string
+ *                  example: 'title'
+ *                travelStyleKeyword:
+ *                  type: string
+ *                  example: 'travelStyleKeyword'
+ *                destinationTypeKeyword:
+ *                  type: string
+ *                  example: 'destinationTypeKeyword'
+ *                travelTypeKeyword:
+ *                  type: string
+ *                  example: 'travelTypeKeyword'
+ */
+router.get('/:id', getFavoriteTravelCourse);
 
 export default router;
