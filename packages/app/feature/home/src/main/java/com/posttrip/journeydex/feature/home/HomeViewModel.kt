@@ -7,6 +7,7 @@ import com.posttrip.journeydex.core.data.model.request.FavoriteCourse
 import com.posttrip.journeydex.core.data.model.response.CourseList
 import com.posttrip.journeydex.core.data.model.travel.Course
 import com.posttrip.journeydex.core.data.repository.TravelRepository
+import com.posttrip.journeydex.core.data.util.LoginCached
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,7 +31,7 @@ class HomeViewModel @Inject constructor(
 
     fun getRecommendedCourse(id: String) {
         viewModelScope.launch {
-            travelRepository.getRecommendedCourse(id)
+            travelRepository.getRecommendedCourse(LoginCached.kakaoId)
                 .catch {
 
                 }.collect {
@@ -52,9 +53,9 @@ class HomeViewModel @Inject constructor(
 
     fun favoriteCourse(id: String,course: Course) {
         if (course.favorite) {
-            unlikeCourse(id, course)
+            unlikeCourse(LoginCached.kakaoId, course)
         } else {
-            likeCourse(id, course)
+            likeCourse(LoginCached.kakaoId, course)
         }
     }
 
@@ -62,7 +63,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             travelRepository.likeCourse(
                 FavoriteCourse(
-                    id = id,
+                    id = LoginCached.kakaoId,
                     contentId = course.contentId
                 )
             ).catch {
@@ -82,7 +83,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             travelRepository.unlikeCourse(
                 FavoriteCourse(
-                    id = id,
+                    id = LoginCached.kakaoId,
                     contentId = course.contentId
                 )
             ).catch {

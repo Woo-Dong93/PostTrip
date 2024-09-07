@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.posttrip.journeydex.core.data.model.travel.Course
 import com.posttrip.journeydex.core.data.repository.TravelRepository
+import com.posttrip.journeydex.core.data.util.LoginCached
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,7 +25,7 @@ class MapViewModel @Inject constructor(
 
     fun getCourse(id : String) {
         viewModelScope.launch {
-            travelRepository.getCourse(id)
+            travelRepository.getCourse(LoginCached.kakaoId)
                 .catch {
 
                 }.collect {

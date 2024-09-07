@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.posttrip.journeydex.core.data.model.user.OnboardingData
 import com.posttrip.journeydex.core.data.model.user.OnboardingKeywords
 import com.posttrip.journeydex.core.data.repository.UserRepository
+import com.posttrip.journeydex.core.data.util.LoginCached
 import com.posttrip.journeydex.model.OnboardingStepModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -71,7 +72,7 @@ class OnboardingViewModel @Inject constructor(
         viewModelScope.launch {
             userRepository.setOnboarding(
                 OnboardingData(
-                    id = id,
+                    id = LoginCached.kakaoId,
                     keywords = OnboardingKeywords(
                         travelStyleKeyword = onboardingStep.value.style,
                         destinationTypeKeyword = onboardingStep.value.destination,
