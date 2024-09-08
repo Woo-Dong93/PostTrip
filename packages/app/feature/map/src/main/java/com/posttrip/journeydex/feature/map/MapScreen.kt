@@ -1,7 +1,13 @@
 package com.posttrip.journeydex.feature.map
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -9,8 +15,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidViewBinding
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -26,6 +36,12 @@ import com.kakao.vectormap.camera.CameraUpdateFactory
 import com.kakao.vectormap.label.LabelOptions
 import com.kakao.vectormap.label.LabelStyle
 import com.kakao.vectormap.label.LabelStyles
+import com.kakao.vectormap.route.RouteLineOptions
+import com.kakao.vectormap.route.RouteLineSegment
+import com.kakao.vectormap.route.RouteLineStyle
+import com.kakao.vectormap.route.RouteLineStyles
+import com.kakao.vectormap.route.RouteLineStylesSet
+import com.posttrip.journeydex.feature.home.component.CourseDetailBottomSheet
 import com.posttrip.journeydex.feature.map.databinding.ViewKakaoMapBinding
 
 
@@ -35,53 +51,126 @@ fun MapScreen(
 ) {
     var mapBiding by remember { mutableStateOf<ViewKakaoMapBinding?>(null) }
     var kakaoMap by remember { mutableStateOf<KakaoMap?>(null) }
+    var isSearchMode by remember {
+        mutableStateOf(false)
+    }
     val course by viewModel.courses.collectAsStateWithLifecycle()
+    val detailCourses by viewModel.detailCourses.collectAsStateWithLifecycle()
+
+    var shownBottomSheet by remember {
+        mutableStateOf(false)
+    }
+
+    if (shownBottomSheet) {
+        detailCourses?.let {
+            CourseDetailBottomSheet(
+                courseList = detailCourses!!,
+                onDismiss = {
+                    shownBottomSheet = false
+                }
+            )
+        }
+
+    }
 
     fun setLocationByPoints(
         x: Double,
         y: Double
     ) {
         kakaoMap?.let { kakaoMap ->
-//            val styles =
-//                kakaoMap.labelManager?.addLabelStyles(LabelStyles.from(LabelStyle.from(R.drawable.pin)))
-//            val options = LabelOptions.from(LatLng.from(y,x)).setStyles(styles)
-//            kakaoMap.labelManager?.layer?.addLabel(options)
-
+            val styles =
+                kakaoMap.labelManager?.addLabelStyles(LabelStyles.from(LabelStyle.from(R.drawable.ic_pin)))
+            val options = LabelOptions.from(LatLng.from(y, x)).setStyles(styles)
+            kakaoMap.labelManager?.layer?.addLabel(options)
         }
     }
 
-    fun setLabelClickEvent(){
+    fun setLine(
+        startX: Double,
+        startY: Double,
+        endX : Double,
+        endY : Double
+    ) {
+        kakaoMap?.let { kakaoMap ->
+            val layer = kakaoMap.routeLineManager?.layer
+            val styles = RouteLineStylesSet.from("redStyle",
+                RouteLineStyles.from(RouteLineStyle.from(4f, Color.Red.toArgb())));
+
+            val segment = RouteLineSegment.from(
+                listOf(
+                    LatLng.from(startY,startX),
+                    LatLng.from(endY,endX)
+                )
+            ).setStyles(styles.getStyles(0))
+            val option = RouteLineOptions.from(segment).setStylesSet(styles)
+            layer?.addRouteLine(option)
+        }
+    }
+
+    fun setLabelClickEvent() {
         kakaoMap?.let { kakaoMap ->
             kakaoMap.setOnViewportClickListener { map, latLng, pointF ->
-                course.find {
+                detailCourses?.courses?.find {
                     DistanceCalculator.isWithin1Km(
                         lat1 = latLng.latitude, lat2 = it.y.toDouble(),
                         lon1 = latLng.longitude, lon2 = it.x.toDouble()
                     )
                 }?.let {
-                    if(!it.isDetail) viewModel.getCourseDetail(it.contentId)
+                    shownBottomSheet = true
                 }
 
             }
         }
     }
 
+
     LaunchedEffect(key1 = Unit) {
-        viewModel.getCourse("")
+        viewModel.initCourseDetail()
+        viewModel.getCourse("1")
     }
 
-    LaunchedEffect(key1 = course) {
-        if (course.isNotEmpty()) {
-            setLabelClickEvent()
+    LaunchedEffect(key1 = detailCourses) {
+        if (course.isNotEmpty() && detailCourses != null) {
+             setLabelClickEvent()
 
+            var x = 0.0
+            var y = 0.0
             kakaoMap?.labelManager?.clearAll()
-            course.forEachIndexed { index, course ->
+            detailCourses!!.courses.forEachIndexed { index, course ->
+                x += course.x.toDouble()
+                y += course.y.toDouble()
                 setLocationByPoints(
                     x = course.x.toDouble(),
                     y = course.y.toDouble()
                 )
-                if(index == 30) return@LaunchedEffect
             }
+            detailCourses!!.courses.forEachIndexed { index, course ->
+                if(index == detailCourses!!.courses.size - 1 ) return@forEachIndexed
+                val start = detailCourses!!.courses[index]
+                val end = detailCourses!!.courses[index + 1]
+                setLine(
+                    startX = start.x.toDouble(),
+                    startY = start.y.toDouble(),
+                    endX = end.x.toDouble(),
+                    endY = end.y.toDouble()
+                )
+            }
+            val center = calculateCentroid(
+                detailCourses!!.courses.map {
+                    Point(
+                        x = it.x.toDouble(),
+                        y = it.y.toDouble()
+                    )
+                }
+            )
+            kakaoMap?.moveCamera(
+                CameraUpdateFactory.newCenterPosition(
+                    LatLng.from(
+                        center.y,
+                        center.x
+                    )
+                )
+            )
         }
     }
 
@@ -125,14 +214,37 @@ fun MapScreen(
             }, object : KakaoMapReadyCallback() {
                 override fun onMapReady(p0: KakaoMap) {
                     kakaoMap = p0
-//                    kakaoMap?.moveCamera(
-//                        CameraUpdateFactory.newCenterPosition(LatLng.from(37.102005, 127.108621))
-//
-//                    )
+                    kakaoMap?.moveCamera(
+                        CameraUpdateFactory.zoomTo(12)
+                    )
                 }
 
             })
         }
+        SearchText(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .padding(top = 22.dp)
+                .height(56.dp)
+                .align(Alignment.TopCenter),
+            onClick = {
+                isSearchMode = true
+            }
+        )
+
+    }
+    if (isSearchMode) {
+        SearchScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFFFAFAFA)),
+            courseList = course,
+            onDismiss = {
+                viewModel.getCourseDetail(it)
+                isSearchMode = false
+            }
+        )
     }
 }
 
@@ -153,6 +265,7 @@ fun ComposableLifecycle(
         }
     }
 }
+
 object DistanceCalculator {
 
     private const val EARTH_RADIUS = 6371.0 // 지구 반경 (단위: km)
@@ -181,3 +294,37 @@ object DistanceCalculator {
         return distance <= 0.5
     }
 }
+
+fun calculateCentroid(points: List<Point>): Point {
+    try {
+        var area = 0.0
+        var centroidX = 0.0
+        var centroidY = 0.0
+
+        // Loop through all edges of the polygon
+        for (i in points.indices) {
+            val current = points[i]
+            val next = points[(i + 1) % points.size]
+
+            // Calculate the area contribution of this edge
+            val crossProduct = current.x * next.y - next.x * current.y
+            area += crossProduct
+
+            // Calculate the centroid contribution of this edge
+            centroidX += (current.x + next.x) * crossProduct
+            centroidY += (current.y + next.y) * crossProduct
+        }
+
+        area *= 0.5
+        centroidX /= (6 * area)
+        centroidY /= (6 * area)
+
+        return Point(centroidX, centroidY)
+    }catch (e : Exception){
+        return Point(0.0,0.0)
+    }
+
+}
+
+data class Point(val x: Double, val y: Double)
+

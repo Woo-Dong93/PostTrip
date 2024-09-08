@@ -1,6 +1,7 @@
 package com.posttrip.journeydex.feature.home.component
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
@@ -35,6 +37,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.posttrip.journeydex.core.data.model.response.CourseList
@@ -44,6 +47,7 @@ import com.posttrip.journeydex.core.data.model.response.CourseList
 fun CourseDetailBottomSheet(
     courseList: CourseList,
     onDismiss: () -> Unit,
+    onNavigateMap : (String) -> Unit = {},
 ) {
     val modalBottomSheetState = rememberModalBottomSheetState()
     ModalBottomSheet(
@@ -59,7 +63,7 @@ fun CourseDetailBottomSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp)
+                .navigationBarsPadding()
         ) {
             Row(
                 modifier = Modifier
@@ -69,14 +73,34 @@ fun CourseDetailBottomSheet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
+                    modifier = Modifier.weight(1f),
                     text = courseList.course?.title ?: "",
                     fontSize = 16.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     fontWeight = FontWeight.SemiBold
                 )
-                Icon(
-                    imageVector = Icons.Default.LocationOn,
-                    contentDescription = "위치 보기"
-                )
+                Row(
+                    modifier = Modifier.clickable {
+                        courseList.course?.contentId?.let {
+                            onNavigateMap(it)
+                        }
+                    },
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ){
+                    Icon(
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = "위치 보기"
+                    )
+                    Text(
+                        text = "위치 보기",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Red
+                    )
+                }
+
             }
             Spacer(modifier = Modifier.height(8.dp))
 
