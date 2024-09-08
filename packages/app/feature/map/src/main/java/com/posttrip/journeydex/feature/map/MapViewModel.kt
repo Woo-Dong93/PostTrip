@@ -22,7 +22,7 @@ class MapViewModel @Inject constructor(
     private val travelRepository: TravelRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    private val contentId: String? = savedStateHandle.get<String>("contentId")
+    val contentId: String? = savedStateHandle.get<String>("contentId")
 
     private val _courses = MutableStateFlow<List<Course>>(emptyList())
     val courses : StateFlow<List<Course>> = _courses.asStateFlow()
@@ -45,6 +45,12 @@ class MapViewModel @Inject constructor(
 
                 }.collect {
                     _courses.emit(it.courses)
+                    it.courses.forEach {
+                        travelRepository.cacheCourse(
+                            contentId = it.contentId,
+                            course = it
+                        )
+                    }
                     cachecd = it.courses
                 }
         }

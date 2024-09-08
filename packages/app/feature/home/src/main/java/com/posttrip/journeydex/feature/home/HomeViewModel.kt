@@ -35,7 +35,13 @@ class HomeViewModel @Inject constructor(
                 .catch {
 
                 }.collect {
-                    _courses.emit(it.courses.subList(0,6))
+                    it.courses.subList(0,10).forEach {
+                        travelRepository.cacheCourse(
+                            contentId = it.contentId,
+                            course = it
+                        )
+                    }
+                    _courses.emit(it.courses.subList(0,10))
                 }
         }
     }

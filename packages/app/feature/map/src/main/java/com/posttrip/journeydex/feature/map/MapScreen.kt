@@ -1,5 +1,8 @@
 package com.posttrip.journeydex.feature.map
 
+import android.location.Location
+import android.os.Looper
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -19,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidViewBinding
@@ -27,12 +31,18 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
 import com.kakao.vectormap.KakaoMap
 import com.kakao.vectormap.KakaoMapReadyCallback
 import com.kakao.vectormap.LatLng
 import com.kakao.vectormap.MapLifeCycleCallback
 import com.kakao.vectormap.camera.CameraUpdate
 import com.kakao.vectormap.camera.CameraUpdateFactory
+import com.kakao.vectormap.label.LabelLayerOptions
 import com.kakao.vectormap.label.LabelOptions
 import com.kakao.vectormap.label.LabelStyle
 import com.kakao.vectormap.label.LabelStyles
@@ -49,13 +59,21 @@ import com.posttrip.journeydex.feature.map.databinding.ViewKakaoMapBinding
 fun MapScreen(
     viewModel: MapViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+    lateinit var fusedLocationClient: FusedLocationProviderClient
+    lateinit var locationCallback: LocationCallback
+
     var mapBiding by remember { mutableStateOf<ViewKakaoMapBinding?>(null) }
     var kakaoMap by remember { mutableStateOf<KakaoMap?>(null) }
     var isSearchMode by remember {
         mutableStateOf(false)
     }
+    var isInit by remember {
+        mutableStateOf(false)
+    }
     val course by viewModel.courses.collectAsStateWithLifecycle()
     val detailCourses by viewModel.detailCourses.collectAsStateWithLifecycle()
+
 
     var shownBottomSheet by remember {
         mutableStateOf(false)
@@ -81,7 +99,9 @@ fun MapScreen(
             val styles =
                 kakaoMap.labelManager?.addLabelStyles(LabelStyles.from(LabelStyle.from(R.drawable.ic_pin)))
             val options = LabelOptions.from(LatLng.from(y, x)).setStyles(styles)
-            kakaoMap.labelManager?.layer?.addLabel(options)
+            val layer = LabelLayerOptions.from("courses")
+            kakaoMap.labelManager?.addLayer(layer)
+            kakaoMap.labelManager?.getLayer("courses")?.addLabel(options)
         }
     }
 
@@ -124,6 +144,70 @@ fun MapScreen(
     }
 
 
+
+    fun stopLocationUpdates() {
+        fusedLocationClient.removeLocationUpdates(locationCallback)
+    }
+
+    fun updateUIWithLocation(location: Location) {
+        // 실시간 위치 정보를 UI에 업데이트합니다.
+        val latitude = location.latitude
+        val longitude = location.longitude
+
+        val deletedLayer = kakaoMap?.labelManager?.getLayer("my")
+        deletedLayer?.let {
+            kakaoMap?.labelManager?.remove(deletedLayer)
+        }
+
+
+        val styles =
+            kakaoMap?.labelManager?.addLabelStyles(
+                LabelStyles.from(LabelStyle.from(R.drawable.ic_circle_red))
+            )
+
+
+        val options = LabelOptions.from(LatLng.from(latitude, longitude)).setStyles(styles)
+        val layer = LabelLayerOptions.from("my")
+        kakaoMap?.labelManager?.addLayer(layer)
+        kakaoMap?.labelManager?.getLayer("my")?.addLabel(options)
+
+        if(isInit) return
+        if(viewModel.contentId != null && viewModel.contentId != "-1") return
+        kakaoMap?.moveCamera(
+            CameraUpdateFactory.newCenterPosition(
+                LatLng.from(
+                    latitude,
+                    longitude
+                )
+            )
+        )
+        isInit = true
+    }
+
+    fun startLocationUpdates() {
+        val locationRequest = LocationRequest.create().apply {
+            interval = 10000 // 위치 업데이트 간격 (10초)
+            fastestInterval = 5000 // 가장 빠른 업데이트 간격 (5초)
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY // 높은 정확도
+        }
+
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                for (location in locationResult.locations) {
+                    // 위치 업데이트를 처리합니다.
+                    updateUIWithLocation(location)
+                }
+            }
+        }
+
+
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback,
+            Looper.getMainLooper()
+        )
+    }
+
     LaunchedEffect(key1 = Unit) {
         viewModel.initCourseDetail()
         viewModel.getCourse("1")
@@ -135,7 +219,12 @@ fun MapScreen(
 
             var x = 0.0
             var y = 0.0
-            kakaoMap?.labelManager?.clearAll()
+            val layer = kakaoMap?.labelManager?.getLayer("courses")
+            layer?.let {
+                kakaoMap?.labelManager?.remove(layer)
+            }
+
+          //  kakaoMap?.labelManager?.clearAll()
             detailCourses!!.courses.forEachIndexed { index, course ->
                 x += course.x.toDouble()
                 y += course.y.toDouble()
@@ -178,10 +267,13 @@ fun MapScreen(
         when (event) {
             Lifecycle.Event.ON_RESUME -> {
                 mapBiding?.mapView?.resume()
+                fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+                startLocationUpdates()
             }
 
             Lifecycle.Event.ON_PAUSE -> {
                 mapBiding?.mapView?.pause()
+                stopLocationUpdates()
             }
 
             Lifecycle.Event.ON_DESTROY -> {

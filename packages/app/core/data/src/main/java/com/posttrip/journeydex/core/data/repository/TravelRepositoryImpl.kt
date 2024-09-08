@@ -4,6 +4,7 @@ import com.posttrip.journeydex.core.data.api.TravelService
 import com.posttrip.journeydex.core.data.model.request.FavoriteCourse
 import com.posttrip.journeydex.core.data.model.response.CourseList
 import com.posttrip.journeydex.core.data.model.travel.Course
+import com.posttrip.journeydex.core.data.util.CourseCached.cachedCourse
 import com.posttrip.journeydex.core.data.util.handleApi
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -11,7 +12,6 @@ import javax.inject.Inject
 class TravelRepositoryImpl @Inject constructor(
     private val travelService: TravelService
 ) : TravelRepository {
-    private val cachedCourse = hashMapOf<String, Course>()
 
     override fun cacheCourse(contentId: String, course: Course) {
         if(!cachedCourse.contains(contentId)){
