@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -34,22 +35,28 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.navOptions
 import coil.compose.AsyncImage
 import com.posttrip.journeydex.core.data.model.response.CourseList
 import com.posttrip.journeydex.core.data.model.travel.Course
+import com.posttrip.journeydex.core.data.util.LoginCached
 import com.posttrip.journeydex.feature.home.component.CourseDetailBottomSheet
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    onNavigateMap: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
@@ -57,18 +64,21 @@ fun HomeScreen(
     var courseList by remember { mutableStateOf<CourseList?>(null) }
 
     LaunchedEffect(key1 = Unit) {
-        viewModel.getRecommendedCourse("")
+        viewModel.getRecommendedCourse("1")
     }
-    
+
     LaunchedEffect(key1 = Unit) {
         viewModel.courseDetail.collect {
             courseList = it
         }
     }
 
-    if(courseList != null ){
+    if (courseList != null) {
         CourseDetailBottomSheet(
             courseList = courseList!!,
+            onNavigateMap = {
+                onNavigateMap(it)
+            },
             onDismiss = {
                 courseList = null
             }
@@ -84,7 +94,7 @@ fun HomeScreen(
             viewModel.getCourseDetail(it)
         },
         onFavoriteClick = {
-            viewModel.favoriteCourse("",it)
+            viewModel.favoriteCourse("1", it)
         }
     )
 
@@ -100,9 +110,9 @@ fun HomeScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(start = 16.dp,end = 16.dp, top = 16.dp)
     ) {
-        UserProfileSection(name = "WWWWWWWWWW 님")
+        UserProfileSection(name = "${LoginCached.nickname} 님")
         Spacer(modifier = Modifier.height(16.dp))
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
@@ -191,7 +201,7 @@ fun CouponItem(couponName: String, status: String, statusColor: Color) {
 @Composable
 fun TravelCourseItem(
     course: Course,
-    onClick : (Course) -> Unit,
+    onClick: (Course) -> Unit,
     onFavoriteClick: (Course) -> Unit
 ) {
     Card(
@@ -212,39 +222,69 @@ fun TravelCourseItem(
                 model = course.firstImage,
                 contentDescription = null
             )
+
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.4f))
+                    .fillMaxWidth()
+                    .height(90.dp)
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(
+                                Color.Black.copy(alpha = 0.0f),
+                                Color.Black.copy(alpha = 0.75f),
+                            ),
+                        )
+                    )
+                    .align(Alignment.BottomCenter)
             )
             Text(
                 text = course.title,
                 color = Color.White,
                 modifier = Modifier
                     .align(Alignment.BottomStart)
-                    .padding(8.dp)
+                    .padding(8.dp),
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
-            IconButton(
-                onClick = {
-                    onFavoriteClick(course)
-                },
-                modifier = Modifier.align(Alignment.TopEnd)
-            ) {
-                if (course.favorite) {
-                    Icon(
-                        imageVector = Icons.Default.Favorite,
-                        contentDescription = "Favorite",
-                        tint = Color.White
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Default.FavoriteBorder,
-                        contentDescription = "Favorite",
-                        tint = Color.White
-                    )
-                }
+            Box(
+                modifier = Modifier.align(Alignment.TopEnd),
+                contentAlignment = Alignment.Center
+            ){
+                Box(
+                    modifier = Modifier
+                        .padding(6.dp)
+                        .size(32.dp)
+                        .background(
+                            Brush.radialGradient(
+                                listOf(
+                                    Color.Black.copy(alpha = 0.15f),
+                                    Color.Black.copy(alpha = 0.0f),
+                                ),
+                            )
+                        )
+                )
+                IconButton(
+                    onClick = {
+                        onFavoriteClick(course)
+                    },
+                ) {
+                    if (course.favorite) {
+                        Icon(
+                            imageVector = Icons.Default.Favorite,
+                            contentDescription = "Favorite",
+                            tint = Color.White
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.FavoriteBorder,
+                            contentDescription = "Favorite",
+                            tint = Color.White
+                        )
+                    }
 
+                }
             }
+
         }
     }
 }
