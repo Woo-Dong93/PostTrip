@@ -46,6 +46,11 @@ export interface ICourse {
   destinationTypeKeyword?: string;
   travelTypeKeyword?: string;
   favorite?: boolean;
+  characterInfo?: {
+    id: string;
+    title: string;
+    collected: boolean;
+  };
 }
 
 export interface IOnboarding {
@@ -99,11 +104,41 @@ export const Mission = mongoose.model('Mission', missionSchema);
 export interface IUserMission {
   userId: string;
   id: string;
+  status: 'ACTIVE' | 'COMPLETED';
 }
 
 const userMissionSchema = new Schema<IUserMission>({
   userId: String,
   id: String,
+  status: String,
 });
 
 export const UserMission = mongoose.model('UserMission', userMissionSchema);
+
+export interface ICharacter {
+  id: string;
+  title: string;
+  courseContentId: string;
+  contentId: string;
+}
+
+const characterSchema = new Schema<ICharacter>({
+  id: String,
+  title: String,
+  courseContentId: String,
+  contentId: String,
+});
+
+export const Character = mongoose.model('Character', characterSchema);
+
+export interface IUserCharacter {
+  userId: string;
+  id: string;
+}
+
+const userCharacterSchema = new Schema<IUserCharacter>({
+  userId: String,
+  id: String,
+});
+
+export const UserCharacter = mongoose.model('UserCharacter', userCharacterSchema);

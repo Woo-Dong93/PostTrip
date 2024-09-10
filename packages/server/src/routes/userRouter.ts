@@ -1,5 +1,5 @@
 import express from 'express';
-import { login, saveOnboarding } from '../service';
+import { login, saveOnboarding, withdrawal } from '../service';
 
 const router = express.Router();
 
@@ -98,5 +98,35 @@ router.post('/login', login);
  *                      type: string
  */
 router.post('/onboarding', saveOnboarding);
+
+/**
+ * @swagger
+ * /user/withdrawal:
+ *  delete:
+ *    summary: User Withdrawal
+ *    tags: [User]
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              id:
+ *                type: string
+ *                example: "id"
+ *    responses:
+ *      200:
+ *        description: 성공
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                id:
+ *                  type: string
+ *                  example: 'id'
+ */
+router.delete('/withdrawal', withdrawal);
 
 export default router;

@@ -27,7 +27,7 @@ const router = express.Router();
  *                example: "id"
  *              contentId:
  *                type: string
- *                example: "contentsId"
+ *                example: "contentId"
  *    responses:
  *      200:
  *        description: 성공
@@ -41,7 +41,7 @@ const router = express.Router();
  *                  example: 'id'
  *                contentId:
  *                  type: string
- *                  example: 'contentsId'
+ *                  example: 'contentId'
  */
 router.post('/', saveFavoriteTravelCourse);
 
@@ -63,7 +63,7 @@ router.post('/', saveFavoriteTravelCourse);
  *                example: "id"
  *              contentId:
  *                type: string
- *                example: "contentsId"
+ *                example: "contentId"
  *    responses:
  *      200:
  *        description: 성공
@@ -77,7 +77,7 @@ router.post('/', saveFavoriteTravelCourse);
  *                  example: 'id'
  *                contentId:
  *                  type: string
- *                  example: 'contentsId'
+ *                  example: 'contentId'
  */
 router.delete('/', deleteFavoriteTravelCourse);
 
