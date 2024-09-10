@@ -73,3 +73,22 @@ export const saveOnboarding = async (req: express.Request<any, any, IOnboarding>
     res.status(500).json({ message: error.message });
   }
 };
+
+export const withdrawal = async (req: express.Request<any, any, IUser>, res: express.Response) => {
+  try {
+    const { id } = req.body;
+
+    const userExisted = await User.findOne({ id });
+
+    if (!userExisted) {
+      return res.status(500).json({ message: 'User information not found' });
+    }
+
+    await userExisted.deleteOne();
+
+    res.status(200).json({ id });
+  } catch (error: any) {
+    console.log(error);
+    res.status(500).json({ message: error.message });
+  }
+};
