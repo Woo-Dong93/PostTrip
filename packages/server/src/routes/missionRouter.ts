@@ -27,7 +27,7 @@ const router = express.Router();
  *                example: "missionId"
  *              contentId:
  *                type: string
- *                example: "contentsId"
+ *                example: "contentId"
  *              title:
  *                type: string
  *                example: "title"
@@ -47,7 +47,7 @@ const router = express.Router();
  *                  example: "missionId"
  *                contentId:
  *                  type: string
- *                  example: "contentsId"
+ *                  example: "contentId"
  *                title:
  *                  type: string
  *                  example: "title"
@@ -168,7 +168,7 @@ router.delete('/user', deleteUserMission);
  *                  example: "missionId"
  *                contentId:
  *                  type: string
- *                  example: "contentsId"
+ *                  example: "contentId"
  *                title:
  *                  type: string
  *                  example: "title"
@@ -209,7 +209,7 @@ router.get('/user/:id/:contentId', getMissionByCourse);
  *                  example: "missionId"
  *                contentId:
  *                  type: string
- *                  example: "contentsId"
+ *                  example: "contentId"
  *                title:
  *                  type: string
  *                  example: "title"

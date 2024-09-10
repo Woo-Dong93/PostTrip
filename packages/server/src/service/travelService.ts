@@ -1,5 +1,16 @@
 import express from 'express';
-import { ICourse, User, Course, ICourseKey, Onboarding, IOnboarding, Favorite } from '../schema';
+import {
+  ICourse,
+  User,
+  Course,
+  ICourseKey,
+  Onboarding,
+  IOnboarding,
+  Favorite,
+  Character,
+  UserCharacter,
+  ICharacter,
+} from '../schema';
 const axios = require('axios');
 
 export const travelCourse = async (req: express.Request<{ id: string }, any, any>, res: express.Response) => {
@@ -63,11 +74,17 @@ export const travelCourse = async (req: express.Request<{ id: string }, any, any
 };
 
 export const getTravelDetailCourse = async (
-  req: express.Request<{ contentId: string }, any, any>,
+  req: express.Request<{ userId: string; contentId: string }, any, any>,
   res: express.Response,
 ) => {
   try {
-    const { contentId } = req.params;
+    const { userId, contentId } = req.params;
+
+    const userExisted = await User.findOne({ id: userId });
+
+    if (!userExisted) {
+      return res.status(500).json({ message: 'User information not found' });
+    }
 
     const result = await axios.get(
       `${process.env.API_URL}/detailInfo1?MobileOS=AND&MobileApp=PostTrip&serviceKey=${process.env.API_KEY}&contentId=${contentId}&contentTypeId=25&_type=json`,
@@ -78,6 +95,28 @@ export const getTravelDetailCourse = async (
     if (!course) {
       return res.status(500).json({ message: 'course information not found' });
     }
+
+    const characters = (await Character.find({ courseContentId: contentId })) as ICharacter[];
+    const characterIds = characters.map((info) => info.id);
+
+    const characterMap = characters.reduce((map, { id, title, contentId }) => {
+      return {
+        ...map,
+        [contentId]: {
+          id,
+          title,
+        },
+      };
+    }, {}) as { [key in string]: { id: string; title: string } };
+
+    const userCharacters = await UserCharacter.find({ userId, id: { $in: characterIds } });
+
+    const userCharacterMap = userCharacters.reduce((map, { userId, id }) => {
+      return {
+        ...map,
+        [id]: userId,
+      };
+    }, {}) as { [key in string]: string };
 
     const courseDetailInfo = await Promise.all(
       course.item.map(async (info: any) => {
@@ -106,6 +145,13 @@ export const getTravelDetailCourse = async (
             x: mapx,
             y: mapy,
             overview,
+            ...(characterMap[contentid] && {
+              characterInfo: {
+                id: characterMap[contentid].id,
+                title: characterMap[contentid].title,
+                collected: Boolean(userCharacterMap[characterMap[contentid].id]),
+              },
+            }),
           };
         } catch (error) {
           return null;

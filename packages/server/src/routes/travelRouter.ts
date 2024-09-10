@@ -71,11 +71,16 @@ router.get('/course/:id', travelCourse);
 
 /**
  * @swagger
- * /travel/detail/{contentId}:
+ * /travel/detail/{userId}/{contentId}:
  *  get:
  *    summary: Travel Detail Course
  *    tags: [Travel]
  *    parameters:
+ *      - in: path
+ *        name: userId
+ *        required: true
+ *        schema:
+ *          type: string
  *      - in: path
  *        name: contentId
  *        required: true
@@ -119,8 +124,20 @@ router.get('/course/:id', travelCourse);
  *                overview:
  *                  type: string
  *                  example: 'overview'
+ *                characterInfo:
+ *                  type: object
+ *                  properties:
+ *                    id:
+ *                      type: string
+ *                      example: 'characterId'
+ *                    title:
+ *                      type: string
+ *                      example: 'title'
+ *                    collected:
+ *                      type: boolean
+ *                      example: 'true or false'
  */
-router.get('/detail/:contentId', getTravelDetailCourse);
+router.get('/detail/:userId/:contentId', getTravelDetailCourse);
 
 /**
  * @swagger
