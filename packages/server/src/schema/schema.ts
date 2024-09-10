@@ -99,11 +99,13 @@ export const Mission = mongoose.model('Mission', missionSchema);
 export interface IUserMission {
   userId: string;
   id: string;
+  status: 'ACTIVE' | 'COMPLETED';
 }
 
 const userMissionSchema = new Schema<IUserMission>({
   userId: String,
   id: String,
+  status: String,
 });
 
 export const UserMission = mongoose.model('UserMission', userMissionSchema);

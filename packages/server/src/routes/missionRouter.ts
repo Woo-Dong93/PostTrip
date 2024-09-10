@@ -1,5 +1,5 @@
 import express from 'express';
-import { startUserMission, saveMission, deleteUserMission, getMissionByCourse } from '../service';
+import { startUserMission, saveMission, deleteUserMission, getMissionByCourse, getUserMission } from '../service';
 
 const router = express.Router();
 
@@ -90,6 +90,9 @@ router.post('/', saveMission);
  *                id:
  *                  type: string
  *                  example: "missionId"
+ *                status:
+ *                  type: string
+ *                  example: "ACTIVE or COMPLETED"
  */
 router.post('/user', startUserMission);
 
@@ -97,7 +100,7 @@ router.post('/user', startUserMission);
  * @swagger
  * /mission/user:
  *  delete:
- *    summary: Delete Mission
+ *    summary: Completed Mission
  *    tags: [Mission]
  *    requestBody:
  *      required: true
@@ -126,6 +129,9 @@ router.post('/user', startUserMission);
  *                id:
  *                  type: string
  *                  example: "missionId"
+ *                status:
+ *                  type: string
+ *                  example: "ACTIVE or COMPLETED"
  */
 router.delete('/user', deleteUserMission);
 
@@ -169,10 +175,51 @@ router.delete('/user', deleteUserMission);
  *                description:
  *                  type: string
  *                  example: "description"
- *                starting:
- *                  type: boolean
- *                  example: true / false
+ *                status:
+ *                  type: string
+ *                  example: "PENDING or ACTIVE or COMPLETED"
  */
 router.get('/user/:id/:contentId', getMissionByCourse);
+
+/**
+ * @swagger
+ * /mission/user/{id}:
+ *  get:
+ *    summary: User Mission
+ *    tags: [Mission]
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        required: true
+ *        schema:
+ *          type: string
+ *    responses:
+ *      200:
+ *        description: 성공
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                userId:
+ *                  type: string
+ *                  example: "userId"
+ *                id:
+ *                  type: string
+ *                  example: "missionId"
+ *                contentId:
+ *                  type: string
+ *                  example: "contentsId"
+ *                title:
+ *                  type: string
+ *                  example: "title"
+ *                description:
+ *                  type: string
+ *                  example: "description"
+ *                status:
+ *                  type: string
+ *                  example: "PENDING or ACTIVE or COMPLETED"
+ */
+router.get('/user/:id/', getUserMission);
 
 export default router;
