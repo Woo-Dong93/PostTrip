@@ -10,7 +10,11 @@ import com.posttrip.journeydex.feature.home.navigation.homeNavigationRoute
 import com.posttrip.journeydex.feature.home.navigation.homeScreen
 import com.posttrip.journeydex.feature.map.navigation.mapScreen
 import com.posttrip.journeydex.feature.map.navigation.navigateToMap
+import com.posttrip.journeydex.feature.reward.navigation.navigateToPrivacy
+import com.posttrip.journeydex.feature.reward.navigation.navigateToTerms
+import com.posttrip.journeydex.feature.reward.navigation.privacyScreen
 import com.posttrip.journeydex.feature.reward.navigation.rewardScreen
+import com.posttrip.journeydex.feature.reward.navigation.termsScreen
 
 @Composable
 fun JourneydexNavHost(
@@ -29,6 +33,24 @@ fun JourneydexNavHost(
         )
         mapScreen()
         dexScreen()
-        rewardScreen()
+        rewardScreen(
+            onBackClick = {
+
+            },
+            onTermsClick = {
+                navController.navigateToTerms()
+            },
+            onPrivacyClick = {
+                navController.navigateToPrivacy()
+            },
+            onLogoutClick = {},
+            onWithdrawClick = {}
+        )
+        termsScreen {
+            navController.popBackStack()
+        }
+        privacyScreen {
+            navController.popBackStack()
+        }
     }
 }
