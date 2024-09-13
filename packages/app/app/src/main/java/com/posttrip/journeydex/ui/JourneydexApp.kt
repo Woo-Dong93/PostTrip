@@ -54,9 +54,9 @@ import com.posttrip.journeydex.ui.navigation.TopLevelDestination
 
 @Composable
 fun JourneydexApp(
-    typeFromLogin : TypeFromLogin,
-    loginData : LoginData,
-    onTypeFormLoginChanged : (TypeFromLogin) -> Unit
+    typeFromLogin: TypeFromLogin,
+    loginData: LoginData,
+    onTypeFormLoginChanged: (TypeFromLogin) -> Unit
 ) {
     val navController = rememberNavController()
 
@@ -67,31 +67,32 @@ fun JourneydexApp(
                 onTypeFormLoginChanged(TypeFromLogin.GoToHome)
             }
         )
-    } else if(typeFromLogin == MainViewModel.Companion.TypeFromLogin.GoToHome){
-
+    } else if (typeFromLogin == MainViewModel.Companion.TypeFromLogin.GoToHome) {
         Scaffold(
             bottomBar = {
-                JourneydexBottomBar(
-                    destinations = TopLevelDestination.entries,
-                    currentDestination = navController.currentBackStackEntryAsState().value?.destination,
-                    onNavigateToDestination = {
-                        val topLevelNavOptions = navOptions {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
+                if (TopLevelDestination.entries.map { it.route }
+                        .contains(navController.currentBackStackEntryAsState().value?.destination?.route))
+                    JourneydexBottomBar(
+                        destinations = TopLevelDestination.entries,
+                        currentDestination = navController.currentBackStackEntryAsState().value?.destination,
+                        onNavigateToDestination = {
+                            val topLevelNavOptions = navOptions {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
                             }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                        if(it == TopLevelDestination.MAP){
-                            navController.navigateToMap(
-                                navOptions = topLevelNavOptions
-                            )
-                        }else {
-                            navController.navigate(it.route, navOptions = topLevelNavOptions)
-                        }
+                            if (it == TopLevelDestination.MAP) {
+                                navController.navigateToMap(
+                                    navOptions = topLevelNavOptions
+                                )
+                            } else {
+                                navController.navigate(it.route, navOptions = topLevelNavOptions)
+                            }
 
-                    }
-                )
+                        }
+                    )
             }
         ) { padding ->
             Column(
@@ -113,7 +114,7 @@ fun JourneydexBottomBar(
     onNavigateToDestination: (TopLevelDestination) -> Unit,
     currentDestination: NavDestination?,
     modifier: Modifier = Modifier
-){
+) {
     JourneydexNavigationBar(
         modifier = modifier
     ) {
@@ -124,7 +125,7 @@ fun JourneydexBottomBar(
                 onClick = {
                     onNavigateToDestination(destination)
                 },
-                icon ={
+                icon = {
                     Column(
                         modifier = Modifier.padding(top = 8.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -153,7 +154,7 @@ fun JourneydexNavigationBar(
     tonalElevation: Dp = NavigationBarDefaults.Elevation,
     windowInsets: WindowInsets = NavigationBarDefaults.windowInsets,
     content: @Composable RowScope.() -> Unit
-){
+) {
     Surface(
         color = containerColor,
         shape = RectangleShape,
@@ -177,11 +178,11 @@ fun JourneydexNavigationBar(
 @SuppressLint("UnrememberedMutableInteractionSource")
 @Composable
 fun RowScope.JourneydexNavigationBarItem(
-    selected : Boolean,
-    onClick : () -> Unit,
-    icon : @Composable () -> Unit,
+    selected: Boolean,
+    onClick: () -> Unit,
+    icon: @Composable () -> Unit,
     modifier: Modifier = Modifier,
-){
+) {
     NavigationBarItem(
         modifier = modifier.weight(1f),
         selected = selected,
