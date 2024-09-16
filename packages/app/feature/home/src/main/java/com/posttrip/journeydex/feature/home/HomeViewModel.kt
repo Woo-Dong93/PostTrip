@@ -27,7 +27,7 @@ class HomeViewModel @Inject constructor(
     val courses: StateFlow<List<Course>> = _courses.asStateFlow()
 
     private val _courseDetail = MutableSharedFlow<CourseList>()
-    val courseDetail: SharedFlow<CourseList> = _courseDetail.asSharedFlow()
+    val courseDetail : SharedFlow<CourseList> = _courseDetail.asSharedFlow()
 
     fun getRecommendedCourse(id: String) {
         if (courses.value.isEmpty())
@@ -36,7 +36,7 @@ class HomeViewModel @Inject constructor(
                     .catch {
 
                     }.collect {
-                        _courses.emit(it.courses.subList(0, 6))
+                        _courses.emit(it.courses.subList(0, 10))
                     }
             }
     }
@@ -62,7 +62,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun favoriteCourse(id: String, course: Course) {
+    fun favoriteCourse(id: String,course: Course) {
         if (course.favorite) {
             unlikeCourse(LoginCached.kakaoId, course)
         } else {
@@ -70,7 +70,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun likeCourse(id: String, course: Course) {
+    fun likeCourse(id : String,course: Course) {
         viewModelScope.launch {
             travelRepository.likeCourse(
                 FavoriteCourse(
@@ -82,7 +82,7 @@ class HomeViewModel @Inject constructor(
             }.collect {
                 _courses.emit(
                     courses.value.map {
-                        if (it.contentId == course.contentId) it.copy(favorite = true)
+                        if(it.contentId == course.contentId) it.copy(favorite = true)
                         else it
                     }
                 )
@@ -90,7 +90,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun unlikeCourse(id: String, course: Course) {
+    fun unlikeCourse(id : String, course: Course) {
         viewModelScope.launch {
             travelRepository.unlikeCourse(
                 FavoriteCourse(
@@ -102,7 +102,7 @@ class HomeViewModel @Inject constructor(
             }.collect {
                 _courses.emit(
                     courses.value.map {
-                        if (it.contentId == course.contentId) it.copy(favorite = false)
+                        if(it.contentId == course.contentId) it.copy(favorite = false)
                         else it
                     }
                 )
