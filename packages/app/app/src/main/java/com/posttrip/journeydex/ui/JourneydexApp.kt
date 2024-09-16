@@ -70,8 +70,8 @@ fun JourneydexApp(
     } else if (typeFromLogin == MainViewModel.Companion.TypeFromLogin.GoToHome) {
         Scaffold(
             bottomBar = {
-                if (TopLevelDestination.entries.map { it.route }
-                        .contains(navController.currentBackStackEntryAsState().value?.destination?.route))
+                val target = navController.currentBackStackEntryAsState().value?.destination?.route
+                if (TopLevelDestination.entries.any { target?.contains(it.route) == true })
                     JourneydexBottomBar(
                         destinations = TopLevelDestination.entries,
                         currentDestination = navController.currentBackStackEntryAsState().value?.destination,

@@ -1,13 +1,11 @@
 package com.posttrip.journeydex.feature.map
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -31,7 +29,6 @@ import com.kakao.vectormap.KakaoMap
 import com.kakao.vectormap.KakaoMapReadyCallback
 import com.kakao.vectormap.LatLng
 import com.kakao.vectormap.MapLifeCycleCallback
-import com.kakao.vectormap.camera.CameraUpdate
 import com.kakao.vectormap.camera.CameraUpdateFactory
 import com.kakao.vectormap.label.LabelOptions
 import com.kakao.vectormap.label.LabelStyle
@@ -43,6 +40,12 @@ import com.kakao.vectormap.route.RouteLineStyles
 import com.kakao.vectormap.route.RouteLineStylesSet
 import com.posttrip.journeydex.feature.home.component.CourseDetailBottomSheet
 import com.posttrip.journeydex.feature.map.databinding.ViewKakaoMapBinding
+import com.posttrip.journeydex.feature.map.util.DistanceCalculator
+import com.posttrip.journeydex.feature.map.util.MapUtil
+import com.posttrip.journeydex.feature.map.util.MapUtil.calculateCentroid
+import com.posttrip.journeydex.feature.map.util.MapUtil.calculateZoomLevel
+import kotlinx.coroutines.delay
+import kotlin.math.roundToInt
 
 
 @Composable
@@ -70,7 +73,6 @@ fun MapScreen(
                 }
             )
         }
-
     }
 
     fun setLocationByPoints(
@@ -81,6 +83,7 @@ fun MapScreen(
             val styles =
                 kakaoMap.labelManager?.addLabelStyles(LabelStyles.from(LabelStyle.from(R.drawable.ic_pin)))
             val options = LabelOptions.from(LatLng.from(y, x)).setStyles(styles)
+
             kakaoMap.labelManager?.layer?.addLabel(options)
         }
     }
@@ -120,19 +123,24 @@ fun MapScreen(
                 }
 
             }
+            kakaoMap.setOnLabelClickListener { map, labelLayer, label ->
+
+            }
         }
     }
 
 
     LaunchedEffect(key1 = Unit) {
-        viewModel.initCourseDetail()
         viewModel.getCourse("1")
     }
 
     LaunchedEffect(key1 = detailCourses) {
         if (course.isNotEmpty() && detailCourses != null) {
              setLabelClickEvent()
-
+            var minLatitude = Double.MAX_VALUE
+            var maxLatitude = Double.MIN_VALUE
+            var minLongitude = Double.MAX_VALUE
+            var maxLongitude = Double.MIN_VALUE
             var x = 0.0
             var y = 0.0
             kakaoMap?.labelManager?.clearAll()
@@ -143,6 +151,10 @@ fun MapScreen(
                     x = course.x.toDouble(),
                     y = course.y.toDouble()
                 )
+                minLatitude = minOf(minLatitude, course.y.toDouble())
+                maxLatitude = maxOf(maxLatitude, course.y.toDouble())
+                minLongitude = minOf(minLongitude, course.x.toDouble())
+                maxLongitude = maxOf(maxLongitude, course.x.toDouble())
             }
             detailCourses!!.courses.forEachIndexed { index, course ->
                 if(index == detailCourses!!.courses.size - 1 ) return@forEachIndexed
@@ -157,22 +169,33 @@ fun MapScreen(
             }
             val center = calculateCentroid(
                 detailCourses!!.courses.map {
-                    Point(
+                    MapUtil.Point(
                         x = it.x.toDouble(),
                         y = it.y.toDouble()
                     )
                 }
             )
+            val zoomLevel = calculateZoomLevel(minLatitude, maxLatitude, minLongitude, maxLongitude)
+
             kakaoMap?.moveCamera(
                 CameraUpdateFactory.newCenterPosition(
                     LatLng.from(
                         center.y,
                         center.x
-                    )
+                    ),
+                    zoomLevel.roundToInt()
                 )
             )
         }
     }
+
+
+//    LaunchedEffect(kakaoMap) {
+//        if(kakaoMap != null) {
+//            delay(500)
+//            viewModel.initCourseDetail()
+//        }
+//    }
 
     ComposableLifecycle { source, event ->
         when (event) {
@@ -213,10 +236,14 @@ fun MapScreen(
 
             }, object : KakaoMapReadyCallback() {
                 override fun onMapReady(p0: KakaoMap) {
-                    kakaoMap = p0
-                    kakaoMap?.moveCamera(
-                        CameraUpdateFactory.zoomTo(12)
-                    )
+                    if(kakaoMap == null){
+                        kakaoMap = p0
+                        kakaoMap?.moveCamera(
+                            CameraUpdateFactory.zoomTo(12)
+                        )
+                        viewModel.initCourseDetail()
+                    }
+
                 }
 
             })
@@ -265,66 +292,3 @@ fun ComposableLifecycle(
         }
     }
 }
-
-object DistanceCalculator {
-
-    private const val EARTH_RADIUS = 6371.0 // 지구 반경 (단위: km)
-
-    fun isWithin1Km(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Boolean {
-        // 위도와 경도를 라디안으로 변환
-        val lat1Rad = Math.toRadians(lat1)
-        val lon1Rad = Math.toRadians(lon1)
-        val lat2Rad = Math.toRadians(lat2)
-        val lon2Rad = Math.toRadians(lon2)
-
-        // 하버사인 공식에 필요한 각도 차이 계산
-        val deltaLat = lat2Rad - lat1Rad
-        val deltaLon = lon2Rad - lon1Rad
-
-        // 하버사인 공식 계산
-        val a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
-                Math.cos(lat1Rad) * Math.cos(lat2Rad) *
-                Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2)
-        val c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-
-        // 거리 계산 (단위: km)
-        val distance = EARTH_RADIUS * c
-
-        // 거리 비교 (1km 이하인지 확인)
-        return distance <= 0.5
-    }
-}
-
-fun calculateCentroid(points: List<Point>): Point {
-    try {
-        var area = 0.0
-        var centroidX = 0.0
-        var centroidY = 0.0
-
-        // Loop through all edges of the polygon
-        for (i in points.indices) {
-            val current = points[i]
-            val next = points[(i + 1) % points.size]
-
-            // Calculate the area contribution of this edge
-            val crossProduct = current.x * next.y - next.x * current.y
-            area += crossProduct
-
-            // Calculate the centroid contribution of this edge
-            centroidX += (current.x + next.x) * crossProduct
-            centroidY += (current.y + next.y) * crossProduct
-        }
-
-        area *= 0.5
-        centroidX /= (6 * area)
-        centroidY /= (6 * area)
-
-        return Point(centroidX, centroidY)
-    }catch (e : Exception){
-        return Point(0.0,0.0)
-    }
-
-}
-
-data class Point(val x: Double, val y: Double)
-

@@ -12,9 +12,9 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface TravelRepository {
-    fun cacheCourse(contentId : String, course:  Course)
+    fun cacheCourse(contentId : String, course:  CourseList)
 
-    fun getCachedCourse(contentId : String) : Course
+    fun getCachedCourse(contentId : String) : CourseList
 
     fun getCourse(id : String) : Flow<CourseList>
 

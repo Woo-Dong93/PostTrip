@@ -34,7 +34,12 @@ class MapViewModel @Inject constructor(
 
     fun initCourseDetail(){
         if(contentId != null && contentId != "-1"){
-            getCourseDetail(travelRepository.getCachedCourse(contentId))
+            viewModelScope.launch {
+                delay(1000)
+                val courses = travelRepository.getCachedCourse(contentId)
+                _detailCourses.emit(courses)
+
+            }
         }
     }
 

@@ -18,8 +18,9 @@ interface TravelService {
         @Path("id") id : String
     ) : Response<CourseList>
 
-    @GET("/travel/detail/{contentId}")
+    @GET("/travel/detail/{userId}/{contentId}")
     suspend fun getCourseDetail(
+        @Path("userId") userId : String,
         @Path("contentId") contentId : String
     ) : Response<CourseList>
 
