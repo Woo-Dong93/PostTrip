@@ -5,6 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.posttrip.journeydex.core.data.model.response.CourseList
+import com.posttrip.journeydex.core.data.model.travel.Course
 import com.posttrip.journeydex.feature.dex.navigation.dexScreen
 import com.posttrip.journeydex.feature.home.navigation.homeNavigationRoute
 import com.posttrip.journeydex.feature.home.navigation.homeScreen
@@ -18,6 +19,8 @@ import com.posttrip.journeydex.feature.reward.navigation.termsScreen
 
 @Composable
 fun JourneydexNavHost(
+    onLoadingShow : (Boolean) -> Unit,
+    onDetail : (Course) -> Unit,
     navController: NavHostController,
     modifier : Modifier = Modifier,
 ) {
@@ -27,11 +30,15 @@ fun JourneydexNavHost(
         startDestination = homeNavigationRoute
     ) {
         homeScreen(
+            onDetail = onDetail,
             onNavigateMap = { contentId ->
                 navController.navigateToMap(contentId)
             }
         )
-        mapScreen()
+        mapScreen(
+            onDetail = onDetail,
+            onLoadingShow = onLoadingShow
+        )
         dexScreen()
         rewardScreen(
             onBackClick = {

@@ -6,6 +6,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.posttrip.journeydex.core.data.model.travel.Course
 import com.posttrip.journeydex.feature.map.MapScreen
 
 const val mapNavigationRoute = "map_route"
@@ -16,11 +17,17 @@ fun NavController.navigateToMap(contentId : String = "-1",navOptions: NavOptions
 
 }
 
-fun NavGraphBuilder.mapScreen() {
+fun NavGraphBuilder.mapScreen(
+    onDetail : (Course) -> Unit,
+    onLoadingShow : (Boolean) -> Unit,
+) {
     composable(
         route = "${mapNavigationRoute}/{$contentIdArg}",
         arguments = listOf(navArgument(contentIdArg) { type = NavType.StringType })
     ) {
-        MapScreen()
+        MapScreen(
+            onDetail = onDetail,
+            onLoadingShow = onLoadingShow
+        )
     }
 }

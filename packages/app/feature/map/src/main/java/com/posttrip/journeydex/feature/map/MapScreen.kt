@@ -1,8 +1,7 @@
 package com.posttrip.journeydex.feature.map
 
-import android.location.Location
 import android.os.Looper
-import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,7 +18,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
@@ -38,29 +36,25 @@ import com.kakao.vectormap.KakaoMap
 import com.kakao.vectormap.KakaoMapReadyCallback
 import com.kakao.vectormap.LatLng
 import com.kakao.vectormap.MapLifeCycleCallback
-import com.kakao.vectormap.camera.CameraUpdate
 import com.kakao.vectormap.camera.CameraUpdateFactory
-import com.kakao.vectormap.label.LabelLayerOptions
-import com.kakao.vectormap.label.LabelOptions
-import com.kakao.vectormap.label.LabelStyle
-import com.kakao.vectormap.label.LabelStyles
-import com.kakao.vectormap.route.RouteLineOptions
-import com.kakao.vectormap.route.RouteLineSegment
-import com.kakao.vectormap.route.RouteLineStyle
-import com.kakao.vectormap.route.RouteLineStyles
-import com.kakao.vectormap.route.RouteLineStylesSet
+import com.kakao.vectormap.route.RouteLineLayer
+import com.posttrip.journeydex.core.data.model.travel.Course
 import com.posttrip.journeydex.feature.home.component.CourseDetailBottomSheet
 import com.posttrip.journeydex.feature.map.databinding.ViewKakaoMapBinding
-import com.posttrip.journeydex.feature.map.util.DistanceCalculator
 import com.posttrip.journeydex.feature.map.util.MapUtil
 import com.posttrip.journeydex.feature.map.util.MapUtil.calculateCentroid
 import com.posttrip.journeydex.feature.map.util.MapUtil.calculateZoomLevel
+import com.posttrip.journeydex.feature.map.util.MapUtil.lastLat
+import com.posttrip.journeydex.feature.map.util.MapUtil.lastLng
+import com.posttrip.journeydex.feature.map.util.MapUtil.setLine
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
 
 @Composable
 fun MapScreen(
+    onDetail : (Course) -> Unit,
+    onLoadingShow : (Boolean) -> Unit,
     viewModel: MapViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -69,6 +63,9 @@ fun MapScreen(
 
     var mapBiding by remember { mutableStateOf<ViewKakaoMapBinding?>(null) }
     var kakaoMap by remember { mutableStateOf<KakaoMap?>(null) }
+    var lines by remember {
+        mutableStateOf<RouteLineLayer?>(null)
+    }
     var isSearchMode by remember {
         mutableStateOf(false)
     }
@@ -76,17 +73,19 @@ fun MapScreen(
         mutableStateOf(false)
     }
     val course by viewModel.courses.collectAsStateWithLifecycle()
-    val detailCourses by viewModel.detailCourses.collectAsStateWithLifecycle()
-
+    val normalDetailCourses by viewModel.normalDetailCourses.collectAsStateWithLifecycle()
+    val collectingDetailCourses by viewModel.collectingDetailCourses.collectAsStateWithLifecycle()
+    val lineDetailCourses by viewModel.lineDetailCourses.collectAsStateWithLifecycle()
 
     var shownBottomSheet by remember {
         mutableStateOf(false)
     }
 
     if (shownBottomSheet) {
-        detailCourses?.let {
+        lineDetailCourses?.let {
             CourseDetailBottomSheet(
-                courseList = detailCourses!!,
+                onDetail = onDetail,
+                courseList = lineDetailCourses!!,
                 onDismiss = {
                     shownBottomSheet = false
                 }
@@ -95,168 +94,43 @@ fun MapScreen(
 
     }
 
-    fun setLocationByPoints(
-        x: Double,
-        y: Double
-    ) {
-        kakaoMap?.let { kakaoMap ->
-            val styles =
-                kakaoMap.labelManager?.addLabelStyles(LabelStyles.from(LabelStyle.from(R.drawable.ic_pin)))
-            val options = LabelOptions.from(LatLng.from(y, x)).setStyles(styles)
-            val layer = LabelLayerOptions.from("courses")
-            kakaoMap.labelManager?.addLayer(layer)
-            kakaoMap.labelManager?.getLayer("courses")?.addLabel(options)
-        }
-    }
-
-    fun setLine(
-        startX: Double,
-        startY: Double,
-        endX : Double,
-        endY : Double
-    ) {
-        kakaoMap?.let { kakaoMap ->
-            val layer = kakaoMap.routeLineManager?.layer
-            val styles = RouteLineStylesSet.from("redStyle",
-                RouteLineStyles.from(RouteLineStyle.from(4f, Color.Red.toArgb())));
-
-            val segment = RouteLineSegment.from(
-                listOf(
-                    LatLng.from(startY,startX),
-                    LatLng.from(endY,endX)
-                )
-            ).setStyles(styles.getStyles(0))
-            val option = RouteLineOptions.from(segment).setStylesSet(styles)
-            layer?.addRouteLine(option)
-        }
-    }
-
-    fun setLabelClickEvent() {
-        kakaoMap?.let { kakaoMap ->
-            kakaoMap.setOnViewportClickListener { map, latLng, pointF ->
-                detailCourses?.courses?.find {
-                    DistanceCalculator.isWithin1Km(
-                        lat1 = latLng.latitude, lat2 = it.y.toDouble(),
-                        lon1 = latLng.longitude, lon2 = it.x.toDouble()
-                    )
-                }?.let {
-                    shownBottomSheet = true
-                }
-
-            }
-        }
-    }
-
-
-
-    fun stopLocationUpdates() {
-        fusedLocationClient.removeLocationUpdates(locationCallback)
-    }
-
-    fun updateUIWithLocation(location: Location) {
-        // 실시간 위치 정보를 UI에 업데이트합니다.
-        val latitude = location.latitude
-        val longitude = location.longitude
-
-        val deletedLayer = kakaoMap?.labelManager?.getLayer("my")
-        deletedLayer?.let {
-            kakaoMap?.labelManager?.remove(deletedLayer)
-        }
-
-
-        val styles =
-            kakaoMap?.labelManager?.addLabelStyles(
-                LabelStyles.from(LabelStyle.from(R.drawable.ic_circle_red))
-            )
-
-
-        val options = LabelOptions.from(LatLng.from(latitude, longitude)).setStyles(styles)
-        val layer = LabelLayerOptions.from("my")
-        kakaoMap?.labelManager?.addLayer(layer)
-        kakaoMap?.labelManager?.getLayer("my")?.addLabel(options)
-
-        if(isInit) return
-        if(viewModel.contentId != null && viewModel.contentId != "-1") return
-        kakaoMap?.moveCamera(
-            CameraUpdateFactory.newCenterPosition(
-                LatLng.from(
-                    latitude,
-                    longitude
-                )
-            )
-        )
-        isInit = true
-    }
-
-    fun startLocationUpdates() {
-        val locationRequest = LocationRequest.create().apply {
-            interval = 10000 // 위치 업데이트 간격 (10초)
-            fastestInterval = 5000 // 가장 빠른 업데이트 간격 (5초)
-            priority = LocationRequest.PRIORITY_HIGH_ACCURACY // 높은 정확도
-        }
-
-        locationCallback = object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult) {
-                for (location in locationResult.locations) {
-                    // 위치 업데이트를 처리합니다.
-                    updateUIWithLocation(location)
-                }
-            }
-        }
-
-
-        fusedLocationClient.requestLocationUpdates(
-            locationRequest,
-            locationCallback,
-            Looper.getMainLooper()
-        )
-    }
-
     LaunchedEffect(key1 = Unit) {
         viewModel.initCourseDetail()
         viewModel.getCourse("1")
     }
 
-    LaunchedEffect(key1 = detailCourses) {
-        if (course.isNotEmpty() && detailCourses != null) {
-             setLabelClickEvent()
+    LaunchedEffect(key1 = Unit) {
+        viewModel.shownLoading.collect {
+            onLoadingShow(it)
+        }
+    }
+
+    LaunchedEffect(key1 = lineDetailCourses) {
+        if (lineDetailCourses != null) {
+            kakaoMap?.routeLineManager?.layer?.removeAll()
+            delay(1000)
             var minLatitude = Double.MAX_VALUE
             var maxLatitude = Double.MIN_VALUE
             var minLongitude = Double.MAX_VALUE
             var maxLongitude = Double.MIN_VALUE
-            var x = 0.0
-            var y = 0.0
-            val layer = kakaoMap?.labelManager?.getLayer("courses")
-            layer?.let {
-                kakaoMap?.labelManager?.remove(layer)
-            }
-
-          //  kakaoMap?.labelManager?.clearAll()
-            detailCourses!!.courses.forEachIndexed { index, course ->
-                x += course.x.toDouble()
-                y += course.y.toDouble()
-                setLocationByPoints(
-                    x = course.x.toDouble(),
-                    y = course.y.toDouble()
-                )
+            lineDetailCourses!!.courses.forEachIndexed { index, course ->
                 minLatitude = minOf(minLatitude, course.y.toDouble())
                 maxLatitude = maxOf(maxLatitude, course.y.toDouble())
                 minLongitude = minOf(minLongitude, course.x.toDouble())
                 maxLongitude = maxOf(maxLongitude, course.x.toDouble())
-            }
-            detailCourses!!.courses.forEachIndexed { index, course ->
-                if(index == detailCourses!!.courses.size - 1 ) return@forEachIndexed
-                val start = detailCourses!!.courses[index]
-                val end = detailCourses!!.courses[index + 1]
+                if (index == lineDetailCourses!!.courses.size - 1) return@forEachIndexed
+                val start = lineDetailCourses!!.courses[index]
+                val end = lineDetailCourses!!.courses[index + 1]
                 setLine(
                     startX = start.x.toDouble(),
                     startY = start.y.toDouble(),
                     endX = end.x.toDouble(),
-                    endY = end.y.toDouble()
+                    endY = end.y.toDouble(),
+                    kakaoMap = kakaoMap
                 )
             }
             val center = calculateCentroid(
-                detailCourses!!.courses.map {
+                lineDetailCourses!!.courses.map {
                     MapUtil.Point(
                         x = it.x.toDouble(),
                         y = it.y.toDouble()
@@ -264,7 +138,7 @@ fun MapScreen(
                 }
             )
             val zoomLevel = calculateZoomLevel(minLatitude, maxLatitude, minLongitude, maxLongitude)
-
+            viewModel.updateLoading(false)
             kakaoMap?.moveCamera(
                 CameraUpdateFactory.newCenterPosition(
                     LatLng.from(
@@ -277,17 +151,138 @@ fun MapScreen(
         }
     }
 
+    LaunchedEffect(key1 = normalDetailCourses) {
+        if (course.isNotEmpty() && normalDetailCourses != null) {
+//             MapUtil.setLabelClickEvent(
+//                 courseList = normalDetailCourses,
+//                 kakaoMap = kakaoMap,
+//                 onShowBottomSheet = {
+//                     shownBottomSheet = true
+//                 }
+//             )
+            var x = 0.0
+            var y = 0.0
+            val layer = kakaoMap?.labelManager?.getLayer("normalCourses")
+            layer?.let {
+                kakaoMap?.labelManager?.remove(layer)
+            }
+            //  kakaoMap?.labelManager?.clearAll()
+
+
+            normalDetailCourses!!.courses.forEachIndexed { index, course ->
+                x += course.x.toDouble()
+                y += course.y.toDouble()
+                MapUtil.setLocationByPoints(
+                    x = course.x.toDouble(),
+                    y = course.y.toDouble(),
+                    kakaoMap = kakaoMap,
+                    id = "normalCourses",
+                    labelId = "normalCourses,${course.contentId}"
+                )
+            }
+            kakaoMap?.setOnLabelClickListener { kakaoMap, labelLayer, label ->
+                val (type, id) = label.labelId.split(",")
+                if (type == "normalCourses") {
+                    shownBottomSheet = true
+                } else {
+                    lineDetailCourses?.let {
+                        viewModel.refresh(it)
+                        Toast.makeText(context, "캐릭터 수집 액션", Toast.LENGTH_SHORT).show()
+
+                    }
+                }
+
+            }
+
+        }
+    }
+
+    LaunchedEffect(key1 = collectingDetailCourses) {
+        if (collectingDetailCourses != null) {
+//            MapUtil.setCollectingLabelClickEvent(
+//                courseList = collectingDetailCourses,
+//                kakaoMap = kakaoMap,
+//                onShowBottomSheet = {
+//                    shownBottomSheet = true
+//                }
+//            )
+            var x = 0.0
+            var y = 0.0
+            val layer = kakaoMap?.labelManager?.getLayer("collectingCourses")
+            layer?.let {
+                kakaoMap?.labelManager?.remove(layer)
+            }
+            //  kakaoMap?.labelManager?.clearAll()
+            collectingDetailCourses!!.courses.forEachIndexed { index, course ->
+                x += course.x.toDouble()
+                y += course.y.toDouble()
+                MapUtil.setCollectingLocationByPoints(
+                    x = course.x.toDouble(),
+                    y = course.y.toDouble(),
+                    kakaoMap = kakaoMap,
+                    id = "collectingCourses",
+                    labelId = "collectingCourses,${course.contentId}"
+                )
+
+            }
+            kakaoMap?.setOnLabelClickListener { kakaoMap, labelLayer, label ->
+                val (type, id) = label.labelId.split(",")
+                if (type == "normalCourses") {
+                    shownBottomSheet = true
+
+                } else {
+                    lineDetailCourses?.let {
+                        viewModel.refresh(it)
+                        Toast.makeText(context, "캐릭터 수집 액션", Toast.LENGTH_SHORT).show()
+
+                    }
+                }
+
+            }
+        }
+    }
+
     ComposableLifecycle { source, event ->
         when (event) {
             Lifecycle.Event.ON_RESUME -> {
                 mapBiding?.mapView?.resume()
                 fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
-                startLocationUpdates()
+                val locationRequest = LocationRequest.create().apply {
+                    interval = 10000 // 위치 업데이트 간격 (10초)
+                    fastestInterval = 5000 // 가장 빠른 업데이트 간격 (5초)
+                    priority = LocationRequest.PRIORITY_HIGH_ACCURACY // 높은 정확도
+                }
+
+                locationCallback = object : LocationCallback() {
+                    override fun onLocationResult(locationResult: LocationResult) {
+                        for (location in locationResult.locations) {
+                            // 위치 업데이트를 처리합니다.
+                            MapUtil.updateUIWithLocation(
+                                location,
+                                kakaoMap,
+                                isInit = isInit,
+                                viewModel = viewModel,
+                                onInit = {
+                                    isInit = true
+                                }
+                            )
+                        }
+                    }
+                }
+
+
+                fusedLocationClient.requestLocationUpdates(
+                    locationRequest,
+                    locationCallback,
+                    Looper.getMainLooper()
+                )
             }
 
             Lifecycle.Event.ON_PAUSE -> {
                 mapBiding?.mapView?.pause()
-                stopLocationUpdates()
+                MapUtil.stopLocationUpdates(
+                    fusedLocationClient, locationCallback
+                )
             }
 
             Lifecycle.Event.ON_DESTROY -> {
@@ -308,6 +303,7 @@ fun MapScreen(
             factory = ViewKakaoMapBinding::inflate
         ) {
             mapBiding = this
+
             mapView.start(object : MapLifeCycleCallback() {
                 override fun onMapDestroy() {
                     mapView.finish()
@@ -319,12 +315,18 @@ fun MapScreen(
 
             }, object : KakaoMapReadyCallback() {
                 override fun onMapReady(p0: KakaoMap) {
-                    if(kakaoMap == null){
+                    if (p0.hashCode() != kakaoMap?.hashCode()) {
                         kakaoMap = p0
-                        kakaoMap?.moveCamera(
-                            CameraUpdateFactory.zoomTo(12)
-                        )
-                        viewModel.initCourseDetail()
+                        if (lastLat != 0.toDouble())
+                            kakaoMap?.moveCamera(
+                                CameraUpdateFactory.newCenterPosition(
+                                    LatLng.from(
+                                        lastLat,
+                                        lastLng
+                                    ),
+                                    12
+                                )
+                            )
                     }
 
                 }

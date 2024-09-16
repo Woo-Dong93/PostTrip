@@ -56,6 +56,7 @@ import com.posttrip.journeydex.feature.home.component.CourseDetailBottomSheet
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    onDetail : (Course) -> Unit,
     onNavigateMap: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel()
@@ -75,6 +76,7 @@ fun HomeScreen(
 
     if (courseList != null) {
         CourseDetailBottomSheet(
+            onDetail = onDetail,
             courseList = courseList!!,
             onNavigateMap = {
                 onNavigateMap(it)

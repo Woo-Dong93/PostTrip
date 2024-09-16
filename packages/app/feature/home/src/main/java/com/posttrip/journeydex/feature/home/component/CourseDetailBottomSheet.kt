@@ -41,11 +41,13 @@ import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.posttrip.journeydex.core.data.model.response.CourseList
+import com.posttrip.journeydex.core.data.model.travel.Course
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CourseDetailBottomSheet(
     courseList: CourseList,
+    onDetail : (Course) -> Unit,
     onDismiss: () -> Unit,
     onNavigateMap : (String) -> Unit = {},
 ) {
@@ -135,7 +137,9 @@ fun CourseDetailBottomSheet(
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .aspectRatio(1f),
+                                .aspectRatio(1f).clickable {
+                                    onDetail(course)
+                                },
                             shape = RoundedCornerShape(8.dp),
                         ) {
                             AsyncImage(

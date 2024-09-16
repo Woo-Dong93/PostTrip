@@ -1,7 +1,190 @@
 package com.posttrip.journeydex.feature.map.util
 
+import android.location.Location
+import android.os.Looper
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.kakao.vectormap.KakaoMap
+import com.kakao.vectormap.LatLng
+import com.kakao.vectormap.camera.CameraUpdateFactory
+import com.kakao.vectormap.label.LabelLayerOptions
+import com.kakao.vectormap.label.LabelOptions
+import com.kakao.vectormap.label.LabelStyle
+import com.kakao.vectormap.label.LabelStyles
+import com.kakao.vectormap.route.RouteLineOptions
+import com.kakao.vectormap.route.RouteLineSegment
+import com.kakao.vectormap.route.RouteLineStyle
+import com.kakao.vectormap.route.RouteLineStyles
+import com.kakao.vectormap.route.RouteLineStylesSet
+import com.posttrip.journeydex.core.data.model.response.CourseList
+import com.posttrip.journeydex.feature.map.MapViewModel
+import com.posttrip.journeydex.feature.map.R
+
 object MapUtil {
 
+    var lastLat = 0.toDouble()
+    var lastLng = 0.toDouble()
+
+
+    fun setLocationByPoints(
+        x: Double,
+        y: Double,
+        id : String,
+        labelId : String,
+        kakaoMap: KakaoMap?
+    ) {
+        kakaoMap?.let { kakaoMap ->
+            val layer = LabelLayerOptions.from(id)
+            val styles =
+                kakaoMap.labelManager?.addLabelStyles(LabelStyles.from(LabelStyle.from(R.drawable.ic_pin)))
+
+            val options = LabelOptions.from(labelId,LatLng.from(y, x)).setStyles(styles)
+
+
+            layer.setZOrder(1100)
+            kakaoMap.labelManager?.addLayer(layer)
+            kakaoMap.labelManager?.getLayer(id)?.addLabel(options)
+        }
+    }
+
+    fun setCollectingLocationByPoints(
+        x: Double,
+        y: Double,
+        id : String,
+        labelId : String,
+        kakaoMap: KakaoMap?
+    ) {
+        kakaoMap?.let { kakaoMap ->
+            val styles =
+                kakaoMap.labelManager?.addLabelStyles(LabelStyles.from(LabelStyle.from(R.drawable.ic_character1)))
+
+            val options = LabelOptions.from(labelId,LatLng.from(y, x)).setStyles(styles)
+            val layer = LabelLayerOptions.from(id)
+            layer.setZOrder(1400)
+            kakaoMap.labelManager?.addLayer(layer)
+            kakaoMap.labelManager?.getLayer(id)?.addLabel(options)
+        }
+    }
+
+    fun setLine(
+        startX: Double,
+        startY: Double,
+        endX : Double,
+        endY : Double,
+        kakaoMap: KakaoMap?
+    ) {
+        kakaoMap?.let { kakaoMap ->
+            val layer = kakaoMap.routeLineManager?.layer
+            val styles = RouteLineStylesSet.from("redStyle",
+                RouteLineStyles.from(RouteLineStyle.from(4f, Color.Red.toArgb())));
+
+            val segment = RouteLineSegment.from(
+                listOf(
+                    LatLng.from(startY,startX),
+                    LatLng.from(endY,endX)
+                )
+            ).setStyles(styles.getStyles(0))
+            val option = RouteLineOptions.from(segment).setStylesSet(styles)
+            layer?.addRouteLine(option)
+        }
+    }
+
+    fun setLabelClickEvent(
+        kakaoMap: KakaoMap?,
+        courseList : CourseList?,
+        onShowBottomSheet : () -> Unit
+    ) {
+        kakaoMap?.let { kakaoMap ->
+            kakaoMap.setOnViewportClickListener { map, latLng, pointF ->
+                courseList?.courses?.find {
+                    DistanceCalculator.isWithin1Km(
+                        lat1 = latLng.latitude, lat2 = it.y.toDouble(),
+                        lon1 = latLng.longitude, lon2 = it.x.toDouble()
+                    )
+                }?.let {
+                    onShowBottomSheet()
+                }
+
+            }
+        }
+    }
+
+    fun setCollectingLabelClickEvent(
+        kakaoMap: KakaoMap?,
+        courseList : CourseList?,
+        onShowBottomSheet : () -> Unit
+    ) {
+        kakaoMap?.let { kakaoMap ->
+//            kakaoMap.setOnViewportClickListener { map, latLng, pointF ->
+//                courseList?.courses?.find {
+//                    DistanceCalculator.isWithin1Km(
+//                        lat1 = latLng.latitude, lat2 = it.y.toDouble(),
+//                        lon1 = latLng.longitude, lon2 = it.x.toDouble()
+//                    )
+//                }?.let {
+//                    onShowBottomSheet()
+//                }
+//
+//            }
+        }
+    }
+
+
+
+    fun stopLocationUpdates(
+        fusedLocationClient : FusedLocationProviderClient,
+        locationCallback : LocationCallback
+    ) {
+        fusedLocationClient.removeLocationUpdates(locationCallback)
+    }
+
+    fun updateUIWithLocation(
+        location: Location,
+        kakaoMap: KakaoMap?,
+        isInit : Boolean,
+        viewModel: MapViewModel,
+        onInit : () -> Unit
+    ) {
+        // 실시간 위치 정보를 UI에 업데이트합니다.
+        val latitude = location.latitude
+        val longitude = location.longitude
+
+        val deletedLayer = kakaoMap?.labelManager?.getLayer("my")
+        deletedLayer?.let {
+            kakaoMap?.labelManager?.remove(deletedLayer)
+        }
+
+
+        val styles =
+            kakaoMap?.labelManager?.addLabelStyles(
+                LabelStyles.from(LabelStyle.from(R.drawable.ic_circle_red))
+            )
+
+
+        val options = LabelOptions.from(LatLng.from(latitude, longitude)).setStyles(styles)
+        val layer = LabelLayerOptions.from("my")
+        kakaoMap?.labelManager?.addLayer(layer)
+        kakaoMap?.labelManager?.getLayer("my")?.addLabel(options)
+
+        if(isInit) return
+        if(viewModel.contentId != null && viewModel.contentId != "-1") return
+
+        lastLat = latitude
+        lastLng = longitude
+        kakaoMap?.moveCamera(
+            CameraUpdateFactory.newCenterPosition(
+                LatLng.from(
+                    latitude,
+                    longitude
+                )
+            )
+        )
+        onInit()
+    }
 
 
     fun calculateCentroid(points: List<Point>): Point {
