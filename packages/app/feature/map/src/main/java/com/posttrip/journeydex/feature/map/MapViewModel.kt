@@ -1,21 +1,33 @@
 package com.posttrip.journeydex.feature.map
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.posttrip.journeydex.core.data.model.request.SearchCourse
 import com.posttrip.journeydex.core.data.model.response.CourseList
 import com.posttrip.journeydex.core.data.model.travel.Course
 import com.posttrip.journeydex.core.data.repository.TravelRepository
 import com.posttrip.journeydex.core.data.util.LoginCached
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,7 +41,14 @@ class MapViewModel @Inject constructor(
     private val _courses = MutableStateFlow<List<Course>>(emptyList())
     val courses : StateFlow<List<Course>> = _courses.asStateFlow()
 
+    var query by mutableStateOf("")
+        private set
 
+    val debouncedSearchQuery: Flow<String> = snapshotFlow {
+        query
+    }.debounce(1000)
+        .filter { it.isNotEmpty() }
+        .distinctUntilChanged().stateIn(viewModelScope, SharingStarted.Eagerly,"")
 
     private val _lineDetailCourses = MutableStateFlow<CourseList?>(null)
     val lineDetailCourses : StateFlow<CourseList?> = _lineDetailCourses.asStateFlow()
@@ -67,12 +86,6 @@ class MapViewModel @Inject constructor(
 
                 }.collect { course ->
                     _courses.emit(course.courses)
-//                    course.courses.forEach {
-//                        travelRepository.cacheCourse(
-//                            contentId = it.contentId,
-//                            course = course
-//                        )
-//                    }
                     cachecd = course.courses
                 }
         }
@@ -174,6 +187,33 @@ class MapViewModel @Inject constructor(
     fun cacheDetail(course: Course){
         viewModelScope.launch {
             travelRepository.cacheCourseDetail(course.contentId,course)
+        }
+    }
+    fun updateQuery(input: String) {
+        query = input
+    }
+
+    fun searchCourseList(
+        keyword : String,
+        style : String,
+        dest : String,
+        type : String
+    ){
+        viewModelScope.launch {
+            travelRepository.searchCourse(
+                SearchCourse(
+                    area = keyword,
+                    travelStyleKeyword = style,
+                    destinationTypeKeyword = dest,
+                    travelTypeKeyword = type
+                )
+            ).catch {
+
+                }.collect { course ->
+                    val courseList = course.courses
+                    _courses.emit(if(courseList.size >= 32) courseList.subList(0,31) else courseList)
+                    //cachecd = course.courses
+                }
         }
     }
 }

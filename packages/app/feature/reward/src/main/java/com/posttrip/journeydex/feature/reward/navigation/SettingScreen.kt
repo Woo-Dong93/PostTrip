@@ -74,6 +74,9 @@ fun SettingScreen(
                 //로그아웃 로직 추가
                 viewModel.logout()
 
+            },
+            onCancel = {
+                onShownLogoutDialog = false
             }
         )
     }
@@ -88,10 +91,14 @@ fun SettingScreen(
             onDismissRequest = {
                 //탈퇴 로직 추가
                 onShownWithdrawDialog = false
-                viewModel.withdraw()
+
             },
             onClickOk = {
                 onShownWithdrawDialog = false
+            },
+            onCancel = {
+                onShownWithdrawDialog = false
+                viewModel.withdraw()
             }
         )
     }

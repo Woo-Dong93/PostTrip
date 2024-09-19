@@ -28,6 +28,7 @@ import androidx.compose.ui.window.DialogProperties
 fun JDialog(
     title: String,
     onDismissRequest: () -> Unit,
+    onCancel : () -> Unit,
     onClickOk: () -> Unit,
     modifier: Modifier = Modifier,
     description: String? = null,
@@ -97,7 +98,7 @@ fun JDialog(
                         .clickable(
                             interactionSource = MutableInteractionSource(),
                             indication = null,
-                            onClick = onDismissRequest
+                            onClick = onCancel
                         ),
                     text = cancelText,
                     fontSize = 16.sp,

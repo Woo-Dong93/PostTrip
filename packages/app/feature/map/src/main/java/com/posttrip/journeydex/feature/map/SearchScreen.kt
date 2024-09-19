@@ -42,12 +42,42 @@ import androidx.compose.ui.unit.sp
 import com.posttrip.journeydex.core.data.model.travel.Course
 import com.posttrip.journeydex.feature.home.TravelCourseItem
 
+enum class TravelStyleKeyword(val title: String) {
+    healing("힐링"),
+    culture("문화"),
+    gourmet("미식"),
+    activity("액티비티")
+}
+
+enum class DestinationTypeKeyword(val title: String) {
+    beach("바닷가"),
+    mountain("산"),
+    city("도시"),
+    island("섬")
+}
+
+enum class TravelTypeKeyword(val title: String) {
+    solo("나홀로"),
+    family("가족"),
+    couple("연인"),
+    friends("친구")
+}
+
 @Composable
 fun SearchScreen(
-    onDismiss : (Course) -> Unit,
+    query: String,
+    onValueChanged: (String) -> Unit,
+    travelStyle: TravelStyleKeyword?,
+    onClickTravelStyle: () -> Unit,
+    destinationTypeKeyword: DestinationTypeKeyword?,
+    onClickDestinationTypeKeyword: () -> Unit,
+    travelTypeKeyword: TravelTypeKeyword?,
+    onClickTravelTypeKeyword: () -> Unit,
+    onDismiss: (Course) -> Unit,
     modifier: Modifier = Modifier,
-    courseList : List<Course>
+    courseList: List<Course>
 ) {
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -56,11 +86,19 @@ fun SearchScreen(
         SearchTextField(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp)
+                .padding(bottom = 16.dp),
+            query = query,
+            onValueChanged = onValueChanged
         )
 
         FilterButtonSection(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            travelStyle = travelStyle?.title ,
+            onClickTravelStyle = onClickTravelStyle,
+            destinationTypeKeyword = destinationTypeKeyword?.title,
+            onClickDestinationTypeKeyword = onClickDestinationTypeKeyword,
+            travelTypeKeyword = travelTypeKeyword?.title,
+            onClickTravelTypeKeyword = onClickTravelTypeKeyword
         )
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
@@ -85,15 +123,16 @@ fun SearchScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchTextField(
+    query: String,
+    onValueChanged: (String) -> Unit,
     modifier: Modifier = Modifier,
-    readOnly : Boolean = false
+    readOnly: Boolean = false
 ) {
-    var query by remember { mutableStateOf("") }
 
     TextField(
         value = query,
         readOnly = readOnly,
-        onValueChange = { query = it },
+        onValueChange = onValueChanged,
         placeholder = {
             Text(text = "여행하고 싶은 곳이 있으신가요?", color = Color.LightGray)
         },
@@ -142,24 +181,34 @@ fun SearchText(modifier: Modifier = Modifier, onClick: () -> Unit) {
 }
 
 @Composable
-fun FilterButtonSection(modifier: Modifier = Modifier) {
+fun FilterButtonSection(
+    modifier: Modifier = Modifier,
+    travelStyle: String?,
+    onClickTravelStyle: () -> Unit,
+    destinationTypeKeyword: String?,
+    onClickDestinationTypeKeyword: () -> Unit,
+    travelTypeKeyword: String?,
+    onClickTravelTypeKeyword: () -> Unit,
+) {
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        FilterButton(text = "여행지")
-        FilterButton(text = "스타일")
-        FilterButton(text = "동행")
+        FilterButton(text = travelStyle ?: "여행지", onClick = onClickTravelStyle)
+        FilterButton(
+            text = destinationTypeKeyword ?: "스타일",
+            onClick = onClickDestinationTypeKeyword
+        )
+        FilterButton(text = travelTypeKeyword ?: "동행", onClick = onClickTravelTypeKeyword)
     }
 }
 
 @Composable
-fun FilterButton(text: String) {
-    var expanded by remember { mutableStateOf(false) }
+fun FilterButton(text: String, onClick: () -> Unit) {
 
     Box {
         Button(
-            onClick = { expanded = true },
+            onClick = onClick,
             colors = ButtonDefaults.outlinedButtonColors(),
             shape = RoundedCornerShape(20.dp),
             border = BorderStroke(1.dp, Color.Gray)

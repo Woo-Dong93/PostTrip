@@ -15,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,13 +49,16 @@ import com.posttrip.journeydex.feature.map.util.MapUtil.lastLat
 import com.posttrip.journeydex.feature.map.util.MapUtil.lastLng
 import com.posttrip.journeydex.feature.map.util.MapUtil.setLine
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlin.math.roundToInt
 
 
 @Composable
 fun MapScreen(
-    onDetail : (Course) -> Unit,
-    onLoadingShow : (Boolean) -> Unit,
+    onDetail: (Course) -> Unit,
+    onLoadingShow: (Boolean) -> Unit,
     viewModel: MapViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -81,6 +85,44 @@ fun MapScreen(
         mutableStateOf(false)
     }
 
+    var shownTravelStyleBottomSheet by remember { mutableStateOf(false) }
+    var shownDestinationTypeKeywordBottomSheet by remember { mutableStateOf(false) }
+    var shownTravelTypeKeywordBottomSheet by remember { mutableStateOf(false) }
+
+    var travelStyle by remember {
+        mutableStateOf<TravelStyleKeyword?>(null)
+    }
+    var destinationTypeKeyword by remember {
+        mutableStateOf<DestinationTypeKeyword?>(null)
+    }
+    var travelTypeKeyword by remember {
+        mutableStateOf<TravelTypeKeyword?>(null)
+    }
+
+    LaunchedEffect(travelStyle,destinationTypeKeyword,travelTypeKeyword) {
+        if(travelStyle == null && destinationTypeKeyword == null &&
+             travelTypeKeyword == null) return@LaunchedEffect
+        viewModel.searchCourseList(
+            viewModel.query,
+            travelStyle?.name ?: "",
+            destinationTypeKeyword?.name ?: "",
+            travelTypeKeyword?.name ?: ""
+        )
+    }
+
+    LaunchedEffect(key1 = Unit) {
+        viewModel.debouncedSearchQuery.collect {
+            if(it.isNotEmpty()){
+                viewModel.searchCourseList(
+                    it,
+                    travelStyle?.name ?: "",
+                    destinationTypeKeyword?.name ?: "",
+                    travelTypeKeyword?.name ?: ""
+                )
+            }
+        }
+    }
+
     if (shownBottomSheet) {
         lineDetailCourses?.let {
             CourseDetailBottomSheet(
@@ -95,12 +137,38 @@ fun MapScreen(
                 }
             )
         }
+    }
 
+    if (shownTravelStyleBottomSheet) {
+        TravelStyleKeywordBottomSheet(
+            onSelect = {
+                travelStyle = it
+                shownTravelStyleBottomSheet = false
+            },
+            onDismiss = { shownTravelStyleBottomSheet = false })
+    }
+
+    if (shownDestinationTypeKeywordBottomSheet) {
+        DestinationTypeKeywordBottomSheet(
+            onSelect = {
+                destinationTypeKeyword = it
+                shownDestinationTypeKeywordBottomSheet = false
+            },
+            onDismiss = { shownDestinationTypeKeywordBottomSheet = false })
+    }
+
+    if (shownTravelTypeKeywordBottomSheet) {
+        TravelTypeKeywordBottomSheet(
+            onSelect = {
+                travelTypeKeyword = it
+                shownTravelTypeKeywordBottomSheet = false
+            },
+            onDismiss = { shownTravelTypeKeywordBottomSheet = false })
     }
 
     LaunchedEffect(key1 = Unit) {
         viewModel.initCourseDetail()
-        viewModel.getCourse("1")
+        // viewModel.getCourse("1")
     }
 
     LaunchedEffect(key1 = Unit) {
@@ -236,7 +304,7 @@ fun MapScreen(
 
                 } else {
                     lineDetailCourses?.let {
-                        viewModel.collectCharacter(id,)
+                        viewModel.collectCharacter(id)
                         Toast.makeText(context, "캐릭터 수집 액션", Toast.LENGTH_SHORT).show()
 
                     }
@@ -359,6 +427,20 @@ fun MapScreen(
             onDismiss = {
                 viewModel.getCourseDetail(it)
                 isSearchMode = false
+            },
+            query = viewModel.query,
+            onValueChanged = viewModel::updateQuery,
+            travelStyle = travelStyle,
+            onClickTravelStyle = {
+                shownTravelStyleBottomSheet = true
+            },
+            destinationTypeKeyword = destinationTypeKeyword,
+            onClickDestinationTypeKeyword = {
+                shownDestinationTypeKeywordBottomSheet = true
+            },
+            travelTypeKeyword = travelTypeKeyword,
+            onClickTravelTypeKeyword = {
+                shownTravelTypeKeywordBottomSheet = true
             }
         )
     }

@@ -129,8 +129,8 @@ fun HomeScreen(
                 GridItemSpan(2)
             }) {
                 Column {
-                    MissionCouponSection()
-                    Spacer(modifier = Modifier.height(16.dp))
+                   // MissionCouponSection()
+                    //Spacer(modifier = Modifier.height(16.dp))
                     Text(text = "추천 여행 코스", fontSize = 16.sp)
                     Spacer(modifier = Modifier.height(8.dp))
 
