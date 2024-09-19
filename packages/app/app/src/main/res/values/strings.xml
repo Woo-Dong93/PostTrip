@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">journeydex</string>
+    <string name="title_activity_course_detail">CourseDetailActivity</string>
 </resources>

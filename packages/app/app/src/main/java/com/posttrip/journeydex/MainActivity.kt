@@ -1,5 +1,7 @@
 package com.posttrip.journeydex
 
+import android.Manifest.permission.ACCESS_COARSE_LOCATION
+import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -40,6 +42,33 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+    private val locationPermissionRequest = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        when {
+            permissions[ACCESS_FINE_LOCATION] == true -> {
+                // 권한이 부여되었습니다.
+                //startLocationUpdates()
+            }
+            permissions[ACCESS_COARSE_LOCATION] == true -> {
+                // 권한이 부여되었습니다.
+               // startLocationUpdates()
+            }
+            else -> {
+                // 권한이 거부되었습니다.
+            }
+        }
+    }
+
+    fun requestLocationPermissions() {
+        locationPermissionRequest.launch(
+            arrayOf(
+                ACCESS_FINE_LOCATION,
+                ACCESS_COARSE_LOCATION
+            )
+        )
+    }
+
     private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,7 +83,13 @@ class MainActivity : ComponentActivity() {
                     typeFromLogin = typeFromLogin,
                     loginData = loginData,
                     onTypeFormLoginChanged = {
-                        viewModel.updateTypeFromLogin(MainViewModel.Companion.TypeFromLogin.GoToHome)
+                        if(it == MainViewModel.Companion.TypeFromLogin.None){
+                            finish()
+                            startActivity(this.intent)
+                        }else {
+                            viewModel.updateTypeFromLogin(it)
+                        }
+
                     }
                 )
             }
@@ -63,12 +98,23 @@ class MainActivity : ComponentActivity() {
 
     private fun initObserver() {
         lifecycleScope.launch {
-            viewModel.typeFromLogin.collect {
-                if (it == MainViewModel.Companion.TypeFromLogin.None) {
-                    val intent = Intent(this@MainActivity, LoginActivity::class.java)
-                    resultLauncher.launch(intent)
+            launch {
+                viewModel.typeFromLogin.collect {
+                    if (it == MainViewModel.Companion.TypeFromLogin.None) {
+                        val intent = Intent(this@MainActivity, LoginActivity::class.java)
+                        resultLauncher.launch(intent)
+                    }
+                }
+            }
+            launch {
+                viewModel.typeFromLogin.collect {
+                    if(it == MainViewModel.Companion.TypeFromLogin.GoToHome){
+                        requestLocationPermissions()
+                    }
                 }
             }
         }
+
+
     }
 }

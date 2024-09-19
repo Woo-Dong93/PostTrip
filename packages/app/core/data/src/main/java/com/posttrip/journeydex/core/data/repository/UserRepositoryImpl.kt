@@ -1,9 +1,11 @@
 package com.posttrip.journeydex.core.data.repository
 
 import com.posttrip.journeydex.core.data.api.UserService
+import com.posttrip.journeydex.core.data.model.request.Withdraw
 import com.posttrip.journeydex.core.data.model.user.LoginBody
 import com.posttrip.journeydex.core.data.model.response.LoginData
 import com.posttrip.journeydex.core.data.model.user.OnboardingData
+import com.posttrip.journeydex.core.data.util.LoginCached
 import com.posttrip.journeydex.core.data.util.LoginCached.kakaoId
 import com.posttrip.journeydex.core.data.util.LoginCached.nickname
 import com.posttrip.journeydex.core.data.util.handleApi
@@ -21,6 +23,12 @@ class UserRepositoryImpl @Inject constructor(
 
     override fun setOnboarding(body: OnboardingData): Flow<OnboardingData> = handleApi {
         userService.setOnboarding(body)
+    }
+
+    override fun withdraw(): Flow<Withdraw> = handleApi {
+        userService.withdraw(
+            Withdraw(LoginCached.kakaoId)
+        )
     }
 
 }

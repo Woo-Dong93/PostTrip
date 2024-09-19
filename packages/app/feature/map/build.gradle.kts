@@ -70,4 +70,7 @@ dependencies {
 
     implementation(project(":core:data"))
 
+    implementation(libs.play.services.location)
+    implementation(libs.coil.compose)
+
 }

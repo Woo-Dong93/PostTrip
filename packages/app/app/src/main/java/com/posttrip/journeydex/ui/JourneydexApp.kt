@@ -2,8 +2,8 @@ package com.posttrip.journeydex.ui
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -42,13 +42,16 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
+import com.posttrip.journeydex.CourseDetailScreen
+import com.posttrip.journeydex.LoadingScreen
 import com.posttrip.journeydex.MainViewModel
 import com.posttrip.journeydex.MainViewModel.Companion.TypeFromLogin
 import com.posttrip.journeydex.OnboardingScreen
-import com.posttrip.journeydex.core.data.model.response.CourseList
 import com.posttrip.journeydex.core.data.model.response.LoginData
-import com.posttrip.journeydex.feature.home.component.CourseDetailBottomSheet
+import com.posttrip.journeydex.core.data.model.travel.Course
+import com.posttrip.journeydex.feature.home.navigation.navigateToHome
 import com.posttrip.journeydex.feature.map.navigation.navigateToMap
+import com.posttrip.journeydex.feature.reward.navigation.navigateToReward
 import com.posttrip.journeydex.ui.navigation.JourneydexNavHost
 import com.posttrip.journeydex.ui.navigation.TopLevelDestination
 
@@ -59,6 +62,13 @@ fun JourneydexApp(
     onTypeFormLoginChanged: (TypeFromLogin) -> Unit
 ) {
     val navController = rememberNavController()
+    var shownLoading by remember {
+        mutableStateOf(false)
+    }
+
+    var courseDetail by remember {
+        mutableStateOf<Course?>(null)
+    }
 
     if (typeFromLogin == MainViewModel.Companion.TypeFromLogin.NeedsOnboarding) {
         OnboardingScreen(
@@ -68,14 +78,53 @@ fun JourneydexApp(
             }
         )
     } else if (typeFromLogin == MainViewModel.Companion.TypeFromLogin.GoToHome) {
-        Scaffold(
-            bottomBar = {
-                if (TopLevelDestination.entries.map { it.route }
-                        .contains(navController.currentBackStackEntryAsState().value?.destination?.route))
-                    JourneydexBottomBar(
-                        destinations = TopLevelDestination.entries,
-                        currentDestination = navController.currentBackStackEntryAsState().value?.destination,
-                        onNavigateToDestination = {
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ){
+            Scaffold(
+                bottomBar = {
+                    val target = navController.currentBackStackEntryAsState().value?.destination?.route
+                    if (TopLevelDestination.entries.any { target?.contains(it.route) == true })
+                        JourneydexBottomBar(
+                            destinations = TopLevelDestination.entries,
+                            currentDestination = navController.currentBackStackEntryAsState().value?.destination,
+                            onNavigateToDestination = {
+                                val topLevelNavOptions = navOptions {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                                when(it){
+                                    TopLevelDestination.MAP -> {
+                                        navController.navigateToMap(
+                                            navOptions = topLevelNavOptions
+                                        )
+                                    }
+
+                                    TopLevelDestination.HOME ->{
+                                        navController.navigateToHome(
+                                            navOptions = topLevelNavOptions)
+                                    }
+                                    TopLevelDestination.REWARD -> {
+                                        navController.navigateToReward(
+                                            navOptions = topLevelNavOptions)
+                                    }
+                                }
+
+                            }
+                        )
+                }
+            ) { padding ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                ) {
+                    JourneydexNavHost(
+                        navController = navController,
+                        onNavigateMap = { contentId ->
                             val topLevelNavOptions = navOptions {
                                 popUpTo(navController.graph.findStartDestination().id) {
                                     saveState = true
@@ -83,28 +132,34 @@ fun JourneydexApp(
                                 launchSingleTop = true
                                 restoreState = true
                             }
-                            if (it == TopLevelDestination.MAP) {
-                                navController.navigateToMap(
-                                    navOptions = topLevelNavOptions
-                                )
-                            } else {
-                                navController.navigate(it.route, navOptions = topLevelNavOptions)
-                            }
+                            navController.navigateToMap(contentId,topLevelNavOptions)
+                        },
+                        onDetail = {
+                            courseDetail = it
+                        },
+                        onLoadingShow = {
+                            shownLoading = it
+                        },
+                        onLogout = {
+                            onTypeFormLoginChanged(TypeFromLogin.None)
 
                         }
                     )
+                }
             }
-        ) { padding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-            ) {
-                JourneydexNavHost(
-                    navController = navController,
-                )
+            if(shownLoading){
+                LoadingScreen()
             }
+            if(courseDetail != null){
+                CourseDetailScreen(course = courseDetail!!, onDismiss = {
+                    courseDetail = null
+                })
+            }
+//            AnimatedVisibility(visible = shownLoading) {
+//
+//            }
         }
+
     }
 }
 

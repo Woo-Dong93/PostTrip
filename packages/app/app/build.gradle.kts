@@ -86,6 +86,8 @@ dependencies {
     implementation(libs.kakao.login)
     implementation(libs.kakao.map)
 
+    implementation(libs.coil.compose)
+
     implementation(project(":feature:login"))
     implementation(project(":feature:home"))
     implementation(project(":feature:dex"))

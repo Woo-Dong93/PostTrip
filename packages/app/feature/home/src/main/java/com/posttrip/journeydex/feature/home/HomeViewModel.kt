@@ -30,22 +30,33 @@ class HomeViewModel @Inject constructor(
     val courseDetail : SharedFlow<CourseList> = _courseDetail.asSharedFlow()
 
     fun getRecommendedCourse(id: String) {
-        viewModelScope.launch {
-            travelRepository.getRecommendedCourse(LoginCached.kakaoId)
-                .catch {
+        if (courses.value.isEmpty())
+            viewModelScope.launch {
+                travelRepository.getRecommendedCourse(LoginCached.kakaoId)
+                    .catch {
 
-                }.collect {
-                    _courses.emit(it.courses.subList(0,6))
-                }
-        }
+                    }.collect {
+                        _courses.emit(it.courses.subList(0, 10))
+                    }
+            }
     }
 
-    fun getCourseDetail(course : Course) {
+    fun getCourseDetail(course: Course) {
         viewModelScope.launch {
+
             travelRepository.getCourseDetail(course.contentId)
                 .catch {
 
                 }.collect {
+                    travelRepository.cacheCourse(
+                        course.contentId,
+                        it.copy(
+                            course = course,
+                            courses = it.courses.map {
+                                it.copy(isDetail = true)
+                            }
+                        )
+                    )
                     _courseDetail.emit(it.copy(course = course))
                 }
         }
@@ -96,6 +107,12 @@ class HomeViewModel @Inject constructor(
                     }
                 )
             }
+        }
+    }
+
+    fun cacheDetail(course: Course){
+        viewModelScope.launch {
+            travelRepository.cacheCourseDetail(course.contentId,course)
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.posttrip.journeydex.core.data.repository
 
+import com.posttrip.journeydex.core.data.model.request.CollectCharacter
 import com.posttrip.journeydex.core.data.model.request.FavoriteCourse
 import com.posttrip.journeydex.core.data.model.response.CourseList
 import com.posttrip.journeydex.core.data.model.travel.Course
@@ -12,9 +13,13 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface TravelRepository {
-    fun cacheCourse(contentId : String, course:  Course)
+    fun cacheCourse(contentId : String, course:  CourseList)
 
-    fun getCachedCourse(contentId : String) : Course
+    fun getCachedCourse(contentId : String) : CourseList
+
+    fun cacheCourseDetail(contentId : String, course: Course)
+
+    fun getCachedCourseDetail(contentId : String) : Course?
 
     fun getCourse(id : String) : Flow<CourseList>
 
@@ -26,4 +31,5 @@ interface TravelRepository {
 
     fun unlikeCourse(favoriteCourse : FavoriteCourse) : Flow<FavoriteCourse>
 
+    fun collectCharacter(characterId : String) : Flow<CollectCharacter>
 }

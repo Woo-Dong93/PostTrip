@@ -40,12 +40,12 @@ enum class TopLevelDestination(
         titleTextId = map.string.map_title,
         route = mapNavigationRoute
     ),
-    DEX(
-        icon = R.drawable.ic_dex,
-        iconTextId = dex.string.dex_title,
-        titleTextId = dex.string.dex_title,
-        route = dexNavigationRoute
-    ),
+//    DEX(
+//        icon = R.drawable.ic_dex,
+//        iconTextId = dex.string.dex_title,
+//        titleTextId = dex.string.dex_title,
+//        route = dexNavigationRoute
+//    ),
     REWARD(
         icon = R.drawable.ic_user,
         iconTextId = reward.string.reward_title,

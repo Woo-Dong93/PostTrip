@@ -57,8 +57,13 @@ dependencies {
     //hilt
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
+    implementation(project(":core:auth"))
     ksp(libs.hilt.compiler)
 
     //navigation-compose
     implementation(libs.androidx.navigation.compose)
+    implementation(project(":core:data"))
+    implementation(project(":core:designsystem"))
+
+
 }

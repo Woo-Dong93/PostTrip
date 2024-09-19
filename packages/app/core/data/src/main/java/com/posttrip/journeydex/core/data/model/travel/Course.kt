@@ -18,5 +18,6 @@ data class Course(
     val y: String = "",
     val isDetail : Boolean = false,
     val favorite : Boolean = false,
-    val overview : String = ""
+    val overview : String = "",
+    val characterInfo : Character = Character()
 )

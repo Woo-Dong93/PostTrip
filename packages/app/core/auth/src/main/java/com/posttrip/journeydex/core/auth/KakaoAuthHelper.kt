@@ -32,7 +32,8 @@ class KakaoAuthHelper @Inject constructor(
                         } else if (user?.id != null) {
                             continuation.resume(LoginData(
                                 nickname = user.kakaoAccount?.profile?.nickname  ?: "",
-                                uId = user.id.toString()
+                                uId = user.id.toString(),
+                                email = user.kakaoAccount?.email ?: ""
                             ))
                         } else {
                             continuation.resumeWithException(RuntimeException("Kakao User Error"))

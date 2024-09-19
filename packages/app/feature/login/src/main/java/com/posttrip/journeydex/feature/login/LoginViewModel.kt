@@ -1,5 +1,6 @@
 package com.posttrip.journeydex.feature.login
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.posttrip.journeydex.core.data.model.user.LoginBody
@@ -33,14 +34,16 @@ class LoginViewModel @Inject constructor(
     fun login(
         id: String,
         nickname: String,
-        authProvider: AuthProvider
+        authProvider: AuthProvider,
+        email: String
     ) {
         viewModelScope.launch {
             userRepository.login(
                 body = LoginBody(
                     id = id,
                     nickname = nickname,
-                    authProvider = authProvider.name
+                    authProvider = authProvider.name,
+                    email = email
                 )
             ).catch {
 

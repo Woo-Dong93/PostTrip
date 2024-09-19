@@ -36,6 +36,12 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun updateLoginData(loginData: LoginData){
+        viewModelScope.launch {
+            _loginData.emit(loginData)
+        }
+    }
+
     fun updateTypeFromLogin(typeFromLogin: TypeFromLogin) {
         viewModelScope.launch {
             _typeFromLogin.emit(typeFromLogin)
