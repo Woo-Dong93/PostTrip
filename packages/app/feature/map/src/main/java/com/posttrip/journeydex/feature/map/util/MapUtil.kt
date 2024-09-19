@@ -80,7 +80,7 @@ object MapUtil {
         kakaoMap?.let { kakaoMap ->
             val layer = kakaoMap.routeLineManager?.layer
             val styles = RouteLineStylesSet.from("redStyle",
-                RouteLineStyles.from(RouteLineStyle.from(4f, Color.Red.toArgb())));
+                RouteLineStyles.from(RouteLineStyle.from(4f, Color(0xFF4B7CFD).toArgb())));
 
             val segment = RouteLineSegment.from(
                 listOf(
@@ -161,7 +161,7 @@ object MapUtil {
 
         val styles =
             kakaoMap?.labelManager?.addLabelStyles(
-                LabelStyles.from(LabelStyle.from(R.drawable.ic_circle_red))
+                LabelStyles.from(LabelStyle.from(R.drawable.ic_my))
             )
 
 

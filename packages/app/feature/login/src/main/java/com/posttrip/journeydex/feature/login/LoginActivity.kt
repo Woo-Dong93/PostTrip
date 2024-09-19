@@ -70,7 +70,8 @@ class LoginActivity : ComponentActivity() {
                 viewModel.login(
                     id = userData.uId,
                     nickname = userData.nickname,
-                    authProvider = LoginViewModel.Companion.AuthProvider.kakao
+                    authProvider = LoginViewModel.Companion.AuthProvider.kakao,
+                    email = userData.email
                 )
             }
 

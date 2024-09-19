@@ -84,7 +84,11 @@ fun MapScreen(
     if (shownBottomSheet) {
         lineDetailCourses?.let {
             CourseDetailBottomSheet(
-                onDetail = onDetail,
+                onDetail = {
+                    viewModel.cacheDetail(it)
+                    shownBottomSheet = false
+                    onDetail(it)
+                },
                 courseList = lineDetailCourses!!,
                 onDismiss = {
                     shownBottomSheet = false
@@ -221,7 +225,7 @@ fun MapScreen(
                     y = course.y.toDouble(),
                     kakaoMap = kakaoMap,
                     id = "collectingCourses",
-                    labelId = "collectingCourses,${course.contentId}"
+                    labelId = "collectingCourses,${course.characterInfo.id}"
                 )
 
             }
@@ -232,7 +236,7 @@ fun MapScreen(
 
                 } else {
                     lineDetailCourses?.let {
-                        viewModel.refresh(it)
+                        viewModel.collectCharacter(id,)
                         Toast.makeText(context, "캐릭터 수집 액션", Toast.LENGTH_SHORT).show()
 
                     }

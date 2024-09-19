@@ -1,9 +1,7 @@
 package com.posttrip.journeydex.ui
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -49,11 +47,11 @@ import com.posttrip.journeydex.LoadingScreen
 import com.posttrip.journeydex.MainViewModel
 import com.posttrip.journeydex.MainViewModel.Companion.TypeFromLogin
 import com.posttrip.journeydex.OnboardingScreen
-import com.posttrip.journeydex.core.data.model.response.CourseList
 import com.posttrip.journeydex.core.data.model.response.LoginData
 import com.posttrip.journeydex.core.data.model.travel.Course
-import com.posttrip.journeydex.feature.home.component.CourseDetailBottomSheet
+import com.posttrip.journeydex.feature.home.navigation.navigateToHome
 import com.posttrip.journeydex.feature.map.navigation.navigateToMap
+import com.posttrip.journeydex.feature.reward.navigation.navigateToReward
 import com.posttrip.journeydex.ui.navigation.JourneydexNavHost
 import com.posttrip.journeydex.ui.navigation.TopLevelDestination
 
@@ -98,12 +96,21 @@ fun JourneydexApp(
                                     launchSingleTop = true
                                     restoreState = true
                                 }
-                                if (it == TopLevelDestination.MAP) {
-                                    navController.navigateToMap(
-                                        navOptions = topLevelNavOptions
-                                    )
-                                } else {
-                                    navController.navigate(it.route, navOptions = topLevelNavOptions)
+                                when(it){
+                                    TopLevelDestination.MAP -> {
+                                        navController.navigateToMap(
+                                            navOptions = topLevelNavOptions
+                                        )
+                                    }
+
+                                    TopLevelDestination.HOME ->{
+                                        navController.navigateToHome(
+                                            navOptions = topLevelNavOptions)
+                                    }
+                                    TopLevelDestination.REWARD -> {
+                                        navController.navigateToReward(
+                                            navOptions = topLevelNavOptions)
+                                    }
                                 }
 
                             }
@@ -117,11 +124,25 @@ fun JourneydexApp(
                 ) {
                     JourneydexNavHost(
                         navController = navController,
+                        onNavigateMap = { contentId ->
+                            val topLevelNavOptions = navOptions {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                            navController.navigateToMap(contentId,topLevelNavOptions)
+                        },
                         onDetail = {
-                            courseDetail = courseDetail
+                            courseDetail = it
                         },
                         onLoadingShow = {
                             shownLoading = it
+                        },
+                        onLogout = {
+                            onTypeFormLoginChanged(TypeFromLogin.None)
+
                         }
                     )
                 }
@@ -130,7 +151,9 @@ fun JourneydexApp(
                 LoadingScreen()
             }
             if(courseDetail != null){
-                CourseDetailScreen(course = courseDetail!!)
+                CourseDetailScreen(course = courseDetail!!, onDismiss = {
+                    courseDetail = null
+                })
             }
 //            AnimatedVisibility(visible = shownLoading) {
 //

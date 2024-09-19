@@ -76,9 +76,14 @@ fun HomeScreen(
 
     if (courseList != null) {
         CourseDetailBottomSheet(
-            onDetail = onDetail,
+            onDetail = {
+                viewModel.cacheDetail(it)
+                courseList = null
+                onDetail(it)
+            },
             courseList = courseList!!,
             onNavigateMap = {
+                courseList = null
                 onNavigateMap(it)
             },
             onDismiss = {

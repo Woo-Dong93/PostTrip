@@ -83,7 +83,13 @@ class MainActivity : ComponentActivity() {
                     typeFromLogin = typeFromLogin,
                     loginData = loginData,
                     onTypeFormLoginChanged = {
-                        viewModel.updateTypeFromLogin(MainViewModel.Companion.TypeFromLogin.GoToHome)
+                        if(it == MainViewModel.Companion.TypeFromLogin.None){
+                            finish()
+                            startActivity(this.intent)
+                        }else {
+                            viewModel.updateTypeFromLogin(it)
+                        }
+
                     }
                 )
             }

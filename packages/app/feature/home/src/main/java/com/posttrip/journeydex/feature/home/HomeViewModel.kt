@@ -109,4 +109,10 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+
+    fun cacheDetail(course: Course){
+        viewModelScope.launch {
+            travelRepository.cacheCourseDetail(course.contentId,course)
+        }
+    }
 }

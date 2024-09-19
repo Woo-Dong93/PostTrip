@@ -99,8 +99,12 @@ class MapViewModel @Inject constructor(
 
     fun emitDetails(courseList : CourseList) {
         viewModelScope.launch {
-            val collecting = listOf(courseList.courses.first())
-            val normal = courseList.courses.subList(1, courseList.courses.size)
+            val collecting = courseList.courses.filter {
+                it.characterInfo.id.isNotEmpty() && it.characterInfo.collected == false
+            }
+            val normal = courseList.courses.filter {
+                it.characterInfo.id.isEmpty()
+            }
             _normalDetailCourses.emit(
                 courseList.copy(
                     courses = normal
@@ -115,6 +119,36 @@ class MapViewModel @Inject constructor(
 
 
             _lineDetailCourses.emit(courseList)
+        }
+    }
+
+    fun collectCharacter(
+        id : String
+    ) {
+        viewModelScope.launch {
+            travelRepository.collectCharacter(
+                id
+            ).catch {
+
+            }.collect {
+                val course = normalDetailCourses.value?.course!!
+                _shownLoading.emit(true)
+                travelRepository.getCourseDetail(course.contentId)
+                    .catch {
+
+                    }.collect {
+                        delay(1000)
+                        val courseList = it.copy(
+                            courses = it.courses.map {
+                                it.copy(isDetail = true)
+                            },
+                            course = course
+                        )
+                        travelRepository.cacheCourse(contentId = course.contentId,
+                            courseList)
+                        emitDetails(courseList)
+                    }
+            }
         }
     }
 
@@ -134,6 +168,12 @@ class MapViewModel @Inject constructor(
     fun updateLoading(boolean: Boolean){
         viewModelScope.launch {
             _shownLoading.emit(boolean)
+        }
+    }
+
+    fun cacheDetail(course: Course){
+        viewModelScope.launch {
+            travelRepository.cacheCourseDetail(course.contentId,course)
         }
     }
 }
