@@ -32,6 +32,7 @@ fun JourneydexNavHost(
         startDestination = homeNavigationRoute
     ) {
         homeScreen(
+            onLoadingShow = onLoadingShow,
             onDetail = {
 //                navController.navigateToCourseDetail(
 //                    contentId = it.contentId

@@ -19,5 +19,6 @@ data class Course(
     val isDetail : Boolean = false,
     val favorite : Boolean = false,
     val overview : String = "",
-    val characterInfo : Character = Character()
+    val characterInfo : Character = Character(),
+    val enabledToCollect : Boolean = false
 )

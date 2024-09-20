@@ -78,17 +78,22 @@ fun MapScreen(
     }
     val course by viewModel.courses.collectAsStateWithLifecycle()
     val normalDetailCourses by viewModel.normalDetailCourses.collectAsStateWithLifecycle()
-    val collectingDetailCourses by viewModel.collectingDetailCourses.collectAsStateWithLifecycle()
+    val collectingDetailCourses by viewModel.realCollectingDetailCourses.collectAsStateWithLifecycle()
     val lineDetailCourses by viewModel.lineDetailCourses.collectAsStateWithLifecycle()
 
     var shownBottomSheet by remember {
         mutableStateOf(false)
     }
-
+    var shownAreaBottomSheet by remember {
+        mutableStateOf(false)
+    }
     var shownTravelStyleBottomSheet by remember { mutableStateOf(false) }
     var shownDestinationTypeKeywordBottomSheet by remember { mutableStateOf(false) }
     var shownTravelTypeKeywordBottomSheet by remember { mutableStateOf(false) }
 
+    var area by remember {
+        mutableStateOf<Area?>(null)
+    }
     var travelStyle by remember {
         mutableStateOf<TravelStyleKeyword?>(null)
     }
@@ -99,28 +104,16 @@ fun MapScreen(
         mutableStateOf<TravelTypeKeyword?>(null)
     }
 
-    LaunchedEffect(travelStyle,destinationTypeKeyword,travelTypeKeyword) {
-        if(travelStyle == null && destinationTypeKeyword == null &&
-             travelTypeKeyword == null) return@LaunchedEffect
+    LaunchedEffect(travelStyle, destinationTypeKeyword, travelTypeKeyword, area) {
+        if (travelStyle == null && destinationTypeKeyword == null &&
+            travelTypeKeyword == null && area == null
+        ) return@LaunchedEffect
         viewModel.searchCourseList(
-            viewModel.query,
+            area?.code ?: "",
             travelStyle?.name ?: "",
             destinationTypeKeyword?.name ?: "",
             travelTypeKeyword?.name ?: ""
         )
-    }
-
-    LaunchedEffect(key1 = Unit) {
-        viewModel.debouncedSearchQuery.collect {
-            if(it.isNotEmpty()){
-                viewModel.searchCourseList(
-                    it,
-                    travelStyle?.name ?: "",
-                    destinationTypeKeyword?.name ?: "",
-                    travelTypeKeyword?.name ?: ""
-                )
-            }
-        }
     }
 
     if (shownBottomSheet) {
@@ -134,7 +127,8 @@ fun MapScreen(
                 courseList = lineDetailCourses!!,
                 onDismiss = {
                     shownBottomSheet = false
-                }
+                },
+                isFromMap = true
             )
         }
     }
@@ -166,9 +160,20 @@ fun MapScreen(
             onDismiss = { shownTravelTypeKeywordBottomSheet = false })
     }
 
+    if (shownAreaBottomSheet) {
+        AreaBottomSheet(onSelect = {
+            area = it
+            shownAreaBottomSheet = false
+        },
+            onDismiss = {
+                shownAreaBottomSheet = false
+            }
+        )
+    }
+
     LaunchedEffect(key1 = Unit) {
         viewModel.initCourseDetail()
-        // viewModel.getCourse("1")
+        viewModel.getCourse("1")
     }
 
     LaunchedEffect(key1 = Unit) {
@@ -249,11 +254,11 @@ fun MapScreen(
                     y = course.y.toDouble(),
                     kakaoMap = kakaoMap,
                     id = "normalCourses",
-                    labelId = "normalCourses,${course.contentId}"
+                    labelId = "normalCourses,${course.contentId},false,false"
                 )
             }
             kakaoMap?.setOnLabelClickListener { kakaoMap, labelLayer, label ->
-                val (type, id) = label.labelId.split(",")
+                val (type, id, collected, enabledToCollect) = label.labelId.split(",")
                 if (type == "normalCourses") {
                     shownBottomSheet = true
                 } else {
@@ -292,21 +297,26 @@ fun MapScreen(
                     x = course.x.toDouble(),
                     y = course.y.toDouble(),
                     kakaoMap = kakaoMap,
+                    collected = course.characterInfo.collected,
+                    enabledToCollect = course.enabledToCollect,
                     id = "collectingCourses",
-                    labelId = "collectingCourses,${course.characterInfo.id}"
+                    labelId = "collectingCourses,${course.characterInfo.id},${course.characterInfo.collected},${course.enabledToCollect}"
                 )
 
             }
             kakaoMap?.setOnLabelClickListener { kakaoMap, labelLayer, label ->
-                val (type, id) = label.labelId.split(",")
+                val (type, id, collected, enabledToCollect) = label.labelId.split(",")
                 if (type == "normalCourses") {
                     shownBottomSheet = true
 
+                } else if (collected == "true") {
+                    shownBottomSheet = true
+                } else if (enabledToCollect == "false") {
+                    shownBottomSheet = true
                 } else {
                     lineDetailCourses?.let {
                         viewModel.collectCharacter(id)
                         Toast.makeText(context, "캐릭터 수집 액션", Toast.LENGTH_SHORT).show()
-
                     }
                 }
 
@@ -428,8 +438,8 @@ fun MapScreen(
                 viewModel.getCourseDetail(it)
                 isSearchMode = false
             },
-            query = viewModel.query,
-            onValueChanged = viewModel::updateQuery,
+            query = area?.nameKor ?: "",
+            onClick = { shownAreaBottomSheet = true },
             travelStyle = travelStyle,
             onClickTravelStyle = {
                 shownTravelStyleBottomSheet = true

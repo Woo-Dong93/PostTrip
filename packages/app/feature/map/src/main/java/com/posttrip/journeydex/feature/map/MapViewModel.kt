@@ -8,11 +8,14 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kakao.vectormap.LatLng
 import com.posttrip.journeydex.core.data.model.request.SearchCourse
 import com.posttrip.journeydex.core.data.model.response.CourseList
 import com.posttrip.journeydex.core.data.model.travel.Course
 import com.posttrip.journeydex.core.data.repository.TravelRepository
 import com.posttrip.journeydex.core.data.util.LoginCached
+import com.posttrip.journeydex.feature.map.util.DistanceCalculator.calculateDistance
+import com.posttrip.journeydex.feature.map.util.MapUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -24,9 +27,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -41,14 +46,17 @@ class MapViewModel @Inject constructor(
     private val _courses = MutableStateFlow<List<Course>>(emptyList())
     val courses : StateFlow<List<Course>> = _courses.asStateFlow()
 
-    var query by mutableStateOf("")
-        private set
+    private val _myPoint = MutableStateFlow<MapUtil.Point?>(null)
+    val myPoint : StateFlow<MapUtil.Point?> = _myPoint.asStateFlow()
 
-    val debouncedSearchQuery: Flow<String> = snapshotFlow {
-        query
-    }.debounce(1000)
-        .filter { it.isNotEmpty() }
-        .distinctUntilChanged().stateIn(viewModelScope, SharingStarted.Eagerly,"")
+//    var query by mutableStateOf("")
+//        private set
+//
+//    val debouncedSearchQuery: Flow<String> = snapshotFlow {
+//        query
+//    }.debounce(1000)
+//        .filter { it.isNotEmpty() }
+//        .distinctUntilChanged().stateIn(viewModelScope, SharingStarted.Eagerly,"")
 
     private val _lineDetailCourses = MutableStateFlow<CourseList?>(null)
     val lineDetailCourses : StateFlow<CourseList?> = _lineDetailCourses.asStateFlow()
@@ -65,7 +73,30 @@ class MapViewModel @Inject constructor(
     private var _shownLoading = MutableSharedFlow<Boolean>()
     val shownLoading : SharedFlow<Boolean> = _shownLoading.asSharedFlow()
 
+    private val _showErrorToast = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val showErrorToast: SharedFlow<String> = _showErrorToast.asSharedFlow()
+
+
     var cachecd : List<Course> = emptyList()
+
+    val realCollectingDetailCourses : StateFlow<CourseList?> =
+        combine(
+            myPoint.mapNotNull { it },
+            collectingDetailCourses
+        ){ my, courses ->
+            val mCourses = collectingDetailCourses.value?.courses ?: emptyList()
+            courses?.copy(
+                courses = mCourses.map {
+                    it.copy(
+                        enabledToCollect = calculateDistance(my.x,my.y,it.y.toDouble(),it.x.toDouble()) <= 1
+                    )
+                }
+            )
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            null
+        )
 
     fun initCourseDetail(){
         if(contentId != null && contentId != "-1"){
@@ -113,7 +144,7 @@ class MapViewModel @Inject constructor(
     fun emitDetails(courseList : CourseList) {
         viewModelScope.launch {
             val collecting = courseList.courses.filter {
-                it.characterInfo.id.isNotEmpty() && it.characterInfo.collected == false
+                it.characterInfo.id.isNotEmpty()
             }
             val normal = courseList.courses.filter {
                 it.characterInfo.id.isEmpty()
@@ -189,9 +220,9 @@ class MapViewModel @Inject constructor(
             travelRepository.cacheCourseDetail(course.contentId,course)
         }
     }
-    fun updateQuery(input: String) {
-        query = input
-    }
+//    fun updateQuery(input: String) {
+//        query = input
+//    }
 
     fun searchCourseList(
         keyword : String,
@@ -211,9 +242,20 @@ class MapViewModel @Inject constructor(
 
                 }.collect { course ->
                     val courseList = course.courses
-                    _courses.emit(if(courseList.size >= 32) courseList.subList(0,31) else courseList)
+                    _courses.emit(if(courseList.size >= 52) courseList.subList(0,51) else courseList)
                     //cachecd = course.courses
                 }
+        }
+    }
+
+    fun updateMyPoint(
+        x : Double,
+        y : Double
+    ){
+        viewModelScope.launch {
+            _myPoint.emit(
+                MapUtil.Point(x,y)
+            )
         }
     }
 }

@@ -66,7 +66,7 @@ enum class TravelTypeKeyword(val title: String) {
 @Composable
 fun SearchScreen(
     query: String,
-    onValueChanged: (String) -> Unit,
+    onClick: () -> Unit,
     travelStyle: TravelStyleKeyword?,
     onClickTravelStyle: () -> Unit,
     destinationTypeKeyword: DestinationTypeKeyword?,
@@ -83,12 +83,12 @@ fun SearchScreen(
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        SearchTextField(
+        SearchText(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
-            query = query,
-            onValueChanged = onValueChanged
+            onClick = onClick,
+            text = query
         )
 
         FilterButtonSection(
@@ -155,7 +155,7 @@ fun SearchTextField(
 }
 
 @Composable
-fun SearchText(modifier: Modifier = Modifier, onClick: () -> Unit) {
+fun SearchText(modifier: Modifier = Modifier, onClick: () -> Unit, text : String = "") {
     Box(
         modifier = modifier
             .background(Color.White, RoundedCornerShape(8.dp))
@@ -173,8 +173,8 @@ fun SearchText(modifier: Modifier = Modifier, onClick: () -> Unit) {
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "여행하고 싶은 곳이 있으신가요?",
-                color = Color.LightGray
+                text = if(text == "") "여행하고 싶은 곳이 있으신가요?" else text,
+                color = if(text == "")  Color.LightGray else Color.Black
             )
         }
     }
@@ -194,11 +194,11 @@ fun FilterButtonSection(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        FilterButton(text = travelStyle ?: "여행지", onClick = onClickTravelStyle)
         FilterButton(
             text = destinationTypeKeyword ?: "스타일",
             onClick = onClickDestinationTypeKeyword
         )
+        FilterButton(text = travelStyle ?: "여행지", onClick = onClickTravelStyle)
         FilterButton(text = travelTypeKeyword ?: "동행", onClick = onClickTravelTypeKeyword)
     }
 }

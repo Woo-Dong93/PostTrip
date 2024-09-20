@@ -50,6 +50,7 @@ fun CourseDetailBottomSheet(
     onDetail : (Course) -> Unit,
     onDismiss: () -> Unit,
     onNavigateMap : (String) -> Unit = {},
+    isFromMap : Boolean = false
 ) {
     val modalBottomSheetState = rememberModalBottomSheetState()
     ModalBottomSheet(
@@ -82,26 +83,29 @@ fun CourseDetailBottomSheet(
                     overflow = TextOverflow.Ellipsis,
                     fontWeight = FontWeight.SemiBold
                 )
-                Row(
-                    modifier = Modifier.clickable {
-                        courseList.course?.contentId?.let {
-                            onNavigateMap(it)
-                        }
-                    },
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ){
-                    Icon(
-                        imageVector = Icons.Default.LocationOn,
-                        contentDescription = "위치 보기"
-                    )
-                    Text(
-                        text = "위치 보기",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color.Red
-                    )
+                if(!isFromMap){
+                    Row(
+                        modifier = Modifier.clickable {
+                            courseList.course?.contentId?.let {
+                                onNavigateMap(it)
+                            }
+                        },
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ){
+                        Icon(
+                            imageVector = Icons.Default.LocationOn,
+                            contentDescription = "위치 보기"
+                        )
+                        Text(
+                            text = "위치 보기",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.Red
+                        )
+                    }
                 }
+
 
             }
             Spacer(modifier = Modifier.height(8.dp))
