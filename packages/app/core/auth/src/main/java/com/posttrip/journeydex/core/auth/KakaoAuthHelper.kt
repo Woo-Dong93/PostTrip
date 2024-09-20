@@ -44,7 +44,30 @@ class KakaoAuthHelper @Inject constructor(
                 }
             }
         } else {
-            continuation.resumeWithException(RuntimeException("Kakao Login Error"))
+            try {
+                UserApiClient.instance.loginWithKakaoAccount(context) { token, error ->
+                    if (error != null) {
+                        continuation.resumeWithException(RuntimeException("Kakao Login Error"))
+                    }
+                    else if (token != null) {
+                        UserApiClient.instance.me { user, error ->
+                            if (error != null) {
+                                continuation.resumeWithException(error)
+                            } else if (user?.id != null) {
+                                continuation.resume(LoginData(
+                                    nickname = user.kakaoAccount?.profile?.nickname  ?: "",
+                                    uId = user.id.toString(),
+                                    email = user.kakaoAccount?.email ?: ""
+                                ))
+                            } else {
+                                continuation.resumeWithException(RuntimeException("Kakao User Error"))
+                            }
+                        }
+                    }
+                }
+            }catch (e: Exception){
+                continuation.resumeWithException(RuntimeException("Kakao Login Error"))
+            }
         }
     }
 

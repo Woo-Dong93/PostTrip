@@ -15,6 +15,8 @@ fun NavController.navigateToHome(navOptions: NavOptions? = null) {
 }
 
 fun NavGraphBuilder.homeScreen(
+
+    onLoadingShow : (Boolean) -> Unit,
     onDetail : (Course) -> Unit,
     onNavigateMap : (String) -> Unit,
 ) {
@@ -22,6 +24,7 @@ fun NavGraphBuilder.homeScreen(
         route = homeNavigationRoute
     ) {
         HomeScreen(
+            onLoadingShow = onLoadingShow,
             onDetail = onDetail,
             onNavigateMap = onNavigateMap,
         )

@@ -1,6 +1,7 @@
 package com.posttrip.journeydex.core.data.api
 
 import com.posttrip.journeydex.core.data.model.request.FavoriteCourse
+import com.posttrip.journeydex.core.data.model.request.SearchCourse
 import com.posttrip.journeydex.core.data.model.response.CourseList
 import retrofit2.Response
 import retrofit2.http.Body
@@ -39,5 +40,10 @@ interface TravelService {
         @Body body : FavoriteCourse
     ) : Response<FavoriteCourse>
 
+    @POST("/travel/course/type/{id}")
+    suspend fun searchCourse(
+        @Path("id") id : String,
+        @Body body : SearchCourse
+    ) : Response<CourseList>
 }
 

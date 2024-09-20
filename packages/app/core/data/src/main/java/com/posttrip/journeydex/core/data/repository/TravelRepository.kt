@@ -2,6 +2,7 @@ package com.posttrip.journeydex.core.data.repository
 
 import com.posttrip.journeydex.core.data.model.request.CollectCharacter
 import com.posttrip.journeydex.core.data.model.request.FavoriteCourse
+import com.posttrip.journeydex.core.data.model.request.SearchCourse
 import com.posttrip.journeydex.core.data.model.response.CourseList
 import com.posttrip.journeydex.core.data.model.travel.Course
 import kotlinx.coroutines.flow.Flow
@@ -32,4 +33,6 @@ interface TravelRepository {
     fun unlikeCourse(favoriteCourse : FavoriteCourse) : Flow<FavoriteCourse>
 
     fun collectCharacter(characterId : String) : Flow<CollectCharacter>
+
+    fun searchCourse(searchCourse : SearchCourse) : Flow<CourseList>
 }

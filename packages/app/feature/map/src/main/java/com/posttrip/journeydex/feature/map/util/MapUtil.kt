@@ -40,7 +40,7 @@ object MapUtil {
         kakaoMap?.let { kakaoMap ->
             val layer = LabelLayerOptions.from(id)
             val styles =
-                kakaoMap.labelManager?.addLabelStyles(LabelStyles.from(LabelStyle.from(R.drawable.ic_pin)))
+                kakaoMap.labelManager?.addLabelStyles(LabelStyles.from(LabelStyle.from(R.drawable.ic_pin).setAnchorPoint(0.5f,0.5f)))
 
             val options = LabelOptions.from(labelId,LatLng.from(y, x)).setStyles(styles)
 
@@ -55,12 +55,19 @@ object MapUtil {
         x: Double,
         y: Double,
         id : String,
+        collected : Boolean,
+        enabledToCollect : Boolean,
         labelId : String,
         kakaoMap: KakaoMap?
     ) {
         kakaoMap?.let { kakaoMap ->
             val styles =
-                kakaoMap.labelManager?.addLabelStyles(LabelStyles.from(LabelStyle.from(R.drawable.ic_character1)))
+                kakaoMap.labelManager?.addLabelStyles(LabelStyles.from(
+                    LabelStyle.from(
+                        if(collected) R.drawable.ic_char1_finished
+                        else if(enabledToCollect) R.drawable.ic_char1_enable
+                        else  R.drawable.ic_char1_pending
+                    ).setAnchorPoint(0.5f,0.5f)))
 
             val options = LabelOptions.from(labelId,LatLng.from(y, x)).setStyles(styles)
             val layer = LabelLayerOptions.from(id)
@@ -175,6 +182,7 @@ object MapUtil {
 
         lastLat = latitude
         lastLng = longitude
+        viewModel.updateMyPoint(latitude,longitude)
         kakaoMap?.moveCamera(
             CameraUpdateFactory.newCenterPosition(
                 LatLng.from(

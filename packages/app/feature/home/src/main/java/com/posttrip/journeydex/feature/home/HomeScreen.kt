@@ -51,11 +51,13 @@ import com.posttrip.journeydex.core.data.model.response.CourseList
 import com.posttrip.journeydex.core.data.model.travel.Course
 import com.posttrip.journeydex.core.data.util.LoginCached
 import com.posttrip.journeydex.feature.home.component.CourseDetailBottomSheet
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    onLoadingShow : (Boolean) -> Unit,
     onDetail : (Course) -> Unit,
     onNavigateMap: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -65,14 +67,21 @@ fun HomeScreen(
     var courseList by remember { mutableStateOf<CourseList?>(null) }
 
     LaunchedEffect(key1 = Unit) {
-        viewModel.getRecommendedCourse("1")
-    }
-
-    LaunchedEffect(key1 = Unit) {
-        viewModel.courseDetail.collect {
-            courseList = it
+        launch {
+            viewModel.shownLoading.collect {
+                onLoadingShow(it)
+            }
+        }
+        launch {
+            viewModel.getRecommendedCourse("1")
+        }
+        launch {
+            viewModel.courseDetail.collect {
+                courseList = it
+            }
         }
     }
+
 
     if (courseList != null) {
         CourseDetailBottomSheet(
@@ -117,7 +126,7 @@ fun HomeScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(start = 16.dp,end = 16.dp, top = 16.dp)
+            .padding(start = 16.dp, end = 16.dp, top = 16.dp)
     ) {
         UserProfileSection(name = "${LoginCached.nickname} 님")
         Spacer(modifier = Modifier.height(16.dp))
@@ -129,8 +138,8 @@ fun HomeScreen(
                 GridItemSpan(2)
             }) {
                 Column {
-                    MissionCouponSection()
-                    Spacer(modifier = Modifier.height(16.dp))
+                   // MissionCouponSection()
+                    //Spacer(modifier = Modifier.height(16.dp))
                     Text(text = "추천 여행 코스", fontSize = 16.sp)
                     Spacer(modifier = Modifier.height(8.dp))
 

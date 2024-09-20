@@ -1,5 +1,6 @@
 package com.posttrip.journeydex.feature.login
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -51,13 +52,12 @@ fun LoginScreen(
                         .weight(1f),
                     contentAlignment = Alignment.Center
                 ) {
-                    Spacer(
-                        modifier = Modifier
-                            .fillMaxWidth(0.7f)
-                            .aspectRatio(1f)
-                            .clip(CircleShape)
-                            .background(Color.LightGray)
-                    )
+                    Image(
+                        modifier = Modifier.clip(CircleShape),
+                        painter = painterResource(id = R.drawable.ic_logo),
+                        contentDescription = null)
+
+
                 }
                 Box(
                     modifier = Modifier

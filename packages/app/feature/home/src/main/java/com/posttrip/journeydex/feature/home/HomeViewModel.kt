@@ -29,13 +29,22 @@ class HomeViewModel @Inject constructor(
     private val _courseDetail = MutableSharedFlow<CourseList>()
     val courseDetail : SharedFlow<CourseList> = _courseDetail.asSharedFlow()
 
+    private var _shownLoading = MutableSharedFlow<Boolean>()
+    val shownLoading : SharedFlow<Boolean> = _shownLoading.asSharedFlow()
+
+    private val _showErrorToast = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val showErrorToast: SharedFlow<String> = _showErrorToast.asSharedFlow()
+
     fun getRecommendedCourse(id: String) {
         if (courses.value.isEmpty())
+
             viewModelScope.launch {
+                _shownLoading.emit(true)
                 travelRepository.getRecommendedCourse(LoginCached.kakaoId)
                     .catch {
-
+                        _shownLoading.emit(false)
                     }.collect {
+                        _shownLoading.emit(false)
                         _courses.emit(it.courses.subList(0, 10))
                     }
             }
@@ -43,11 +52,12 @@ class HomeViewModel @Inject constructor(
 
     fun getCourseDetail(course: Course) {
         viewModelScope.launch {
-
+            _shownLoading.emit(true)
             travelRepository.getCourseDetail(course.contentId)
                 .catch {
-
+                    _shownLoading.emit(false)
                 }.collect {
+                    _shownLoading.emit(false)
                     travelRepository.cacheCourse(
                         course.contentId,
                         it.copy(
