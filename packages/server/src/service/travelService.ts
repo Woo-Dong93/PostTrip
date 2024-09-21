@@ -11,6 +11,7 @@ import {
   UserCharacter,
   ICharacter,
 } from '../schema';
+import { isLimitedServiceError } from '../utils';
 const axios = require('axios');
 
 export const travelCourse = async (req: express.Request<{ id: string }, any, any>, res: express.Response) => {
@@ -22,6 +23,10 @@ export const travelCourse = async (req: express.Request<{ id: string }, any, any
       const result = await axios.get(
         `${process.env.API_URL}/areaBasedList1?MobileOS=AND&MobileApp=Journeydex&serviceKey=${process.env.API_KEY}&contentTypeId=25&_type=json&numOfRows=1070`,
       );
+
+      if (isLimitedServiceError(result.data)) {
+        throw new Error('API request limit exceeded');
+      }
 
       const originCourseList: ICourse[] = result.data.response.body.items.item.map((item: any) => {
         return {
@@ -90,6 +95,10 @@ export const getTravelDetailCourse = async (
       `${process.env.API_URL}/detailInfo1?MobileOS=AND&MobileApp=PostTrip&serviceKey=${process.env.API_KEY}&contentId=${contentId}&contentTypeId=25&_type=json`,
     );
 
+    if (isLimitedServiceError(result.data)) {
+      throw new Error('API request limit exceeded');
+    }
+
     const course = result.data.response.body.items;
 
     if (!course) {
@@ -119,43 +128,43 @@ export const getTravelDetailCourse = async (
     }, {}) as { [key in string]: string };
 
     const courseDetailInfo = await Promise.all(
-      course.item.map(async (info: any) => {
-        const contentId = info.subcontentid;
+      course.item.map(async (courseInfo: any) => {
+        const contentId = courseInfo.subcontentid;
 
-        try {
-          const info = await axios.get(
-            `${process.env.API_URL}/detailCommon1?MobileOS=AND&MobileApp=PostTrip&serviceKey=${process.env.API_KEY}&contentId=${contentId}&defaultYN=Y&overviewYN=Y&mapinfoYN=Y&addrinfoYN=Y&firstImageYN=Y&_type=json`,
-          );
+        const info = await axios.get(
+          `${process.env.API_URL}/detailCommon1?MobileOS=AND&MobileApp=PostTrip&serviceKey=${process.env.API_KEY}&contentId=${contentId}&defaultYN=Y&overviewYN=Y&mapinfoYN=Y&addrinfoYN=Y&firstImageYN=Y&_type=json`,
+        );
 
-          if (!info.data.response.body.items) {
-            return null;
-          }
+        if (isLimitedServiceError(info.data)) {
+          throw new Error('API request limit exceeded');
+        }
 
-          const { contentid, contenttypeid, title, firstimage, firstimage2, addr1, addr2, mapx, mapy, overview } =
-            info.data.response.body.items.item[0];
-
-          return {
-            contentId: contentid,
-            contentTypeId: contenttypeid,
-            title,
-            firstAddress: addr1,
-            secondAddress: addr2,
-            firstImage: firstimage,
-            secondImage: firstimage2,
-            x: mapx,
-            y: mapy,
-            overview,
-            ...(characterMap[contentid] && {
-              characterInfo: {
-                id: characterMap[contentid].id,
-                title: characterMap[contentid].title,
-                collected: Boolean(userCharacterMap[characterMap[contentid].id]),
-              },
-            }),
-          };
-        } catch (error) {
+        if (!info.data.response.body.items) {
           return null;
         }
+
+        const { contentid, contenttypeid, title, firstimage, firstimage2, addr1, addr2, mapx, mapy, overview } =
+          info.data.response.body.items.item[0];
+
+        return {
+          contentId: contentid,
+          contentTypeId: contenttypeid,
+          title,
+          firstAddress: addr1,
+          secondAddress: addr2,
+          firstImage: firstimage,
+          secondImage: firstimage2,
+          x: mapx,
+          y: mapy,
+          overview,
+          ...(characterMap[contentid] && {
+            characterInfo: {
+              id: characterMap[contentid].id,
+              title: characterMap[contentid].title,
+              collected: Boolean(userCharacterMap[characterMap[contentid].id]),
+            },
+          }),
+        };
       }),
     );
 
@@ -238,6 +247,10 @@ export const getRecommendedCourse = async (req: express.Request<{ id: string }, 
     const result = await axios.get(
       `${process.env.API_URL}/areaBasedList1?MobileOS=AND&MobileApp=Journeydex&serviceKey=${process.env.API_KEY}&contentTypeId=25&_type=json&numOfRows=1070`,
     );
+
+    if (isLimitedServiceError(result.data)) {
+      throw new Error('API request limit exceeded');
+    }
 
     const originCourseList: ICourse[] = result.data.response.body.items.item.map((item: any) => {
       return {
@@ -349,6 +362,10 @@ export const getTypeBasedCourse = async (
     const result = await axios.get(
       `${process.env.API_URL}/areaBasedList1?MobileOS=AND&MobileApp=Journeydex&serviceKey=${process.env.API_KEY}&contentTypeId=25&_type=json&numOfRows=1070&areaCode=${area}`,
     );
+
+    if (isLimitedServiceError(result.data)) {
+      throw new Error('API request limit exceeded');
+    }
 
     if (!result.data.response.body.items) {
       return res.status(500).json({ message: 'No data available' });

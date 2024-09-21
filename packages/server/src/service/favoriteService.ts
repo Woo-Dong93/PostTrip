@@ -1,6 +1,7 @@
 import express from 'express';
 const axios = require('axios');
 import { User, Course, Favorite, IFavorite, ICourseKey, ICourse } from '../schema';
+import { isLimitedServiceError } from '../utils';
 
 export const saveFavoriteTravelCourse = async (req: express.Request<any, any, IFavorite>, res: express.Response) => {
   try {
@@ -85,6 +86,10 @@ export const getFavoriteTravelCourse = async (
     const result = await axios.get(
       `${process.env.API_URL}/areaBasedList1?MobileOS=AND&MobileApp=Journeydex&serviceKey=${process.env.API_KEY}&contentTypeId=25&_type=json&numOfRows=1070`,
     );
+
+    if (isLimitedServiceError(result.data)) {
+      throw new Error('API request limit exceeded');
+    }
 
     const originCourseList: ICourse[] = result.data.response.body.items.item.map((item: any) => {
       return {
