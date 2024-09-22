@@ -68,3 +68,41 @@ export const collectCharacter = async (req: express.Request<any, any, IUserChara
     res.status(500).json({ message: error.message });
   }
 };
+
+export const getAllUserCharacter = async (req: express.Request<{ id: string }, any, any>, res: express.Response) => {
+  try {
+    const { id } = req.params;
+
+    const userExisted = await User.findOne({ id });
+
+    if (!userExisted) {
+      return res.status(500).json({ message: 'User information not found' });
+    }
+
+    const characters = (await Character.find()) as ICharacter[];
+
+    const userCharacters = await UserCharacter.find({ userId: id });
+
+    const userCharacterMap = userCharacters.reduce((map, { userId, id }) => {
+      return {
+        ...map,
+        [id]: userId,
+      };
+    }, {}) as { [key in string]: string };
+
+    const allUserCharacters = characters.map(({ id, title, courseContentId, contentId }) => {
+      return {
+        id,
+        title,
+        courseContentId,
+        contentId,
+        collected: Boolean(userCharacterMap[id]),
+      };
+    });
+
+    return res.status(200).json({ data: allUserCharacters });
+  } catch (error: any) {
+    console.log(error);
+    res.status(500).json({ message: error.message });
+  }
+};
