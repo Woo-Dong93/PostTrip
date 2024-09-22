@@ -99,6 +99,8 @@ dependencies {
     implementation(libs.kakao.map)
 
     implementation(libs.coil.compose)
+    implementation(libs.lottie.compose)
+
 
     implementation(project(":feature:login"))
     implementation(project(":feature:home"))

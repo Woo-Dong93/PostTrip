@@ -17,16 +17,11 @@ fun NavController.navigateToDex(navOptions: NavOptions? = null) {
     this.navigate(dexNavigationRoute, navOptions)
 }
 
-fun NavGraphBuilder.dexScreen() {
+fun NavGraphBuilder.dexScreen(
+) {
     composable(
         route = dexNavigationRoute
     ) {
-        Surface {
-            Box(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                Text(text = dexNavigationRoute)
-            }
-        }
+        DexScreen()
     }
 }

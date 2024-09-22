@@ -49,6 +49,7 @@ import com.posttrip.journeydex.MainViewModel.Companion.TypeFromLogin
 import com.posttrip.journeydex.OnboardingScreen
 import com.posttrip.journeydex.core.data.model.response.LoginData
 import com.posttrip.journeydex.core.data.model.travel.Course
+import com.posttrip.journeydex.feature.dex.navigation.navigateToDex
 import com.posttrip.journeydex.feature.home.navigation.navigateToHome
 import com.posttrip.journeydex.feature.map.navigation.navigateToMap
 import com.posttrip.journeydex.feature.reward.navigation.navigateToReward
@@ -106,6 +107,12 @@ fun JourneydexApp(
                                     TopLevelDestination.HOME ->{
                                         navController.navigateToHome(
                                             navOptions = topLevelNavOptions)
+                                    }
+
+                                    TopLevelDestination.DEX -> {
+                                        navController.navigateToDex(
+                                            navOptions  = topLevelNavOptions
+                                        )
                                     }
                                     TopLevelDestination.REWARD -> {
                                         navController.navigateToReward(
