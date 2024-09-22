@@ -59,9 +59,10 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    onLoadingShow : (Boolean) -> Unit,
-    onDetail : (Course) -> Unit,
+    onLoadingShow: (Boolean) -> Unit,
+    onDetail: (Course) -> Unit,
     onNavigateMap: (String) -> Unit,
+    onNavigateAllMission : () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
@@ -116,6 +117,7 @@ fun HomeScreen(
         onClick = {
             viewModel.getCourseDetail(it)
         },
+        onNavigateAllMission = onNavigateAllMission,
         onFavoriteClick = {
             viewModel.favoriteCourse("1", it)
         }
@@ -126,8 +128,9 @@ fun HomeScreen(
 @Composable
 fun HomeScreen(
     recommendedCourse: List<Course>,
-    mission : List<Mission>,
+    mission: List<Mission>,
     onClick: (Course) -> Unit,
+    onNavigateAllMission : () -> Unit,
     onFavoriteClick: (Course) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -142,7 +145,7 @@ fun HomeScreen(
             columns = GridCells.Fixed(2),
             contentPadding = PaddingValues(8.dp),
         ) {
-            if(mission.isNotEmpty()) {
+            if (mission.isNotEmpty()) {
                 item(span = {
                     GridItemSpan(2)
                 }) {
@@ -151,15 +154,20 @@ fun HomeScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = "미션 쿠폰", fontSize = 16.sp)
-                        Text(text = "전체보기", color = Color.Gray, fontSize = 12.sp)
+                        Text(text = "미션", fontSize = 16.sp)
+                        Text(
+                            modifier = Modifier.clickable {
+                                onNavigateAllMission()
+                            },
+                            text = "전체보기", color = Color.Gray, fontSize = 12.sp
+                        )
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                 }
 
-                items(mission,span = {
+                items(mission, span = {
                     GridItemSpan(2)
-                }){
+                }) {
                     Column {
                         CouponItem(couponName = it.title, status = it.statusType)
                     }
@@ -171,7 +179,7 @@ fun HomeScreen(
                 GridItemSpan(2)
             }) {
                 Column {
-                    if(mission.isNotEmpty()){
+                    if (mission.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(16.dp))
                     }
 
@@ -205,7 +213,6 @@ fun UserProfileSection(name: String) {
         }
     }
 }
-
 
 
 @Composable
@@ -284,7 +291,7 @@ fun TravelCourseItem(
             Box(
                 modifier = Modifier.align(Alignment.TopEnd),
                 contentAlignment = Alignment.Center
-            ){
+            ) {
                 Box(
                     modifier = Modifier
                         .padding(6.dp)
