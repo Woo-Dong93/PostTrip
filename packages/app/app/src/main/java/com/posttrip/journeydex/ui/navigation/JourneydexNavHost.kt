@@ -6,8 +6,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.posttrip.journeydex.core.data.model.travel.Course
 import com.posttrip.journeydex.feature.dex.navigation.dexScreen
+import com.posttrip.journeydex.feature.home.navigation.allMissionScreen
 import com.posttrip.journeydex.feature.home.navigation.homeNavigationRoute
 import com.posttrip.journeydex.feature.home.navigation.homeScreen
+import com.posttrip.journeydex.feature.home.navigation.navigateToAllMission
 import com.posttrip.journeydex.feature.map.navigation.mapScreen
 import com.posttrip.journeydex.feature.map.navigation.navigateToCourseDetail
 import com.posttrip.journeydex.feature.map.navigation.navigateToMap
@@ -39,7 +41,10 @@ fun JourneydexNavHost(
 //                )
                 onDetail(it)
             },
-            onNavigateMap = onNavigateMap
+            onNavigateMap = onNavigateMap,
+            onNavigateAllMission = {
+                navController.navigateToAllMission()
+            }
         )
         mapScreen(
             onDetail = {
@@ -70,6 +75,11 @@ fun JourneydexNavHost(
         privacyScreen {
             navController.popBackStack()
         }
+        allMissionScreen(
+            onBackClick = {
+                navController.popBackStack()
+            }
+        )
 //        courseDetailScreen(
 //            onClickBack = {
 //                navController.popBackStack()

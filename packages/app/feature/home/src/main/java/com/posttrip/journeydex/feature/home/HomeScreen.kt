@@ -47,6 +47,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.navOptions
 import coil.compose.AsyncImage
+import com.posttrip.journeydex.core.data.model.mission.Mission
+import com.posttrip.journeydex.core.data.model.mission.MissionStatus
 import com.posttrip.journeydex.core.data.model.response.CourseList
 import com.posttrip.journeydex.core.data.model.travel.Course
 import com.posttrip.journeydex.core.data.util.LoginCached
@@ -57,13 +59,15 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    onLoadingShow : (Boolean) -> Unit,
-    onDetail : (Course) -> Unit,
+    onLoadingShow: (Boolean) -> Unit,
+    onDetail: (Course) -> Unit,
     onNavigateMap: (String) -> Unit,
+    onNavigateAllMission : () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val recommendedCourse by viewModel.courses.collectAsStateWithLifecycle()
+    val missions by viewModel.missions.collectAsStateWithLifecycle()
     var courseList by remember { mutableStateOf<CourseList?>(null) }
 
     LaunchedEffect(key1 = Unit) {
@@ -74,6 +78,9 @@ fun HomeScreen(
         }
         launch {
             viewModel.getRecommendedCourse("1")
+        }
+        launch {
+            viewModel.getMissions()
         }
         launch {
             viewModel.courseDetail.collect {
@@ -106,9 +113,11 @@ fun HomeScreen(
             .fillMaxSize()
             .background(Color(0xFFFaFaFa)),
         recommendedCourse = recommendedCourse,
+        mission = missions,
         onClick = {
             viewModel.getCourseDetail(it)
         },
+        onNavigateAllMission = onNavigateAllMission,
         onFavoriteClick = {
             viewModel.favoriteCourse("1", it)
         }
@@ -119,7 +128,9 @@ fun HomeScreen(
 @Composable
 fun HomeScreen(
     recommendedCourse: List<Course>,
+    mission: List<Mission>,
     onClick: (Course) -> Unit,
+    onNavigateAllMission : () -> Unit,
     onFavoriteClick: (Course) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -134,12 +145,44 @@ fun HomeScreen(
             columns = GridCells.Fixed(2),
             contentPadding = PaddingValues(8.dp),
         ) {
+            if (mission.isNotEmpty()) {
+                item(span = {
+                    GridItemSpan(2)
+                }) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = "미션", fontSize = 16.sp)
+                        Text(
+                            modifier = Modifier.clickable {
+                                onNavigateAllMission()
+                            },
+                            text = "전체보기", color = Color.Gray, fontSize = 12.sp
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                items(mission, span = {
+                    GridItemSpan(2)
+                }) {
+                    Column {
+                        CouponItem(couponName = it.title, status = it.statusType)
+                    }
+
+                }
+            }
+
             item(span = {
                 GridItemSpan(2)
             }) {
                 Column {
-                   // MissionCouponSection()
-                    //Spacer(modifier = Modifier.height(16.dp))
+                    if (mission.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+
                     Text(text = "추천 여행 코스", fontSize = 16.sp)
                     Spacer(modifier = Modifier.height(8.dp))
 
@@ -171,30 +214,13 @@ fun UserProfileSection(name: String) {
     }
 }
 
-@Composable
-fun MissionCouponSection() {
-    Column {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(text = "미션 쿠폰", fontSize = 16.sp)
-            Text(text = "전체보기", color = Color.Gray, fontSize = 12.sp)
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        CouponItem(couponName = "○○리조트 10% 쿠폰", status = "사용하기", statusColor = Color(0xFFFFC8D5))
-        CouponItem(couponName = "○○리조트 10% 쿠폰", status = "참여중", statusColor = Color(0xFFAEF4A9))
-        CouponItem(couponName = "○○리조트 10% 쿠폰", status = "참여하기", statusColor = Color(0xFFADDCFF))
-    }
-}
 
 @Composable
-fun CouponItem(couponName: String, status: String, statusColor: Color) {
+fun CouponItem(couponName: String, status: MissionStatus) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
+            .padding(vertical = 4.dp)
             .background(Color.White, shape = RoundedCornerShape(8.dp))
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -202,12 +228,12 @@ fun CouponItem(couponName: String, status: String, statusColor: Color) {
     ) {
         Text(text = couponName)
         Text(
-            text = status,
+            text = status.title,
             color = Color.Black,
             fontSize = 12.sp,
             textAlign = TextAlign.Center,
             modifier = Modifier
-                .background(statusColor, shape = RoundedCornerShape(4.dp))
+                .background(Color(status.colorLong), shape = RoundedCornerShape(4.dp))
                 .width(62.dp)
                 .padding(horizontal = 4.dp, vertical = 4.dp)
         )
@@ -265,7 +291,7 @@ fun TravelCourseItem(
             Box(
                 modifier = Modifier.align(Alignment.TopEnd),
                 contentAlignment = Alignment.Center
-            ){
+            ) {
                 Box(
                     modifier = Modifier
                         .padding(6.dp)
