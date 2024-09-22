@@ -1,5 +1,5 @@
 import express from 'express';
-import { collectCharacter, saveCharacter } from '../service';
+import { collectCharacter, getAllUserCharacter, saveCharacter } from '../service';
 
 const router = express.Router();
 
@@ -48,9 +48,9 @@ const router = express.Router();
  *                title:
  *                  type: string
  *                  example: "title"
- *              courseContentId:
- *                type: string
- *                example: "courseContentId"
+ *                courseContentId:
+ *                  type: string
+ *                  example: "courseContentId"
  *                contentId:
  *                  type: string
  *                  example: "contentId"
@@ -89,8 +89,46 @@ router.post('/', saveCharacter);
  *                  example: "userId"
  *                id:
  *                  type: string
- *                example: "characterId"
+ *                  example: "characterId"
  */
 router.post('/user', collectCharacter);
+
+/**
+ * @swagger
+ * /character/{id}:
+ *  get:
+ *    summary: All Character List
+ *    tags: [Character]
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        required: true
+ *        schema:
+ *          type: string
+ *    responses:
+ *      200:
+ *        description: 성공
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                id:
+ *                  type: string
+ *                  example: "characterId"
+ *                title:
+ *                  type: string
+ *                  example: "title"
+ *                courseContentId:
+ *                  type: string
+ *                  example: "courseContentId"
+ *                contentId:
+ *                  type: string
+ *                  example: "contentId"
+ *                collected:
+ *                  type: boolean
+ *                  example: 'true or false'
+ */
+router.get('/:id', getAllUserCharacter);
 
 export default router;
