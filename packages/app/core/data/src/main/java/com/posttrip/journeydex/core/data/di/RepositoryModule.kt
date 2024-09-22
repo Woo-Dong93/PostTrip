@@ -1,5 +1,7 @@
 package com.posttrip.journeydex.core.data.di
 
+import com.posttrip.journeydex.core.data.repository.MissionRepository
+import com.posttrip.journeydex.core.data.repository.MissionRepositoryImpl
 import com.posttrip.journeydex.core.data.repository.TravelRepository
 import com.posttrip.journeydex.core.data.repository.TravelRepositoryImpl
 import com.posttrip.journeydex.core.data.repository.UserRepository
@@ -24,4 +26,10 @@ abstract class RepositoryModule {
     abstract fun bindsTravelRepository(
         travelRepository: TravelRepositoryImpl,
     ): TravelRepository
+
+    @Singleton
+    @Binds
+    abstract fun bindsMissionRepository(
+        missionRepository: MissionRepositoryImpl,
+    ): MissionRepository
 }
