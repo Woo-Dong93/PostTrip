@@ -168,7 +168,34 @@ export const getTravelDetailCourse = async (
       }),
     );
 
-    return res.status(200).json({ data: courseDetailInfo.filter(Boolean) });
+    // 코스 상세정보 추가
+    const courseResult = await axios.get(
+      `${process.env.API_URL}/detailCommon1?MobileOS=AND&MobileApp=PostTrip&serviceKey=${process.env.API_KEY}&contentId=${contentId}&defaultYN=Y&overviewYN=Y&mapinfoYN=Y&addrinfoYN=Y&firstImageYN=Y&areacodeYN=Y&_type=json`,
+    );
+
+    if (isLimitedServiceError(courseResult.data)) {
+      throw new Error('API request limit exceeded');
+    }
+
+    const courseInfo = courseResult.data.response.body.items.item[0];
+    const existedCourseKeyword = await Course.findOne({ contentId: courseInfo.contentid });
+
+    const adjustedCourse = {
+      firstAddress: courseInfo.addr1,
+      secondAddress: courseInfo.addr2,
+      areaCode: courseInfo.areacode,
+      contentId: courseInfo.contentid,
+      firstImage: courseInfo.firstimage,
+      secondImage: courseInfo.firstimage2,
+      x: courseInfo.mapx,
+      y: courseInfo.mapy,
+      title: courseInfo.title,
+      travelStyleKeyword: existedCourseKeyword?.travelStyleKeyword,
+      destinationTypeKeyword: existedCourseKeyword?.destinationTypeKeyword,
+      travelTypeKeyword: existedCourseKeyword?.travelTypeKeyword,
+    };
+
+    return res.status(200).json({ data: { ...adjustedCourse, courseList: courseDetailInfo.filter(Boolean) } });
   } catch (error: any) {
     console.log(error);
     res.status(500).json({ message: error.message });

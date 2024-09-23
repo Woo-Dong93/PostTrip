@@ -94,21 +94,18 @@ router.get('/course/:id', travelCourse);
  *            schema:
  *              type: object
  *              properties:
- *                contentId:
- *                  type: string
- *                  example: 'contentId'
- *                contentTypeId:
- *                  type: string
- *                  example: 'contentId'
- *                title:
- *                  type: string
- *                  example: 'title'
  *                firstAddress:
  *                  type: string
  *                  example: 'firstAddress'
  *                secondAddress:
  *                  type: string
  *                  example: 'secondAddress'
+ *                areaCode:
+ *                  type: string
+ *                  example: 'areaCode'
+ *                contentId:
+ *                  type: string
+ *                  example: 'contentId'
  *                firstImage:
  *                  type: string
  *                  example: 'firstImage'
@@ -121,21 +118,65 @@ router.get('/course/:id', travelCourse);
  *                y:
  *                  type: string
  *                  example: 'y'
- *                overview:
+ *                title:
  *                  type: string
- *                  example: 'overview'
- *                characterInfo:
- *                  type: object
- *                  properties:
- *                    id:
- *                      type: string
- *                      example: 'characterId'
- *                    title:
- *                      type: string
- *                      example: 'title'
- *                    collected:
- *                      type: boolean
- *                      example: 'true or false'
+ *                  example: 'title'
+ *                travelStyleKeyword:
+ *                  type: string
+ *                  example: 'travelStyleKeyword'
+ *                destinationTypeKeyword:
+ *                  type: string
+ *                  example: 'destinationTypeKeyword'
+ *                travelTypeKeyword:
+ *                  type: string
+ *                  example: 'travelTypeKeyword'
+ *                courseList:
+ *                  type: array
+ *                  items:
+ *                    type: object
+ *                    properties:
+ *                      contentId:
+ *                          type: string
+ *                          example: 'contentId'
+ *                      contentTypeId:
+ *                          type: string
+ *                          example: 'contentId'
+ *                      title:
+ *                          type: string
+ *                          example: 'title'
+ *                      firstAddress:
+ *                          type: string
+ *                          example: 'firstAddress'
+ *                      secondAddress:
+ *                          type: string
+ *                          example: 'secondAddress'
+ *                      firstImage:
+ *                          type: string
+ *                          example: 'firstImage'
+ *                      secondImage:
+ *                          type: string
+ *                          example: 'secondImage'
+ *                      x:
+ *                          type: string
+ *                          example: 'x'
+ *                      y:
+ *                          type: string
+ *                          example: 'y'
+ *                      overview:
+ *                          type: string
+ *                          example: 'overview'
+ *                      characterInfo:
+ *                          type: object
+ *                          properties:
+ *                            id:
+ *                              type: string
+ *                              example: 'characterId'
+ *                            title:
+ *                              type: string
+ *                              example: 'title'
+ *                            collected:
+ *                              type: boolean
+ *                              example: 'true or false'
  */
 router.get('/detail/:userId/:contentId', getTravelDetailCourse);
 

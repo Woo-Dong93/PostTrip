@@ -90,6 +90,8 @@ export interface IMission {
   contentId: string;
   title: string;
   description: string;
+  collectionCount: number;
+  couponId?: string;
 }
 
 const missionSchema = new Schema<IMission>({
@@ -97,6 +99,8 @@ const missionSchema = new Schema<IMission>({
   contentId: String,
   title: String,
   description: String,
+  collectionCount: Number,
+  couponId: String,
 });
 
 export const Mission = mongoose.model('Mission', missionSchema);
@@ -142,3 +146,33 @@ const userCharacterSchema = new Schema<IUserCharacter>({
 });
 
 export const UserCharacter = mongoose.model('UserCharacter', userCharacterSchema);
+
+export interface ICoupon {
+  id: string;
+  missionId: string;
+  title: string;
+  description: string;
+}
+
+const CouponSchema = new Schema<ICoupon>({
+  id: String,
+  missionId: String,
+  title: String,
+  description: String,
+});
+
+export const Coupon = mongoose.model('Coupon', CouponSchema);
+
+export interface IUserCoupon {
+  userId: string;
+  id: string;
+  use: boolean;
+}
+
+const userCouponSchema = new Schema<IUserCoupon>({
+  userId: String,
+  id: String,
+  use: Boolean,
+});
+
+export const UserCoupon = mongoose.model('UserCoupon', userCouponSchema);

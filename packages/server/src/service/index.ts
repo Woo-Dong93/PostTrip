@@ -3,3 +3,4 @@ export * from './travelService';
 export * from './favoriteService';
 export * from './missionService';
 export * from './characterService';
+export * from './couponService';

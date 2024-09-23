@@ -34,6 +34,12 @@ const router = express.Router();
  *              description:
  *                type: string
  *                example: "description"
+ *              collectionCount:
+ *                type: string
+ *                example: "collectionCount"
+ *              couponId:
+ *                type: string
+ *                example: "couponId"
  *    responses:
  *      200:
  *        description: 성공
@@ -54,6 +60,12 @@ const router = express.Router();
  *                description:
  *                  type: string
  *                  example: "description"
+ *                collectionCount:
+ *                  type: number
+ *                  example: "collectionCount"
+ *                couponId:
+ *                  type: string
+ *                  example: "couponId"
  */
 router.post('/', saveMission);
 
@@ -175,6 +187,9 @@ router.delete('/user', deleteUserMission);
  *                description:
  *                  type: string
  *                  example: "description"
+ *                collectionCount:
+ *                  type: number
+ *                  example: "collectionCount"
  *                status:
  *                  type: string
  *                  example: "PENDING or ACTIVE or COMPLETED"
@@ -185,7 +200,7 @@ router.get('/user/:id/:contentId', getMissionByCourse);
  * @swagger
  * /mission/user/{id}:
  *  get:
- *    summary: User Mission
+ *    summary: All User Mission
  *    tags: [Mission]
  *    parameters:
  *      - in: path
@@ -216,9 +231,33 @@ router.get('/user/:id/:contentId', getMissionByCourse);
  *                description:
  *                  type: string
  *                  example: "description"
+ *                collectionCount:
+ *                  type: number
+ *                  example: "collectionCount"
+ *                collectedCount:
+ *                  type: number
+ *                  example: "collectedCount"
  *                status:
  *                  type: string
  *                  example: "PENDING or ACTIVE or COMPLETED"
+ *                characters:
+ *                  type: object
+ *                  properties:
+ *                    id:
+ *                      type: string
+ *                      example: 'characterId'
+ *                    title:
+ *                      type: string
+ *                      example: 'title'
+ *                    courseContentId:
+ *                      type: string
+ *                      example: 'courseContentId'
+ *                    contentId:
+ *                      type: string
+ *                      example: 'contentId'
+ *                    collected:
+ *                      type: boolean
+ *                      example: 'true or false'
  */
 router.get('/user/:id/', getUserMission);
 
