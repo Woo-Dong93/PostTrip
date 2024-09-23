@@ -59,6 +59,11 @@ class TravelRepositoryImpl @Inject constructor(
         travelService.unlikeCourse(favoriteCourse)
     }
 
+    override fun getLikedCourse(): Flow<CourseList> =  handleApi {
+        travelService.getLikedCourses(LoginCached.kakaoId)
+    }
+
+
     override fun collectCharacter(characterId: String): Flow<CollectCharacter>  = handleApi {
         characterService.collectCharacter(
             CollectCharacter(

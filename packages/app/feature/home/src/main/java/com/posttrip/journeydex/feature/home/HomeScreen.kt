@@ -244,7 +244,8 @@ fun CouponItem(couponName: String, status: MissionStatus) {
 fun TravelCourseItem(
     course: Course,
     onClick: (Course) -> Unit,
-    onFavoriteClick: (Course) -> Unit
+    onFavoriteClick: (Course) -> Unit,
+    visibleFavorite : Boolean = true
 ) {
     Card(
         modifier = Modifier
@@ -288,6 +289,7 @@ fun TravelCourseItem(
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
+            if(visibleFavorite)
             Box(
                 modifier = Modifier.align(Alignment.TopEnd),
                 contentAlignment = Alignment.Center

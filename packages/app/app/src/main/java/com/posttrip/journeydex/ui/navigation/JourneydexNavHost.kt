@@ -7,16 +7,19 @@ import androidx.navigation.compose.NavHost
 import com.posttrip.journeydex.core.data.model.travel.Course
 import com.posttrip.journeydex.feature.dex.navigation.dexScreen
 import com.posttrip.journeydex.feature.home.navigation.allMissionScreen
+import com.posttrip.journeydex.feature.home.navigation.favoriteScreen
 import com.posttrip.journeydex.feature.home.navigation.homeNavigationRoute
 import com.posttrip.journeydex.feature.home.navigation.homeScreen
 import com.posttrip.journeydex.feature.home.navigation.navigateToAllMission
+import com.posttrip.journeydex.feature.home.navigation.navigateToFavorite
 import com.posttrip.journeydex.feature.map.navigation.mapScreen
-import com.posttrip.journeydex.feature.map.navigation.navigateToCourseDetail
-import com.posttrip.journeydex.feature.map.navigation.navigateToMap
 import com.posttrip.journeydex.feature.reward.navigation.navigateToPrivacy
+import com.posttrip.journeydex.feature.reward.navigation.navigateToReward
+import com.posttrip.journeydex.feature.reward.navigation.navigateToSetting
 import com.posttrip.journeydex.feature.reward.navigation.navigateToTerms
 import com.posttrip.journeydex.feature.reward.navigation.privacyScreen
 import com.posttrip.journeydex.feature.reward.navigation.rewardScreen
+import com.posttrip.journeydex.feature.reward.navigation.settingScreen
 import com.posttrip.journeydex.feature.reward.navigation.termsScreen
 
 @Composable
@@ -57,6 +60,15 @@ fun JourneydexNavHost(
         )
         dexScreen()
         rewardScreen(
+            onSettingClick = {
+                navController.navigateToSetting()
+            },
+            onNavigateFavorite = {
+                navController.navigateToFavorite()
+            }
+
+        )
+        settingScreen(
             onBackClick = {
 
             },
@@ -76,6 +88,11 @@ fun JourneydexNavHost(
             navController.popBackStack()
         }
         allMissionScreen(
+            onBackClick = {
+                navController.popBackStack()
+            }
+        )
+        favoriteScreen(
             onBackClick = {
                 navController.popBackStack()
             }

@@ -32,6 +32,8 @@ interface TravelRepository {
 
     fun unlikeCourse(favoriteCourse : FavoriteCourse) : Flow<FavoriteCourse>
 
+    fun getLikedCourse() : Flow<CourseList>
+
     fun collectCharacter(characterId : String) : Flow<CollectCharacter>
 
     fun searchCourse(searchCourse : SearchCourse) : Flow<CourseList>

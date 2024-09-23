@@ -7,10 +7,13 @@ import androidx.navigation.compose.composable
 import com.posttrip.journeydex.core.data.model.response.CourseList
 import com.posttrip.journeydex.core.data.model.travel.Course
 import com.posttrip.journeydex.feature.home.AllMissionScreen
+import com.posttrip.journeydex.feature.home.FavoriteScreen
 import com.posttrip.journeydex.feature.home.HomeScreen
 
 const val homeNavigationRoute = "home_route"
 const val allMissionNavigationRoute = "all_mission_route"
+
+const val favoriteNavigationRoute = "favorite_route"
 
 
 fun NavController.navigateToHome(navOptions: NavOptions? = null) {
@@ -20,6 +23,11 @@ fun NavController.navigateToHome(navOptions: NavOptions? = null) {
 fun NavController.navigateToAllMission(navOptions: NavOptions? = null) {
     this.navigate(allMissionNavigationRoute, navOptions)
 }
+
+fun NavController.navigateToFavorite(navOptions: NavOptions? = null) {
+    this.navigate(favoriteNavigationRoute, navOptions)
+}
+
 
 fun NavGraphBuilder.homeScreen(
 
@@ -48,6 +56,18 @@ fun NavGraphBuilder.allMissionScreen(
         route = allMissionNavigationRoute
     ) {
         AllMissionScreen(
+            onBackClick = onBackClick
+        )
+    }
+}
+
+fun NavGraphBuilder.favoriteScreen(
+    onBackClick: () -> Unit,
+) {
+    composable(
+        route = favoriteNavigationRoute
+    ) {
+        FavoriteScreen(
             onBackClick = onBackClick
         )
     }

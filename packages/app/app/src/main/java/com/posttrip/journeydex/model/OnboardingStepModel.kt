@@ -1,5 +1,7 @@
 package com.posttrip.journeydex.model
 
+import com.posttrip.journeydex.R
+
 data class OnboardingStepModel(
     val index : Int = 0,
     val style : String = "",
@@ -57,6 +59,62 @@ data class OnboardingStepModel(
                     1 -> TYPE_FAMILY
                     2 -> TYPE_COUPLE
                     else -> TYPE_FRIENDS
+                }
+            }
+        }
+
+        fun getTargetTitle(
+            stepIndex : Int,
+            target : Int,
+        ) : String {
+            return if(stepIndex == 0){
+                when(target){
+                    0 -> "힐링"
+                    1 -> "문화"
+                    2 -> "미식"
+                    else -> "액티비티"
+                }
+            }else if(stepIndex == 1){
+                when(target){
+                    0 -> "해변"
+                    1 -> "산"
+                    2 -> "도시"
+                    else -> "섬"
+                }
+            }else {
+                when(target){
+                    0 -> "나홀로"
+                    1 -> "가족"
+                    2 -> "연인"
+                    else -> "친구"
+                }
+            }
+        }
+
+        fun getTargetImage(
+            stepIndex : Int,
+            target : Int,
+        ) : Int {
+            return if(stepIndex == 0){
+                when(target){
+                    0 ->  R.drawable.ic_character1
+                    1 ->  R.drawable.ic_character1
+                    2 ->  R.drawable.ic_character1
+                    else ->  R.drawable.ic_character1
+                }
+            }else if(stepIndex == 1){
+                when(target){
+                    0 -> R.drawable.img_beach
+                    1 -> R.drawable.img_mountain
+                    2 ->  R.drawable.img_city
+                    else ->  R.drawable.img_island
+                }
+            }else {
+                when(target){
+                    0 ->  R.drawable.img_solo
+                    1 ->  R.drawable.img_family
+                    2 ->  R.drawable.img_couple
+                    else ->  R.drawable.img_friend
                 }
             }
         }

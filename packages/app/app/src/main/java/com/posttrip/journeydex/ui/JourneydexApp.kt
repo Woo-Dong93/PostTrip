@@ -53,6 +53,7 @@ import com.posttrip.journeydex.feature.dex.navigation.navigateToDex
 import com.posttrip.journeydex.feature.home.navigation.navigateToHome
 import com.posttrip.journeydex.feature.map.navigation.navigateToMap
 import com.posttrip.journeydex.feature.reward.navigation.navigateToReward
+import com.posttrip.journeydex.feature.reward.navigation.navigateToSetting
 import com.posttrip.journeydex.ui.navigation.JourneydexNavHost
 import com.posttrip.journeydex.ui.navigation.TopLevelDestination
 

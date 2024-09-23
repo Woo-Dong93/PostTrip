@@ -1,22 +1,29 @@
 package com.posttrip.journeydex
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,6 +34,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -34,6 +43,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.posttrip.journeydex.core.data.model.response.LoginData
 import com.posttrip.journeydex.model.OnboardingStepModel
+import com.posttrip.journeydex.model.OnboardingStepModel.Companion.getTargetString
 import com.posttrip.journeydex.ui.JourneydexApp
 
 @Composable
@@ -243,12 +253,22 @@ fun OnboardingCard(
         step.index,
         index
     )
+    val isSelected = step.isSelected(
+        targetStepIndex = step.index,
+        target = index
+    )
     Button(
         modifier = modifier,
         shape = RoundedCornerShape(8.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFFF4F4F4),
             contentColor = Color.Black
+        ),
+        border = BorderStroke(
+            1.dp, if(isSelected) Color(0xFF497CFF) else Color.Transparent
+        ),
+        contentPadding = PaddingValues(
+           0.dp
         ),
         onClick = {
             onClick(text)
@@ -257,17 +277,51 @@ fun OnboardingCard(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 8.dp)
         ) {
-            CardText(
-                text = text,
-                selected = step.isSelected(
-                    targetStepIndex = step.index,
-                    target = index
+            Box(
+                modifier = Modifier.fillMaxSize().padding(
+                    if(step.index == 1) 0.dp
+                    else if(step.index == 2 && index == 0) 32.dp
+                    else 24.dp
                 )
-            )
-        }
+            ){
+                Image(
+                    modifier = Modifier.fillMaxSize(),
+                    painter = painterResource(
+                        OnboardingStepModel.getTargetImage(
+                            step.index,
+                            index
+                        )
+                    ),
+                    contentScale = ContentScale.Fit,
+                    contentDescription = null
+                )
+            }
 
+
+            Text(
+                modifier = Modifier.padding(16.dp),
+                text = OnboardingStepModel.getTargetTitle(
+                    step.index,
+                    index
+                ),
+                color =  if(isSelected && step.index == 2) Color(0xFF497CFF) else Color.Black
+            )
+            Spacer(
+                modifier = Modifier.fillMaxSize()
+                    .background(
+                        color = if(isSelected) Color(0x33497CFF) else Color.Transparent
+                    )
+            )
+            if(isSelected){
+                Icon(
+                    modifier = Modifier.size(60.dp).align(Alignment.Center),
+                    painter = painterResource(id = R.drawable.ic_check),
+                    tint = if(step.index == 1) Color.White else Color(0xFF497CFF),
+                    contentDescription = null
+                )
+            }
+        }
     }
 }
 

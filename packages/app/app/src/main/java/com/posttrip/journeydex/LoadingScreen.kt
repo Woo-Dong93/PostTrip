@@ -49,11 +49,11 @@ fun LoadingScreen(
             LottieImage(
                 lottieRes = R.raw.loading
             )
-            Spacer(modifier = Modifier.size(5.dp))
-            Text(
-                text = "여행지를 불러오고 있습니다.",
-                color = Color.White
-            )
+//            Spacer(modifier = Modifier.size(5.dp))
+//            Text(
+//                text = "여행지를 불러오고 있습니다.",
+//                color = Color.White
+//            )
 
         }
     }
