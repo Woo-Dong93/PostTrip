@@ -57,6 +57,7 @@ dependencies {
     //hilt
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
+    implementation(project(":feature:reward"))
     ksp(libs.hilt.compiler)
 
     //navigation-compose

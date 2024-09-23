@@ -1,10 +1,5 @@
 package com.posttrip.journeydex.feature.reward.navigation
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
@@ -13,11 +8,15 @@ import androidx.navigation.compose.composable
 const val rewardNavigationRoute = "reward_route"
 const val termsNavigationRoute = "terms_route"
 const val privacyNavigationRoute = "privacy_route"
+const val settingNavigationRoute = "setting_route"
 
 fun NavController.navigateToReward(navOptions: NavOptions? = null) {
     this.navigate(rewardNavigationRoute, navOptions)
 }
 
+fun NavController.navigateToSetting(navOptions: NavOptions? = null) {
+    this.navigate(settingNavigationRoute, navOptions)
+}
 
 fun NavController.navigateToTerms(navOptions: NavOptions? = null) {
     this.navigate(termsNavigationRoute, navOptions)
@@ -27,7 +26,22 @@ fun NavController.navigateToPrivacy(navOptions: NavOptions? = null) {
     this.navigate(privacyNavigationRoute, navOptions)
 }
 
+
 fun NavGraphBuilder.rewardScreen(
+    onSettingClick : () -> Unit,
+    onNavigateFavorite : () -> Unit,
+) {
+    composable(
+        rewardNavigationRoute
+    ) {
+        MyPageScreen(
+            onSettingClick= onSettingClick,
+            onNavigateFavorite = onNavigateFavorite
+        )
+    }
+}
+
+fun NavGraphBuilder.settingScreen(
     onBackClick: () -> Unit,
     onTermsClick: () -> Unit,
     onPrivacyClick: () -> Unit,
@@ -35,7 +49,7 @@ fun NavGraphBuilder.rewardScreen(
     onWithdrawClick: () -> Unit
 ) {
     composable(
-        route = rewardNavigationRoute
+        route = settingNavigationRoute
     ) {
         SettingScreen(
             onBackClick = onBackClick,

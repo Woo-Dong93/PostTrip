@@ -40,6 +40,12 @@ interface TravelService {
         @Body body : FavoriteCourse
     ) : Response<FavoriteCourse>
 
+    @GET("/favorite/{id}")
+    suspend fun getLikedCourses(
+        @Path("id") id : String
+    ) : Response<CourseList>
+
+
     @POST("/travel/course/type/{id}")
     suspend fun searchCourse(
         @Path("id") id : String,

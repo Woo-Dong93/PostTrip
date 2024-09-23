@@ -54,6 +54,7 @@ enum class AllMissionScreenTab(val title: String) {
 @Composable
 fun AllMissionScreen(
     onBackClick: () -> Unit,
+    onMissionClick : (Mission) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: AllMissionViewModel = hiltViewModel()
 ) {
@@ -67,6 +68,7 @@ fun AllMissionScreen(
     AllMissionScreen(
         missions = missions,
         selectedTab = selectedTab,
+        onMissionClick = onMissionClick,
         onTabClick = {
             selectedTab = it
         },
@@ -78,6 +80,7 @@ fun AllMissionScreen(
 fun AllMissionScreen(
     missions: List<Mission>,
     selectedTab: AllMissionScreenTab,
+    onMissionClick : (Mission) -> Unit,
     onTabClick : (AllMissionScreenTab) -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -135,7 +138,10 @@ fun AllMissionScreen(
                     items(missions){
                         MissionItem(
                             missionName = it.title,
-                            status = it.statusType
+                            status = it.statusType,
+                            onClick = {
+                                onMissionClick(it)
+                            }
                         )
                     }
                 }
@@ -237,11 +243,14 @@ fun MissionCard(title: String, location: String, status: String, imageUrl: Strin
 }
 
 @Composable
-fun MissionItem(missionName: String, status: MissionStatus) {
+fun MissionItem(missionName: String, status: MissionStatus,onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(Color.White, shape = RoundedCornerShape(8.dp))
+            .clickable {
+                onClick()
+            }
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically

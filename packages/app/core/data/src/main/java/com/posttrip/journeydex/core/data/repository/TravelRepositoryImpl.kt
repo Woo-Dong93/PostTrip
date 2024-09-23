@@ -5,7 +5,9 @@ import com.posttrip.journeydex.core.data.api.TravelService
 import com.posttrip.journeydex.core.data.model.request.CollectCharacter
 import com.posttrip.journeydex.core.data.model.request.FavoriteCourse
 import com.posttrip.journeydex.core.data.model.request.SearchCourse
+import com.posttrip.journeydex.core.data.model.response.CharacterList
 import com.posttrip.journeydex.core.data.model.response.CourseList
+import com.posttrip.journeydex.core.data.model.travel.Character
 import com.posttrip.journeydex.core.data.model.travel.Course
 import com.posttrip.journeydex.core.data.util.LoginCached
 import com.posttrip.journeydex.core.data.util.handleApi
@@ -59,6 +61,11 @@ class TravelRepositoryImpl @Inject constructor(
         travelService.unlikeCourse(favoriteCourse)
     }
 
+    override fun getLikedCourse(): Flow<CourseList> =  handleApi {
+        travelService.getLikedCourses(LoginCached.kakaoId)
+    }
+
+
     override fun collectCharacter(characterId: String): Flow<CollectCharacter>  = handleApi {
         characterService.collectCharacter(
             CollectCharacter(
@@ -67,6 +74,13 @@ class TravelRepositoryImpl @Inject constructor(
             )
         )
     }
+
+    override fun getCharacters(): Flow<CharacterList> = handleApi {
+        characterService.getCharacters(
+            LoginCached.kakaoId
+        )
+    }
+
 
     override fun searchCourse(searchCourse: SearchCourse): Flow<CourseList> = handleApi {
         travelService.searchCourse(
