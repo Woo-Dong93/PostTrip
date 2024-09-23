@@ -7,13 +7,18 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
@@ -23,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,17 +41,32 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.posttrip.journeydex.core.data.model.mission.Mission
+import com.posttrip.journeydex.core.data.model.travel.Character
+import com.posttrip.journeydex.core.data.model.travel.Course
 import com.posttrip.journeydex.core.data.util.LoginCached
 
 @Composable
 fun MyPageScreen(
-    onSettingClick : () -> Unit,
-    onNavigateFavorite : () -> Unit,
+    onSettingClick: () -> Unit,
+    onNavigateFavorite: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: MyPageViewModel = hiltViewModel()
 ) {
     var selectedTab by remember { mutableStateOf<MyPageScreenTab>(MyPageScreenTab.Character) }
+    val missions by viewModel.missions.collectAsStateWithLifecycle()
+    val characters by viewModel.characters.collectAsStateWithLifecycle()
+    val courses by viewModel.courses.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.getLikedCourses()
+        viewModel.getCharacters()
+    }
+
     MyPageScreen(
+        courses = courses,
+        characters = characters,
         selectedTab = selectedTab,
         onTabClick = {
             selectedTab = it
@@ -60,10 +81,12 @@ fun MyPageScreen(
 @SuppressLint("UnrememberedMutableInteractionSource")
 @Composable
 fun MyPageScreen(
+    courses: List<Course>,
+    characters: List<Character>,
     selectedTab: MyPageScreenTab,
-    onTabClick : (MyPageScreenTab) -> Unit,
-    onSettingClick : () -> Unit,
-    onNavigateFavorite : () -> Unit,
+    onTabClick: (MyPageScreenTab) -> Unit,
+    onSettingClick: () -> Unit,
+    onNavigateFavorite: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -93,23 +116,29 @@ fun MyPageScreen(
         )
 
         Row(
-            modifier = Modifier.padding(vertical = 24.dp).padding(start = 20.dp),
+            modifier = Modifier
+                .padding(vertical = 24.dp)
+                .padding(start = 20.dp),
             verticalAlignment = Alignment.CenterVertically
-        ){
+        ) {
             Text(
-                modifier = Modifier.weight(1f).padding(end = 8.dp),
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 8.dp),
                 text = LoginCached.nickname + "님",
                 fontWeight = FontWeight.Medium,
                 fontSize = 14.sp
             )
             Column(
-                modifier = Modifier.padding(end = 40.dp).clickable(
-                    interactionSource = MutableInteractionSource(),
-                    indication = null,
-                    onClick = {
-                        onNavigateFavorite()
-                    }
-                ),
+                modifier = Modifier
+                    .padding(end = 40.dp)
+                    .clickable(
+                        interactionSource = MutableInteractionSource(),
+                        indication = null,
+                        onClick = {
+                            onNavigateFavorite()
+                        }
+                    ),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -120,7 +149,7 @@ fun MyPageScreen(
                 )
 
                 Text(
-                    text = "999",
+                    text = "${courses.size}",
                     fontWeight = FontWeight.Medium,
                     fontSize = 24.sp
                 )
@@ -130,16 +159,24 @@ fun MyPageScreen(
 
 
         Column(
-            modifier = Modifier.fillMaxSize().background(Color(0xFFFAFAFA)).padding(
-                top = 24.dp
-            )
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFFFAFAFA))
+                .padding(
+                    top = 24.dp
+                )
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 14.dp).height(46.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 14.dp)
+                    .height(46.dp),
 
-                ){
+                ) {
                 TabCard(
-                    modifier = Modifier.height(46.dp).weight(1f),
+                    modifier = Modifier
+                        .height(46.dp)
+                        .weight(1f),
                     tab = MyPageScreenTab.Character,
                     selected = selectedTab == MyPageScreenTab.Character,
                     onClick = {
@@ -147,7 +184,9 @@ fun MyPageScreen(
                     }
                 )
                 TabCard(
-                    modifier = Modifier.height(46.dp).weight(1f),
+                    modifier = Modifier
+                        .height(46.dp)
+                        .weight(1f),
                     tab = MyPageScreenTab.Coupon,
                     selected = selectedTab == MyPageScreenTab.Coupon,
                     onClick = {
@@ -155,7 +194,35 @@ fun MyPageScreen(
                     }
                 )
             }
+            when (selectedTab) {
+                MyPageScreenTab.Character -> {
+                    LazyVerticalGrid(
+                        modifier = Modifier.fillMaxSize(),
+                        columns = GridCells.Fixed(2),
+                        contentPadding = PaddingValues(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        items(characters) { character ->
+
+                            CharacterCard(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .aspectRatio(1f),
+                                character = character,
+                                onClick = {}
+                            )
+                        }
+                    }
+
+                }
+
+                MyPageScreenTab.Coupon -> {
+
+                }
+            }
         }
+
     }
 
 
@@ -166,11 +233,13 @@ fun MyPageScreen(
 fun TabCard(
     selected: Boolean,
     tab: MyPageScreenTab,
-    onClick : () -> Unit,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier.clip(RoundedCornerShape(14.dp)).clickable { onClick() },
+        modifier = modifier
+            .clip(RoundedCornerShape(14.dp))
+            .clickable { onClick() },
         colors = CardDefaults.cardColors(
             containerColor = if (selected) Color(0xFF48484A) else Color(0xFFF6F5F6),
         ),

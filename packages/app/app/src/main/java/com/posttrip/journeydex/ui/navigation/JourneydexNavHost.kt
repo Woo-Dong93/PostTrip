@@ -88,6 +88,9 @@ fun JourneydexNavHost(
             navController.popBackStack()
         }
         allMissionScreen(
+            onMissionClick = {
+                onNavigateMap(it.contentId)
+            },
             onBackClick = {
                 navController.popBackStack()
             }

@@ -5,5 +5,9 @@ import kotlinx.serialization.Serializable
 data class Character(
     val id : String = "",
     val title : String ="",
-    val collected : Boolean = false
-)
+    val collected : Boolean = false,
+    val courseContentId : String = "",
+    val contentId : String = ""
+){
+
+}

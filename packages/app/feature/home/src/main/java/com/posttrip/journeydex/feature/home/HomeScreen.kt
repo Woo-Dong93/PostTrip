@@ -114,6 +114,9 @@ fun HomeScreen(
             .background(Color(0xFFFaFaFa)),
         recommendedCourse = recommendedCourse,
         mission = missions,
+        onMissionClick = {
+            onNavigateMap(it.contentId)
+        },
         onClick = {
             viewModel.getCourseDetail(it)
         },
@@ -129,6 +132,7 @@ fun HomeScreen(
 fun HomeScreen(
     recommendedCourse: List<Course>,
     mission: List<Mission>,
+    onMissionClick : (Mission) -> Unit,
     onClick: (Course) -> Unit,
     onNavigateAllMission : () -> Unit,
     onFavoriteClick: (Course) -> Unit,
@@ -169,7 +173,10 @@ fun HomeScreen(
                     GridItemSpan(2)
                 }) {
                     Column {
-                        CouponItem(couponName = it.title, status = it.statusType)
+                        CouponItem(couponName = it.title, status = it.statusType,
+                            onMissionClick = {
+                                onMissionClick(it)
+                            })
                     }
 
                 }
@@ -216,12 +223,15 @@ fun UserProfileSection(name: String) {
 
 
 @Composable
-fun CouponItem(couponName: String, status: MissionStatus) {
+fun CouponItem(couponName: String, status: MissionStatus,onMissionClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
             .background(Color.White, shape = RoundedCornerShape(8.dp))
+            .clickable {
+                onMissionClick()
+            }
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically

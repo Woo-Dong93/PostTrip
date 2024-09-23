@@ -3,7 +3,9 @@ package com.posttrip.journeydex.core.data.repository
 import com.posttrip.journeydex.core.data.model.request.CollectCharacter
 import com.posttrip.journeydex.core.data.model.request.FavoriteCourse
 import com.posttrip.journeydex.core.data.model.request.SearchCourse
+import com.posttrip.journeydex.core.data.model.response.CharacterList
 import com.posttrip.journeydex.core.data.model.response.CourseList
+import com.posttrip.journeydex.core.data.model.travel.Character
 import com.posttrip.journeydex.core.data.model.travel.Course
 import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
@@ -35,6 +37,8 @@ interface TravelRepository {
     fun getLikedCourse() : Flow<CourseList>
 
     fun collectCharacter(characterId : String) : Flow<CollectCharacter>
+
+    fun getCharacters() : Flow<CharacterList>
 
     fun searchCourse(searchCourse : SearchCourse) : Flow<CourseList>
 }
