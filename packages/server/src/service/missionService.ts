@@ -116,7 +116,7 @@ export const deleteUserMission = async (req: express.Request<any, any, IUserMiss
 
     if (coupon) {
       const userCoupon = new UserCoupon({
-        id,
+        id: coupon.id,
         userId,
         use: false,
       });

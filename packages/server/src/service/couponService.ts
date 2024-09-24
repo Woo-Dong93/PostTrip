@@ -1,5 +1,6 @@
 import express from 'express';
 import { Mission, ICoupon, Coupon, IUserCoupon, User, UserCoupon } from '../schema';
+import { Console } from 'console';
 
 export const saveCoupon = async (req: express.Request<any, any, ICoupon>, res: express.Response) => {
   try {
@@ -9,6 +10,12 @@ export const saveCoupon = async (req: express.Request<any, any, ICoupon>, res: e
 
     if (!missionExisted) {
       return res.status(500).json({ message: 'No Mission found' });
+    }
+
+    const couponExisted = await Coupon.findOne({ id: id });
+
+    if (couponExisted) {
+      return res.status(500).json({ message: 'Coupon has already been added' });
     }
 
     const coupon = new Coupon({
@@ -50,6 +57,48 @@ export const deleteUserCoupon = async (req: express.Request<any, any, IUserCoupo
     await userCouponExisted.updateOne({ use: true });
 
     res.status(200).json({ id, userId, use: true });
+  } catch (error: any) {
+    console.log(error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getUserCoupon = async (req: express.Request<{ id: string }, any, any>, res: express.Response) => {
+  try {
+    const { id } = req.params;
+
+    const userExisted = await User.findOne({ id });
+
+    if (!userExisted) {
+      return res.status(500).json({ message: 'User information not found' });
+    }
+
+    const userCoupon = await UserCoupon.find({ userId: id });
+
+    const couponList = await Coupon.find({ id: { $in: userCoupon.map(({ id }) => id) } });
+    const couponMap = couponList.reduce((map, coupon) => {
+      return {
+        ...map,
+        [coupon.id]: coupon,
+      };
+    }, {}) as { [key in string]: string };
+
+    const userCouponList = userCoupon.map(({ userId, id, use }) => {
+      const { id: couponId, missionId, title, description } = couponMap[id] as unknown as ICoupon;
+
+      return {
+        userId,
+        use,
+        info: {
+          id: couponId,
+          missionId,
+          title,
+          description,
+        },
+      };
+    });
+
+    res.status(200).json({ data: userCouponList });
   } catch (error: any) {
     console.log(error);
     res.status(500).json({ message: error.message });
