@@ -1,5 +1,6 @@
 package com.posttrip.journeydex.feature.map.navigation
 
+import android.util.Log
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
@@ -28,7 +29,9 @@ fun NavGraphBuilder.mapScreen(
     composable(
         route = "${mapNavigationRoute}/{$contentIdArg}",
         arguments = listOf(navArgument(contentIdArg) { type = NavType.StringType })
-    ) {
+    ) {navBackStackEntry ->
+        val missionId = navBackStackEntry.arguments?.getString(contentIdArg)
+        Log.d("123123",missionId ?: "")
         MapScreen(
             onDetail = onDetail,
             onLoadingShow = onLoadingShow

@@ -21,7 +21,6 @@ class FavoriteViewModel @Inject constructor(
 
     fun getLikedCourses() {
         if (courses.value.isEmpty())
-
             viewModelScope.launch {
                 travelRepository.getLikedCourse()
                     .catch {

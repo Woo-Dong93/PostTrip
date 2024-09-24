@@ -3,6 +3,8 @@ package com.posttrip.journeydex.core.data.api
 import com.posttrip.journeydex.core.data.model.request.FavoriteCourse
 import com.posttrip.journeydex.core.data.model.request.SearchCourse
 import com.posttrip.journeydex.core.data.model.response.CourseList
+import com.posttrip.journeydex.core.data.model.travel.Course
+import com.posttrip.journeydex.core.data.model.travel.CourseDetail
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -23,7 +25,7 @@ interface TravelService {
     suspend fun getCourseDetail(
         @Path("userId") userId : String,
         @Path("contentId") contentId : String
-    ) : Response<CourseList>
+    ) : Response<CourseDetail>
 
     @GET("/travel/course/recommended/{id}")
     suspend fun getRecommendedCourse(

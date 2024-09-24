@@ -9,6 +9,7 @@ import com.posttrip.journeydex.core.data.model.response.CharacterList
 import com.posttrip.journeydex.core.data.model.response.CourseList
 import com.posttrip.journeydex.core.data.model.travel.Character
 import com.posttrip.journeydex.core.data.model.travel.Course
+import com.posttrip.journeydex.core.data.model.travel.CourseDetail
 import com.posttrip.journeydex.core.data.util.LoginCached
 import com.posttrip.journeydex.core.data.util.handleApi
 import kotlinx.coroutines.flow.Flow
@@ -27,8 +28,8 @@ class TravelRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getCachedCourse(contentId: String): CourseList {
-        return cachedCourse.get(contentId) ?: CourseList(emptyList())
+    override fun getCachedCourse(contentId: String): CourseList? {
+        return cachedCourse.get(contentId)
     }
 
     override fun cacheCourseDetail(contentId: String, course: Course) {
@@ -45,7 +46,7 @@ class TravelRepositoryImpl @Inject constructor(
         travelService.getCourse(id)
     }
 
-    override fun getCourseDetail(contentId: String): Flow<CourseList> = handleApi {
+    override fun getCourseDetail(contentId: String): Flow<CourseDetail> = handleApi {
         travelService.getCourseDetail(LoginCached.kakaoId,contentId)
     }
 

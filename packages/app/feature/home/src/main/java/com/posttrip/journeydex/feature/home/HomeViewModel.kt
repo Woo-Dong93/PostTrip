@@ -80,14 +80,20 @@ class HomeViewModel @Inject constructor(
                     _shownLoading.emit(false)
                     travelRepository.cacheCourse(
                         course.contentId,
-                        it.copy(
-                            course = course,
-                            courses = it.courses.map {
+                        CourseList(
+                            course = it.data,
+                            courses = it.data.courseList.map {
                                 it.copy(isDetail = true)
                             }
                         )
+
                     )
-                    _courseDetail.emit(it.copy(course = course))
+                    _courseDetail.emit(CourseList(
+                        course = it.data,
+                        courses = it.data.courseList.map {
+                            it.copy(isDetail = true)
+                        }
+                    ))
                 }
         }
     }
