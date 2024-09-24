@@ -20,5 +20,6 @@ data class Course(
     val favorite : Boolean = false,
     val overview : String = "",
     val characterInfo : Character = Character(),
-    val enabledToCollect : Boolean = false
+    val enabledToCollect : Boolean = false,
+    val courseList : List<Course> = emptyList()
 )

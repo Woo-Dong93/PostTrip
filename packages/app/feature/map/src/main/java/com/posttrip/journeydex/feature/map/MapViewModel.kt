@@ -39,9 +39,13 @@ import javax.inject.Inject
 @HiltViewModel
 class MapViewModel @Inject constructor(
     private val travelRepository: TravelRepository,
-    savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     val contentId: String? = savedStateHandle.get<String>("contentId")
+//    var cachedContentId : String? = ""
+//    init {
+//        cachedContentId = contentId
+//    }
 
     private val _courses = MutableStateFlow<List<Course>>(emptyList())
     val courses : StateFlow<List<Course>> = _courses.asStateFlow()
@@ -81,14 +85,14 @@ class MapViewModel @Inject constructor(
 
     val realCollectingDetailCourses : StateFlow<CourseList?> =
         combine(
-            myPoint.mapNotNull { it },
+            myPoint,
             collectingDetailCourses
         ){ my, courses ->
             val mCourses = collectingDetailCourses.value?.courses ?: emptyList()
             courses?.copy(
                 courses = mCourses.map {
                     it.copy(
-                        enabledToCollect = calculateDistance(my.x,my.y,it.y.toDouble(),it.x.toDouble()) <= 1
+                        enabledToCollect = calculateDistance(my?.x ?: 0.0,my?.y  ?: 0.0,it.y.toDouble(),it.x.toDouble()) <= 1
                     )
                 }
             )
@@ -98,15 +102,42 @@ class MapViewModel @Inject constructor(
             null
         )
 
+    fun clearStateHandle() {
+       // savedStateHandle.remove<String>("contentId")
+    }
+
     fun initCourseDetail(){
+      //  val contentId = savedStateHandle.get<String>("contentId")
         if(contentId != null && contentId != "-1"){
             viewModelScope.launch {
                 delay(300)
                 _shownLoading.emit(true)
-                delay(2700)
-                val courses = travelRepository.getCachedCourse(contentId)
-                emitDetails(courses)
+                val courses =travelRepository.getCachedCourse(contentId!!)
+                if(courses == null){
+                    delay(2700)
+                    travelRepository.getCourseDetail(contentId!!).catch {
+                        _shownLoading.emit(false)
+                    }.collect {
+
+                        emitDetails(CourseList(
+                            course = it.data,
+                            courses = it.data.courseList.map {
+                                it.copy(isDetail = true)
+                            }
+                        ))
+                        _shownLoading.emit(false)
+                    }
+                }else {
+                    delay(2700)
+                    _shownLoading.emit(false)
+                    emitDetails(courses)
+                }
+
             }
+        }else {
+            _lineDetailCourses.value = null
+            _collectingDetailCourses.value = null
+            _normalDetailCourses.value = null
         }
     }
 
@@ -130,11 +161,11 @@ class MapViewModel @Inject constructor(
 
                 }.collect {
                     delay(1000)
-                    val courseList = it.copy(
-                        courses = it.courses.map {
+                    val courseList = CourseList(
+                        course = it.data,
+                        courses = it.data.courseList.map {
                             it.copy(isDetail = true)
-                        },
-                        course = course
+                        }
                     )
                     emitDetails(courseList)
                 }
@@ -182,11 +213,11 @@ class MapViewModel @Inject constructor(
 
                     }.collect {
                         delay(1000)
-                        val courseList = it.copy(
-                            courses = it.courses.map {
+                        val courseList = CourseList(
+                            course = it.data,
+                            courses = it.data.courseList.map {
                                 it.copy(isDetail = true)
-                            },
-                            course = course
+                            }
                         )
                         travelRepository.cacheCourse(contentId = course.contentId,
                             courseList)

@@ -156,42 +156,47 @@ object MapUtil {
         viewModel: MapViewModel,
         onInit : () -> Unit
     ) {
-        // 실시간 위치 정보를 UI에 업데이트합니다.
-        val latitude = location.latitude
-        val longitude = location.longitude
+        try {
+            // 실시간 위치 정보를 UI에 업데이트합니다.
+            val latitude = location.latitude
+            val longitude = location.longitude
 
-        val deletedLayer = kakaoMap?.labelManager?.getLayer("my")
-        deletedLayer?.let {
-            kakaoMap?.labelManager?.remove(deletedLayer)
-        }
-
-
-        val styles =
-            kakaoMap?.labelManager?.addLabelStyles(
-                LabelStyles.from(LabelStyle.from(R.drawable.ic_my))
-            )
+            val deletedLayer = kakaoMap?.labelManager?.getLayer("my")
+            deletedLayer?.let {
+                kakaoMap?.labelManager?.remove(deletedLayer)
+            }
 
 
-        val options = LabelOptions.from(LatLng.from(latitude, longitude)).setStyles(styles)
-        val layer = LabelLayerOptions.from("my")
-        kakaoMap?.labelManager?.addLayer(layer)
-        kakaoMap?.labelManager?.getLayer("my")?.addLabel(options)
+            val styles =
+                kakaoMap?.labelManager?.addLabelStyles(
+                    LabelStyles.from(LabelStyle.from(R.drawable.ic_my))
+                )
 
-        if(isInit) return
-        if(viewModel.contentId != null && viewModel.contentId != "-1") return
 
-        lastLat = latitude
-        lastLng = longitude
-        viewModel.updateMyPoint(latitude,longitude)
-        kakaoMap?.moveCamera(
-            CameraUpdateFactory.newCenterPosition(
-                LatLng.from(
-                    latitude,
-                    longitude
+            val options = LabelOptions.from(LatLng.from(latitude, longitude)).setStyles(styles)
+            val layer = LabelLayerOptions.from("my")
+            kakaoMap?.labelManager?.addLayer(layer)
+            kakaoMap?.labelManager?.getLayer("my")?.addLabel(options)
+
+            if(isInit) return
+            if(viewModel.contentId != null && viewModel.contentId != "-1") return
+
+            lastLat = latitude
+            lastLng = longitude
+            viewModel.updateMyPoint(latitude,longitude)
+            kakaoMap?.moveCamera(
+                CameraUpdateFactory.newCenterPosition(
+                    LatLng.from(
+                        latitude,
+                        longitude
+                    )
                 )
             )
-        )
-        onInit()
+            onInit()
+        }catch (e: Exception){
+
+        }
+
     }
 
 

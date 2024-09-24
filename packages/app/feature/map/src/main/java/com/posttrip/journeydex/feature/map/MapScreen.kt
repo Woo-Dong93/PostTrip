@@ -104,6 +104,12 @@ fun MapScreen(
         mutableStateOf<TravelTypeKeyword?>(null)
     }
 
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.clearStateHandle()
+        }
+    }
+
     LaunchedEffect(travelStyle, destinationTypeKeyword, travelTypeKeyword, area) {
         if (travelStyle == null && destinationTypeKeyword == null &&
             travelTypeKeyword == null && area == null
@@ -225,11 +231,13 @@ fun MapScreen(
                     zoomLevel.roundToInt()
                 )
             )
+        }else {
+            kakaoMap?.routeLineManager?.layer?.removeAll()
         }
     }
 
     LaunchedEffect(key1 = normalDetailCourses) {
-        if (course.isNotEmpty() && normalDetailCourses != null) {
+        if ( normalDetailCourses != null) {
 //             MapUtil.setLabelClickEvent(
 //                 courseList = normalDetailCourses,
 //                 kakaoMap = kakaoMap,

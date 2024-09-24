@@ -98,6 +98,12 @@ fun JourneydexApp(
                                     launchSingleTop = true
                                     restoreState = true
                                 }
+                                val homeLevelNavOptions = navOptions {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        inclusive = true
+                                    }
+                                    launchSingleTop = true
+                                }
                                 when(it){
                                     TopLevelDestination.MAP -> {
                                         navController.navigateToMap(
@@ -107,17 +113,17 @@ fun JourneydexApp(
 
                                     TopLevelDestination.HOME ->{
                                         navController.navigateToHome(
-                                            navOptions = topLevelNavOptions)
+                                            navOptions = homeLevelNavOptions)
                                     }
 
                                     TopLevelDestination.DEX -> {
                                         navController.navigateToDex(
-                                            navOptions  = topLevelNavOptions
+                                            navOptions  = homeLevelNavOptions
                                         )
                                     }
                                     TopLevelDestination.REWARD -> {
                                         navController.navigateToReward(
-                                            navOptions = topLevelNavOptions)
+                                            navOptions = homeLevelNavOptions)
                                     }
                                 }
 
