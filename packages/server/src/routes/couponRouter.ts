@@ -1,5 +1,5 @@
 import express from 'express';
-import { deleteUserCoupon, saveCoupon } from '../service';
+import { deleteUserCoupon, getUserCoupon, saveCoupon } from '../service';
 
 const router = express.Router();
 
@@ -95,5 +95,49 @@ router.post('/', saveCoupon);
  *                  example: "true or false"
  */
 router.delete('/user', deleteUserCoupon);
+
+/**
+ * @swagger
+ * /coupon/{id}:
+ *  get:
+ *    summary: All User Coupon
+ *    tags: [Coupon]
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        required: true
+ *        schema:
+ *          type: string
+ *    responses:
+ *      200:
+ *        description: 성공
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                userId:
+ *                  type: string
+ *                  example: "userId"
+ *                use:
+ *                  type: boolean
+ *                  example: "true or false"
+ *                info:
+ *                  type: object
+ *                  properties:
+ *                    id:
+ *                      type: string
+ *                      example: 'characterId'
+ *                    missionId:
+ *                      type: string
+ *                      example: 'missionId'
+ *                    title:
+ *                      type: string
+ *                      example: 'title'
+ *                    description:
+ *                      type: string
+ *                      example: 'description'
+ */
+router.get('/:id/', getUserCoupon);
 
 export default router;
