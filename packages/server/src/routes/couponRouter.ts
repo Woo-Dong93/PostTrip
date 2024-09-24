@@ -127,7 +127,7 @@ router.delete('/user', deleteUserCoupon);
  *                  properties:
  *                    id:
  *                      type: string
- *                      example: 'characterId'
+ *                      example: 'couponId'
  *                    missionId:
  *                      type: string
  *                      example: 'missionId'
