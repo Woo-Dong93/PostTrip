@@ -97,10 +97,10 @@ data class OnboardingStepModel(
         ) : Int {
             return if(stepIndex == 0){
                 when(target){
-                    0 ->  R.drawable.ic_character1
-                    1 ->  R.drawable.ic_character1
-                    2 ->  R.drawable.ic_character1
-                    else ->  R.drawable.ic_character1
+                    0 ->  R.drawable.ic_healing
+                    1 ->  R.drawable.ic_culture
+                    2 ->  R.drawable.ic_gourmet
+                    else ->  R.drawable.ic_activity
                 }
             }else if(stepIndex == 1){
                 when(target){

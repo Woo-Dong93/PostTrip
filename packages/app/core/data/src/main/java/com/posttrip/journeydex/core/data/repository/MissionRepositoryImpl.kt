@@ -2,6 +2,7 @@ package com.posttrip.journeydex.core.data.repository
 
 import com.posttrip.journeydex.core.data.api.MissionService
 import com.posttrip.journeydex.core.data.model.request.MissionBody
+import com.posttrip.journeydex.core.data.model.response.CouponList
 import com.posttrip.journeydex.core.data.model.response.MissionList
 import com.posttrip.journeydex.core.data.util.LoginCached
 import com.posttrip.journeydex.core.data.util.handleApi
@@ -25,6 +26,10 @@ class MissionRepositoryImpl @Inject constructor(
 
     override fun completeMission(missionBody: MissionBody): Flow<MissionBody> = handleApi {
         missionService.completeMission(missionBody)
+    }
+
+    override fun getCouponList(): Flow<CouponList> = handleApi {
+        missionService.getCouponList(LoginCached.kakaoId)
     }
 
 }

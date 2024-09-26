@@ -280,7 +280,7 @@ fun OnboardingCard(
         ) {
             Box(
                 modifier = Modifier.fillMaxSize().padding(
-                    if(step.index == 1) 0.dp
+                    if(step.index == 1 || step.index == 0) 0.dp
                     else if(step.index == 2 && index == 0) 32.dp
                     else 24.dp
                 )
@@ -316,7 +316,7 @@ fun OnboardingCard(
             if(isSelected){
                 Icon(
                     modifier = Modifier.size(60.dp).align(Alignment.Center),
-                    painter = painterResource(id = R.drawable.ic_check),
+                    painter = painterResource(id = R.drawable.ic_favorite_onboarding    ),
                     tint = if(step.index == 1) Color.White else Color(0xFF497CFF),
                     contentDescription = null
                 )

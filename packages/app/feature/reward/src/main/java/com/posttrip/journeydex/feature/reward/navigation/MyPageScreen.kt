@@ -1,7 +1,6 @@
 package com.posttrip.journeydex.feature.reward.navigation
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -17,9 +16,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
@@ -38,17 +41,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.posttrip.journeydex.core.data.model.mission.Mission
+import com.posttrip.journeydex.core.data.model.mission.Coupon
 import com.posttrip.journeydex.core.data.model.travel.Character
 import com.posttrip.journeydex.core.data.model.travel.Course
 import com.posttrip.journeydex.core.data.util.LoginCached
-import com.posttrip.journeydex.feature.reward.R
 
 @Composable
 fun MyPageScreen(
@@ -61,15 +63,18 @@ fun MyPageScreen(
     val missions by viewModel.missions.collectAsStateWithLifecycle()
     val characters by viewModel.characters.collectAsStateWithLifecycle()
     val courses by viewModel.courses.collectAsStateWithLifecycle()
+    val coupons by viewModel.coupons.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.getLikedCourses()
         viewModel.getCharacters()
+        viewModel.getCoupons()
     }
 
     MyPageScreen(
         courses = courses,
         characters = characters,
+        coupons = coupons,
         selectedTab = selectedTab,
         onTabClick = {
             selectedTab = it
@@ -86,6 +91,7 @@ fun MyPageScreen(
 fun MyPageScreen(
     courses: List<Course>,
     characters: List<Character>,
+    coupons : List<Coupon>,
     selectedTab: MyPageScreenTab,
     onTabClick: (MyPageScreenTab) -> Unit,
     onSettingClick: () -> Unit,
@@ -238,19 +244,35 @@ fun MyPageScreen(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ){
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Image(
-                                modifier = Modifier.size(225.dp),
-                                painter = painterResource(R.drawable.ic_waiting),
-                                contentDescription = null
-                            )
-                            Spacer(modifier = Modifier.size(8.dp))
-                            Text(
-                                text = "열심히 준비 중인 기능이에요!"
-                            )
+                        if(coupons.isNotEmpty()){
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize(),
+                                contentPadding = PaddingValues(20.dp),
+                                verticalArrangement = Arrangement.spacedBy(10.dp),
+                            ) {
+                                items(coupons){
+                                    CouponItem(
+                                        couponTitle = it.info.title,
+                                        couponDescription = it.info.description,
+                                        isUsed = it.use,
+                                        onClick = {
+
+                                        }
+                                    )
+                                }
+                            }
+
+                        }else {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ){
+                                Text(
+                                    text = "수집한 쿠폰이 없습니다."
+                                )
+                            }
                         }
+
                     }
                 }
             }
@@ -259,6 +281,57 @@ fun MyPageScreen(
     }
 
 
+}
+
+
+@Composable
+fun CouponItem(
+    couponTitle: String,
+    couponDescription : String,
+    isUsed: Boolean,
+    onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White, shape = RoundedCornerShape(8.dp))
+            .clickable {
+                onClick()
+            }
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(
+            modifier = Modifier.wrapContentHeight().weight(1f),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text(
+                text = couponTitle,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
+
+            )
+            Text(
+                text = couponDescription,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium
+            )
+        }
+        Spacer(Modifier.size(8.dp))
+        if(isUsed){
+            Text(
+                text ="사용완료",
+                color = Color.Black,
+                fontSize = 12.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .background(Color(0xFFc5c5c5), shape = RoundedCornerShape(4.dp))
+                    .width(62.dp)
+                    .padding(horizontal = 4.dp, vertical = 4.dp)
+            )
+        }
+
+    }
 }
 
 

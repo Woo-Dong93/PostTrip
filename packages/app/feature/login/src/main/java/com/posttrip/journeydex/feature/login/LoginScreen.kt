@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -86,16 +87,21 @@ fun LoginIntro(
         verticalArrangement = Arrangement.Bottom
     ) {
         Text(
-            text = "국내 여행은\nJourneydex",
+            text = "국내 여행은",
             fontSize = 28.sp,
             lineHeight = 34.sp,
             fontWeight = FontWeight.Black
+        )
+        Image(
+            painter = painterResource(R.drawable.img_journeydex),
+            modifier = Modifier.width(237.dp).height(65.dp),
+            contentDescription = null
         )
         Text(
             modifier = Modifier.padding(top = 16.dp),
             text = "저니덱스에서 여행혜택 받자!",
             fontSize = 14.sp,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.Medium
         )
     }
 }
