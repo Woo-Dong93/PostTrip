@@ -165,9 +165,21 @@ fun JourneydexApp(
                 LoadingScreen()
             }
             if(courseDetail != null){
-                CourseDetailScreen(course = courseDetail!!, onDismiss = {
+                CourseDetailScreen(
+                    course = courseDetail!!, onDismiss = {
                     courseDetail = null
-                })
+                },
+                    onMissionClick = { contentId ->
+                        val topLevelNavOptions = navOptions {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                        navController.navigateToMap(contentId,topLevelNavOptions)
+                    }
+                )
             }
 //            AnimatedVisibility(visible = shownLoading) {
 //

@@ -262,11 +262,11 @@ fun MapScreen(
                     y = course.y.toDouble(),
                     kakaoMap = kakaoMap,
                     id = "normalCourses",
-                    labelId = "normalCourses,${course.contentId},false,false"
+                    labelId = "normalCourses,${course.contentId},false,false,null"
                 )
             }
             kakaoMap?.setOnLabelClickListener { kakaoMap, labelLayer, label ->
-                val (type, id, collected, enabledToCollect) = label.labelId.split(",")
+                val (type, id, collected, enabledToCollect,characterTitle) = label.labelId.split(",")
                 if (type == "normalCourses") {
                     shownBottomSheet = true
                 } else {
@@ -308,12 +308,13 @@ fun MapScreen(
                     collected = course.characterInfo.collected,
                     enabledToCollect = course.enabledToCollect,
                     id = "collectingCourses",
-                    labelId = "collectingCourses,${course.characterInfo.id},${course.characterInfo.collected},${course.enabledToCollect}"
+                    characterTitle = course.characterInfo.title,
+                    labelId = "collectingCourses,${course.characterInfo.id},${course.characterInfo.collected},${course.enabledToCollect},${course.characterInfo.title}"
                 )
 
             }
             kakaoMap?.setOnLabelClickListener { kakaoMap, labelLayer, label ->
-                val (type, id, collected, enabledToCollect) = label.labelId.split(",")
+                val (type, id, collected, enabledToCollect,characterTitle) = label.labelId.split(",")
                 if (type == "normalCourses") {
                     shownBottomSheet = true
 

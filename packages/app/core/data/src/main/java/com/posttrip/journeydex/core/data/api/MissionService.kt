@@ -1,6 +1,7 @@
 package com.posttrip.journeydex.core.data.api
 
 import com.posttrip.journeydex.core.data.model.request.MissionBody
+import com.posttrip.journeydex.core.data.model.response.CouponList
 import com.posttrip.journeydex.core.data.model.response.MissionList
 import retrofit2.Response
 import retrofit2.http.Body
@@ -30,5 +31,10 @@ interface MissionService {
     suspend fun completeMission(
         @Body body : MissionBody
     ) : Response<MissionBody>
+
+    @GET("/coupon/{id}")
+    suspend fun getCouponList(
+        @Path("id") id : String
+    ) : Response<CouponList>
 }
 

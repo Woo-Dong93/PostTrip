@@ -6,11 +6,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.lifecycleScope
 import com.posttrip.journeydex.core.auth.KakaoAuthHelper
 import com.posttrip.journeydex.feature.login.ui.theme.JourneydexTheme
@@ -30,8 +32,8 @@ class LoginActivity : ComponentActivity() {
         initObserver()
         setContent {
             JourneydexTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Box(modifier = Modifier.fillMaxSize().padding(innerPadding)){
+                Scaffold(modifier = Modifier.fillMaxSize().background(Color(0xFFFEEDFF))) { innerPadding ->
+                    Box(modifier = Modifier.fillMaxSize().background(Color(0xFFFEEDFF)).padding(innerPadding)){
                         LoginScreen(
                             modifier = Modifier.fillMaxSize(),
                             onClickKakaoLogin = {

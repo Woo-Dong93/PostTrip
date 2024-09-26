@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.IconButton
@@ -25,6 +26,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -37,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.posttrip.journeydex.core.data.model.travel.Course
+import com.posttrip.journeydex.feature.home.MissionItem
 import kotlinx.coroutines.launch
 
 @Composable
@@ -61,9 +64,16 @@ fun CourseDetailScreen(
 fun CourseDetailScreen(
     course: Course,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    onMissionClick : (String) -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: CourseDetailViewModel = hiltViewModel()
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val missions by viewModel.missions.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.getMissionListByCourse(course.contentId)
+    }
 
     BackHandler(enabled = true) {
         coroutineScope.launch {
@@ -122,7 +132,18 @@ fun CourseDetailScreen(
                         modifier = Modifier.padding(20.dp),
                         fontWeight = FontWeight.Bold
                     )
+                }
 
+                items(missions){
+                    MissionItem(
+                        missionName = it.title,
+                        status = it.statusType
+                    ) {
+                        onDismiss()
+                        onMissionClick(it.contentId)
+                    }
+                }
+                item{
                     Text(
                         text = "상세정보",
                         modifier = Modifier.padding(20.dp)

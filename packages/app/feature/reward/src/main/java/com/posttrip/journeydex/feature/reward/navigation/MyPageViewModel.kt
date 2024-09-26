@@ -2,6 +2,7 @@ package com.posttrip.journeydex.feature.reward.navigation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.posttrip.journeydex.core.data.model.mission.Coupon
 import com.posttrip.journeydex.core.data.model.mission.Mission
 import com.posttrip.journeydex.core.data.model.travel.Character
 import com.posttrip.journeydex.core.data.model.travel.Course
@@ -23,6 +24,9 @@ class MyPageViewModel @Inject constructor(
 
     private val _missions = MutableStateFlow<List<Mission>>(emptyList())
     val missions: StateFlow<List<Mission>> = _missions.asStateFlow()
+
+    private val _coupons = MutableStateFlow<List<Coupon>>(emptyList())
+    val coupons : StateFlow<List<Coupon>> = _coupons.asStateFlow()
 
     private val _characters = MutableStateFlow<List<Character>>(emptyList())
     val characters : StateFlow<List<Character>> = _characters.asStateFlow()
@@ -58,7 +62,17 @@ class MyPageViewModel @Inject constructor(
             travelRepository.getCharacters()
                 .catch { }
                 .collect {
-                    _characters.emit(it.characters.distinctBy { it.title })
+                    _characters.emit(it.characters.distinctBy { it.title }.filter { it.collected })
+                }
+        }
+    }
+
+    fun getCoupons(){
+        viewModelScope.launch {
+            missionRepository.getCouponList()
+                .catch {  }
+                .collect {
+                    _coupons.emit(it.data)
                 }
         }
     }

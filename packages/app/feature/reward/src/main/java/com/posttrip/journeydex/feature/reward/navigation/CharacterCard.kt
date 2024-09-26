@@ -19,15 +19,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.posttrip.journeydex.core.data.model.travel.Character
+import com.posttrip.journeydex.feature.reward.R
 
 @Composable
 fun CharacterCard(
     character: Character,
+    collected : Boolean,
     onClick: (Character) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -51,18 +54,23 @@ fun CharacterCard(
     ) {
         Box(
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxSize().alpha(
+                    if(collected) 1f
+                    else 0.2f
+                ),
             contentAlignment = Alignment.Center
         ) {
-            Text(character.title)
-//            Image(
-//                modifier = Modifier.fillMaxSize(),
-//                painter = painterResource(
-//
-//                ),
-//                contentScale = ContentScale.Fit,
-//                contentDescription = null
-//            )
+            //Text(character.title)
+            Image(
+                modifier = Modifier.fillMaxSize(),
+                painter = painterResource(
+                    if(character.title == "seoul") R.drawable.img_seoul_char
+                    else if(character.title == "busan") R.drawable.img_busan_char
+                    else R.drawable.img_jeonju_char
+                ),
+                contentScale = ContentScale.Fit,
+                contentDescription = null
+            )
         }
     }
 }
