@@ -58,7 +58,7 @@ class MyPageViewModel @Inject constructor(
             travelRepository.getCharacters()
                 .catch { }
                 .collect {
-                    _characters.emit(it.characters.distinctBy { it.title })
+                    _characters.emit(it.characters.distinctBy { it.title }.filter { it.collected })
                 }
         }
     }

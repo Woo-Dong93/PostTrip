@@ -1,6 +1,7 @@
 package com.posttrip.journeydex.feature.reward.navigation
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -37,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,6 +48,7 @@ import com.posttrip.journeydex.core.data.model.mission.Mission
 import com.posttrip.journeydex.core.data.model.travel.Character
 import com.posttrip.journeydex.core.data.model.travel.Course
 import com.posttrip.journeydex.core.data.util.LoginCached
+import com.posttrip.journeydex.feature.reward.R
 
 @Composable
 fun MyPageScreen(
@@ -196,29 +199,59 @@ fun MyPageScreen(
             }
             when (selectedTab) {
                 MyPageScreenTab.Character -> {
-                    LazyVerticalGrid(
-                        modifier = Modifier.fillMaxSize(),
-                        columns = GridCells.Fixed(2),
-                        contentPadding = PaddingValues(20.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        items(characters) { character ->
+                    if(characters.isNotEmpty()){
+                        LazyVerticalGrid(
+                            modifier = Modifier.fillMaxSize(),
+                            columns = GridCells.Fixed(2),
+                            contentPadding = PaddingValues(20.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            items(characters) { character ->
 
-                            CharacterCard(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(1f),
-                                character = character,
-                                onClick = {}
+                                CharacterCard(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .aspectRatio(1f),
+                                    character = character,
+                                    collected = character.collected,
+                                    onClick = {}
+                                )
+                            }
+                        }
+                    }else {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ){
+                            Text(
+                                text = "수집한 캐릭터가 없습니다."
                             )
                         }
                     }
 
+
                 }
 
                 MyPageScreenTab.Coupon -> {
-
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ){
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                modifier = Modifier.size(225.dp),
+                                painter = painterResource(R.drawable.ic_waiting),
+                                contentDescription = null
+                            )
+                            Spacer(modifier = Modifier.size(8.dp))
+                            Text(
+                                text = "열심히 준비 중인 기능이에요!"
+                            )
+                        }
+                    }
                 }
             }
         }

@@ -92,7 +92,7 @@ class MapViewModel @Inject constructor(
             courses?.copy(
                 courses = mCourses.map {
                     it.copy(
-                        enabledToCollect = calculateDistance(my?.x ?: 0.0,my?.y  ?: 0.0,it.y.toDouble(),it.x.toDouble()) <= 1
+                        enabledToCollect = calculateDistance(my?.x ?: 0.0,my?.y  ?: 0.0,it.y.toDouble(),it.x.toDouble()) <= 180
                     )
                 }
             )

@@ -58,15 +58,36 @@ object MapUtil {
         collected : Boolean,
         enabledToCollect : Boolean,
         labelId : String,
+        characterTitle : String,
         kakaoMap: KakaoMap?
     ) {
         kakaoMap?.let { kakaoMap ->
             val styles =
                 kakaoMap.labelManager?.addLabelStyles(LabelStyles.from(
                     LabelStyle.from(
-                        if(collected) R.drawable.ic_char1_finished
-                        else if(enabledToCollect) R.drawable.ic_char1_enable
-                        else  R.drawable.ic_char1_pending
+                        when(characterTitle){
+                            "seoul" -> {
+                                if(collected) R.drawable.ic_char_seoul_finished
+                                else if(enabledToCollect) R.drawable.ic_char_seoul_enable
+                                else  R.drawable.ic_char_seoul_pending
+                            }
+                            "busan" -> {
+                                if(collected) R.drawable.ic_char_busan_finished
+                                else if(enabledToCollect) R.drawable.ic_char_busan_enable
+                                else  R.drawable.ic_char_busan_pending
+                            }
+                            "jeonju" -> {
+                                if(collected) R.drawable.ic_char_jeonju_finished
+                                else if(enabledToCollect) R.drawable.ic_char_jeonju_enable
+                                else  R.drawable.ic_char_jeonju_pending
+                            }
+                            else -> {
+                                if(collected) R.drawable.ic_char1_finished
+                                else if(enabledToCollect) R.drawable.ic_char1_enable
+                                else  R.drawable.ic_char1_pending
+                            }
+                        }
+
                     ).setAnchorPoint(0.5f,0.5f)))
 
             val options = LabelOptions.from(labelId,LatLng.from(y, x)).setStyles(styles)
@@ -160,7 +181,7 @@ object MapUtil {
             // 실시간 위치 정보를 UI에 업데이트합니다.
             val latitude = location.latitude
             val longitude = location.longitude
-
+            viewModel.updateMyPoint(latitude,longitude)
             val deletedLayer = kakaoMap?.labelManager?.getLayer("my")
             deletedLayer?.let {
                 kakaoMap?.labelManager?.remove(deletedLayer)
@@ -183,7 +204,7 @@ object MapUtil {
 
             lastLat = latitude
             lastLng = longitude
-            viewModel.updateMyPoint(latitude,longitude)
+            //viewModel.updateMyPoint(latitude,longitude)
             kakaoMap?.moveCamera(
                 CameraUpdateFactory.newCenterPosition(
                     LatLng.from(
