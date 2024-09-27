@@ -10,6 +10,8 @@ import {
   Character,
   UserCharacter,
   ICharacter,
+  Mission,
+  UserMission,
 } from '../schema';
 import { isLimitedServiceError } from '../utils';
 const axios = require('axios');
@@ -180,6 +182,9 @@ export const getTravelDetailCourse = async (
     const courseInfo = courseResult.data.response.body.items.item[0];
     const existedCourseKeyword = await Course.findOne({ contentId: courseInfo.contentid });
 
+    const mission = await Mission.findOne({ contentId: courseInfo.contentid });
+    const userMission = await UserMission.findOne({ id: mission?.id });
+
     const adjustedCourse = {
       firstAddress: courseInfo.addr1,
       secondAddress: courseInfo.addr2,
@@ -195,7 +200,21 @@ export const getTravelDetailCourse = async (
       travelTypeKeyword: existedCourseKeyword?.travelTypeKeyword,
     };
 
-    return res.status(200).json({ data: { ...adjustedCourse, courseList: courseDetailInfo.filter(Boolean) } });
+    return res.status(200).json({
+      data: {
+        ...adjustedCourse,
+        courseList: courseDetailInfo.filter(Boolean),
+        ...(mission && {
+          mission: {
+            id: mission.id,
+            title: mission.title,
+            description: mission.description,
+            collectionCount: mission.collectionCount,
+            ...(userMission && { status: userMission.status }),
+          },
+        }),
+      },
+    });
   } catch (error: any) {
     console.log(error);
     res.status(500).json({ message: error.message });
