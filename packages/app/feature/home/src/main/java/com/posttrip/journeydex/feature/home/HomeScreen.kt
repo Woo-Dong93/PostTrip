@@ -143,7 +143,7 @@ fun HomeScreen(
             .fillMaxSize()
             .padding(start = 16.dp, end = 16.dp, top = 16.dp)
     ) {
-        UserProfileSection(name = "${LoginCached.nickname} 님")
+        UserProfileSection(name = if(LoginCached.nickname.isNotEmpty()) "${LoginCached.nickname} 님" else "Guest 님")
         Spacer(modifier = Modifier.height(16.dp))
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
