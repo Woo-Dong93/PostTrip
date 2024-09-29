@@ -1,6 +1,7 @@
 package com.posttrip.journeydex.feature.reward.navigation
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -32,6 +33,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,17 +42,26 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.posttrip.journeydex.core.data.model.mission.Coupon
 import com.posttrip.journeydex.core.data.model.travel.Character
 import com.posttrip.journeydex.core.data.model.travel.Course
 import com.posttrip.journeydex.core.data.util.LoginCached
+import com.posttrip.journeydex.feature.reward.R
+import kotlinx.coroutines.launch
 
 @Composable
 fun MyPageScreen(
@@ -65,10 +76,17 @@ fun MyPageScreen(
     val courses by viewModel.courses.collectAsStateWithLifecycle()
     val coupons by viewModel.coupons.collectAsStateWithLifecycle()
 
+
     LaunchedEffect(Unit) {
-        viewModel.getLikedCourses()
-        viewModel.getCharacters()
-        viewModel.getCoupons()
+        launch {
+            viewModel.getLikedCourses()
+        }
+        launch {
+            viewModel.getCharacters()
+        }
+
+
+        launch{ viewModel.getCoupons() }
     }
 
     MyPageScreen(
@@ -290,45 +308,69 @@ fun CouponItem(
     couponDescription : String,
     isUsed: Boolean,
     onClick: () -> Unit) {
-    Row(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
             .background(Color.White, shape = RoundedCornerShape(8.dp))
             .clickable {
                 onClick()
             }
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        ,
     ) {
-        Column(
-            modifier = Modifier.wrapContentHeight().weight(1f),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            Text(
-                text = couponTitle,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
+        Image(
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.FillWidth,
+            painter = painterResource(R.drawable.img_coupon_background),
+            contentDescription = null
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(120.dp)
+                .background(
+                    Brush.verticalGradient(
+                        listOf(
+                            Color.Black.copy(alpha = 0.75f),
+                            Color.Black.copy(alpha = 0.0f),
 
-            )
-            Text(
-                text = couponDescription,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium
-            )
-        }
-        Spacer(Modifier.size(8.dp))
-        if(isUsed){
-            Text(
-                text ="사용완료",
-                color = Color.Black,
-                fontSize = 12.sp,
-                textAlign = TextAlign.Center,
+                        ),
+                    )
+                )
+                .align(Alignment.TopCenter)
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            Column(
                 modifier = Modifier
-                    .background(Color(0xFFc5c5c5), shape = RoundedCornerShape(4.dp))
-                    .width(62.dp)
-                    .padding(horizontal = 4.dp, vertical = 4.dp)
+                    .wrapContentHeight()
+                    .weight(1f),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Text(
+                    text = couponTitle,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White
+
+                    )
+                Text(
+                    text = couponDescription,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.White
+                )
+            }
+            Spacer(Modifier.size(8.dp))
+            Image(
+                modifier = Modifier.size(90.dp),
+                painter = painterResource(R.drawable.qr),
+                contentDescription = null
             )
+
+
         }
 
     }
@@ -367,3 +409,20 @@ enum class MyPageScreenTab(val title: String) {
     Character("캐릭터"), Coupon("쿠폰")
 }
 
+@Composable
+fun ComposableLifecycle(
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
+    onEvent: (LifecycleOwner, Lifecycle.Event) -> Unit
+) {
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { source, event ->
+            onEvent(source, event)
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+}

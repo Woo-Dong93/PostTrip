@@ -1,5 +1,6 @@
 package com.posttrip.journeydex
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,20 +18,28 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
@@ -42,9 +51,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.posttrip.journeydex.core.data.model.response.LoginData
+import com.posttrip.journeydex.feature.reward.navigation.JTopAppBar
 import com.posttrip.journeydex.model.OnboardingStepModel
 import com.posttrip.journeydex.model.OnboardingStepModel.Companion.getTargetString
 import com.posttrip.journeydex.ui.JourneydexApp
+import kotlinx.coroutines.launch
 
 @Composable
 fun OnboardingScreen(
@@ -54,6 +65,15 @@ fun OnboardingScreen(
     viewModel: OnboardingViewModel = hiltViewModel()
 ) {
     val step by viewModel.onboardingStep.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
+
+    BackHandler(enabled = step.index != 0) {
+        coroutineScope.launch {
+            viewModel.updateStepIndex(
+                step.index -1
+            )
+        }
+    }
 
     LaunchedEffect(key1 = Unit) {
         viewModel.event.collect {
@@ -62,6 +82,11 @@ fun OnboardingScreen(
     }
     Onboarding(
         step = step,
+        onBackClick = {
+            viewModel.updateStepIndex(
+                step.index -1
+            )
+        },
         onClick = {
             if (step.index <= 1) {
                 viewModel.updateStepIndex(
@@ -93,27 +118,82 @@ fun OnboardingScreen(
 @Composable
 fun Onboarding(
     step: OnboardingStepModel,
+    onBackClick : () -> Unit,
     onClick: () -> Unit,
     onClickCard: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.padding(bottom = 56.dp)
+        modifier = modifier.statusBarsPadding().padding(bottom = 56.dp)
     ) {
+        JTopAppBar(
+            navigationIcon = {
+                if(step.index != 0){
+                    IconButton(onClick = onBackClick) {
+                        Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = null)
+                    }
+                }
+
+            },
+            actions = {
+                Spacer(modifier = Modifier.size(40.dp))
+            },
+            title = {
+                Text(
+                    text = "",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+            }
+
+        )
+        Box(
+            modifier = Modifier.fillMaxWidth().height(48.dp).padding(top = 12.dp),
+            contentAlignment = Alignment.TopCenter
+        ){
+            Row(
+                modifier = Modifier.wrapContentSize(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ){
+                Spacer(
+                    modifier = Modifier.width(40.dp).height(4.dp).clip(RoundedCornerShape(40.dp))
+                        .background(
+                            color = if(step.index >= 0) Color(0xFF497CFF)
+                            else Color(0xFFD9D9D9)
+                        )
+                )
+                Spacer(
+                    modifier = Modifier.width(40.dp).height(4.dp).clip(RoundedCornerShape(40.dp))
+                        .background(
+                            color = if(step.index >= 1) Color(0xFF497CFF)
+                            else Color(0xFFD9D9D9)
+                        )
+                )
+                Spacer(
+                    modifier = Modifier.width(40.dp).height(4.dp).clip(RoundedCornerShape(40.dp))
+                        .background(
+                            color = if(step.index >= 2) Color(0xFF497CFF)
+                            else Color(0xFFD9D9D9)
+                        )
+                )
+            }
+        }
+
+        TitleIntro(
+            modifier = Modifier.fillMaxWidth().wrapContentHeight().padding(horizontal = 20.dp),
+            title = when (step.index) {
+                0 -> "어떤 여행을 선호하시나요?"
+                1 -> "선호하는 여행지가 있으신가요?"
+                2 -> "좋아하는 액티비티가 있으신가요?"
+                else -> ""
+            }
+        )
         Column(
             modifier = Modifier
                 .padding(horizontal = 20.dp)
                 .weight(1f)
         ) {
-            TitleIntro(
-                modifier = Modifier.fillMaxHeight(0.2f),
-                title = when (step.index) {
-                    0 -> "어떤 여행을 선호하시나요?"
-                    1 -> "선호하는 여행지가 있으신가요?"
-                    2 -> "좋아하는 액티비티가 있으신가요?"
-                    else -> ""
-                }
-            )
+
 
             Column(
                 modifier = Modifier
@@ -172,6 +252,7 @@ fun Onboarding(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
+            enabled = step.isEnabled(),
             onClick = {
                 onClick()
             },
@@ -208,6 +289,7 @@ fun TitleIntro(
 @Composable
 fun NextButton(
     onClick: () -> Unit,
+    enabled : Boolean,
     modifier: Modifier = Modifier,
     shape: Shape = RectangleShape,
     containerColor: Color = Color(0xFF497CFF),
@@ -218,6 +300,7 @@ fun NextButton(
     Card(
         modifier = modifier,
         shape = shape,
+        enabled = enabled,
         colors = CardDefaults.cardColors(
             containerColor = containerColor,
             contentColor = contentColor,

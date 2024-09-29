@@ -70,7 +70,7 @@ fun JourneydexNavHost(
         )
         settingScreen(
             onBackClick = {
-
+                navController.popBackStack()
             },
             onTermsClick = {
                 navController.navigateToTerms()

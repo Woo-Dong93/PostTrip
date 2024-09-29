@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
     implementation(project(":feature:home"))
+    implementation(project(":core:designsystem"))
     ksp(libs.hilt.compiler)
 
     //navigation-compose

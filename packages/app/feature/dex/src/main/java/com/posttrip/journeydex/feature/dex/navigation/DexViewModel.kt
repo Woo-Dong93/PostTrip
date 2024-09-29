@@ -50,7 +50,7 @@ class DexViewModel @Inject constructor(
     }
 
     fun clickMission(mission: Mission){
-        if(mission.statusType == MissionStatus.ACTIVE && mission.collectedCount == mission.collectionCount){
+        if(mission.statusType == MissionStatus.ACTIVE && mission.collectedCount >= mission.collectionCount){
             viewModelScope.launch {
                 missionRepository.completeMission(
                     missionBody = MissionBody(

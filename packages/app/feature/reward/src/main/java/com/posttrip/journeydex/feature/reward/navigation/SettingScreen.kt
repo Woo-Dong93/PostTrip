@@ -127,9 +127,9 @@ fun SettingScreen(
         JTopAppBar(
             navigationIcon = {
                 Spacer(modifier = Modifier.size(40.dp))
-//                IconButton(onClick = onBackClick) {
-//                    Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = null)
-//                }
+                IconButton(onClick = onBackClick) {
+                    Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = null)
+                }
             },
             actions = {
                 Spacer(modifier = Modifier.size(40.dp))
