@@ -236,12 +236,15 @@ fun CouponItem(couponName: String, status: MissionStatus,onMissionClick: () -> U
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = couponName)
+        Text(
+            modifier = Modifier.weight(1f),
+            text = couponName, maxLines = 1, overflow = TextOverflow.Ellipsis)
         Text(
             text = status.title,
             color = Color.Black,
             fontSize = 12.sp,
             textAlign = TextAlign.Center,
+            maxLines = 1,
             modifier = Modifier
                 .background(Color(status.colorLong), shape = RoundedCornerShape(4.dp))
                 .width(62.dp)
@@ -299,7 +302,7 @@ fun TravelCourseItem(
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
-            if(visibleFavorite)
+
             Box(
                 modifier = Modifier.align(Alignment.TopEnd),
                 contentAlignment = Alignment.Center

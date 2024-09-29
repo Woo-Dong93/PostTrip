@@ -11,6 +11,7 @@ import com.posttrip.journeydex.core.data.repository.MissionRepository
 import com.posttrip.journeydex.core.data.repository.TravelRepository
 import com.posttrip.journeydex.core.data.util.LoginCached
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -18,8 +19,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.retryWhen
+import kotlinx.coroutines.flow.timeout
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -61,6 +65,17 @@ class HomeViewModel @Inject constructor(
             viewModelScope.launch {
                 _shownLoading.emit(true)
                 travelRepository.getRecommendedCourse(LoginCached.kakaoId)
+                    .timeout(3.seconds) // 3초 동안 응답이 없으면 TimeoutException 발생
+                    .retryWhen { cause, attempt ->
+                        // 최대 3번 시도, TimeoutException일 때만 재시도
+                        if (attempt < 2 && cause is kotlinx.coroutines.TimeoutCancellationException) {
+                            delay(1000) // 재시도 전에 잠시 대기 (1초)
+                            true // 재시도 수행
+                        } else {
+                            _shownLoading.emit(false)
+                            false // 재시도 중단
+                        }
+                    }
                     .catch {
                         _shownLoading.emit(false)
                     }.collect {
@@ -74,20 +89,31 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             _shownLoading.emit(true)
             travelRepository.getCourseDetail(course.contentId)
+                .timeout(3.seconds) // 3초 동안 응답이 없으면 TimeoutException 발생
+                .retryWhen { cause, attempt ->
+                    // 최대 3번 시도, TimeoutException일 때만 재시도
+                    if (attempt < 2 && cause is kotlinx.coroutines.TimeoutCancellationException) {
+                        delay(1000) // 재시도 전에 잠시 대기 (1초)
+                        true // 재시도 수행
+                    } else {
+                        _shownLoading.emit(false)
+                        false // 재시도 중단
+                    }
+                }
                 .catch {
                     _shownLoading.emit(false)
                 }.collect {
                     _shownLoading.emit(false)
-                    travelRepository.cacheCourse(
-                        course.contentId,
-                        CourseList(
-                            course = it.data,
-                            courses = it.data.courseList.map {
-                                it.copy(isDetail = true)
-                            }
-                        )
-
-                    )
+//                    travelRepository.cacheCourse(
+//                        course.contentId,
+//                        CourseList(
+//                            course = it.data,
+//                            courses = it.data.courseList.map {
+//                                it.copy(isDetail = true)
+//                            }
+//                        )
+//
+//                    )
                     _courseDetail.emit(CourseList(
                         course = it.data,
                         courses = it.data.courseList.map {

@@ -25,6 +25,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -40,22 +41,30 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.posttrip.journeydex.core.data.model.travel.Course
 import com.posttrip.journeydex.feature.reward.navigation.JTopAppBar
+import com.posttrip.journeydex.feature.reward.navigation.MyPageViewModel
 
 @Composable
 fun FavoriteScreen(
     onBackClick: () -> Unit,
-    viewModel: FavoriteViewModel = hiltViewModel()
+    viewModel: FavoriteViewModel = hiltViewModel(),
+    mypageViewModel: MyPageViewModel = hiltViewModel()
 ) {
     val courses by viewModel.courses.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.getLikedCourses()
     }
+    DisposableEffect(Unit) {
+        onDispose {
+            mypageViewModel.getLikedCourses()
+        }
+
+    }
     FavoriteScreen(
         courses,
         onBackClick = onBackClick,
         onFavoriteClick = {
-
+            viewModel.unlikeCourse("1", it)
         },
         onClick = {}
     )
@@ -101,7 +110,6 @@ fun FavoriteScreen(
                     course = course,
                     onClick = onClick,
                     onFavoriteClick = onFavoriteClick,
-                    visibleFavorite = false
                 )
             }
         }

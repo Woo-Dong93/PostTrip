@@ -85,22 +85,61 @@ fun CourseDetailScreen(
             modifier = Modifier.fillMaxSize().navigationBarsPadding()
         ) {
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f)
-            ) {
-                AsyncImage(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(1f),
-                    model = course.firstImage,
-                    contentScale = ContentScale.Crop,
-                    contentDescription = null
-                )
+                modifier = Modifier.fillMaxSize()
+            ){
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .aspectRatio(1f)
+                        ) {
+                            AsyncImage(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .aspectRatio(1f),
+                                model = course.firstImage,
+                                contentScale = ContentScale.Crop,
+                                contentDescription = null
+                            )
+
+                        }
+                    }
+                    item {
+                        Text(
+                            text = course.title,
+                            modifier = Modifier.padding(20.dp),
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    items(missions){
+                        MissionItem(
+                            missionName = it.title,
+                            status = it.statusType
+                        ) {
+                            onDismiss()
+                            onMissionClick(it.contentId)
+                        }
+                    }
+                    item{
+                        Text(
+                            text = "상세정보",
+                            modifier = Modifier.padding(20.dp)
+                        )
+                        Text(
+                            text = course.overview,
+                            modifier = Modifier.padding(start = 20.dp, end = 20.dp, bottom = 20.dp)
+                        )
+                    }
+                }
+
                 Spacer(
                     modifier = Modifier
                         .align(Alignment.TopCenter)
-                        .fillMaxSize()
+                        .fillMaxWidth()
                         .aspectRatio(1f)
                         .background(
                             brush = Brush.verticalGradient(
@@ -123,37 +162,7 @@ fun CourseDetailScreen(
 
                 }
             }
-            LazyColumn(
-                modifier = Modifier.weight(1f)
-            ) {
-                item {
-                    Text(
-                        text = course.title,
-                        modifier = Modifier.padding(20.dp),
-                        fontWeight = FontWeight.Bold
-                    )
-                }
 
-                items(missions){
-                    MissionItem(
-                        missionName = it.title,
-                        status = it.statusType
-                    ) {
-                        onDismiss()
-                        onMissionClick(it.contentId)
-                    }
-                }
-                item{
-                    Text(
-                        text = "상세정보",
-                        modifier = Modifier.padding(20.dp)
-                    )
-                    Text(
-                        text = course.overview,
-                        modifier = Modifier.padding(start = 20.dp, end = 20.dp, bottom = 20.dp)
-                    )
-                }
-            }
 
 
         }

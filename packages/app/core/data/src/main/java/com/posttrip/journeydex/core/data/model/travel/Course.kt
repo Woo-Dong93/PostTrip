@@ -1,5 +1,6 @@
 package com.posttrip.journeydex.core.data.model.travel
 
+import com.posttrip.journeydex.core.data.model.mission.Mission
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -21,5 +22,6 @@ data class Course(
     val overview : String = "",
     val characterInfo : Character = Character(),
     val enabledToCollect : Boolean = false,
-    val courseList : List<Course> = emptyList()
+    val courseList : List<Course> = emptyList(),
+    val mission : Mission = Mission(characters = emptyList())
 )

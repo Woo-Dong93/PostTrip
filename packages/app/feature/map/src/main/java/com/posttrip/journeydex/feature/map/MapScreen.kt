@@ -2,6 +2,7 @@ package com.posttrip.journeydex.feature.map
 
 import android.os.Looper
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +15,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -52,6 +54,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 
@@ -103,7 +106,13 @@ fun MapScreen(
     var travelTypeKeyword by remember {
         mutableStateOf<TravelTypeKeyword?>(null)
     }
+    val coroutineScope = rememberCoroutineScope()
 
+    BackHandler(enabled = isSearchMode ) {
+        coroutineScope.launch {
+            isSearchMode = false
+        }
+    }
     DisposableEffect(Unit) {
         onDispose {
             viewModel.clearStateHandle()
@@ -138,33 +147,50 @@ fun MapScreen(
             )
         }
     }
+    if(shownTravelStyleBottomSheet ||shownDestinationTypeKeywordBottomSheet||shownTravelTypeKeywordBottomSheet ){
+        SearchBottomSheet(
+            mSelectedTravelStyleKeyword = travelStyle,
+            mSelectedDestinationTypeKeyword = destinationTypeKeyword,
+            mSelectedTravelTypeKeyword = travelTypeKeyword,
+            onClick = { style, destination, type ->
+                travelStyle = style
+                destinationTypeKeyword = destination
+                travelTypeKeyword = type
 
-    if (shownTravelStyleBottomSheet) {
-        TravelStyleKeywordBottomSheet(
-            onSelect = {
-                travelStyle = it
-                shownTravelStyleBottomSheet = false
             },
-            onDismiss = { shownTravelStyleBottomSheet = false })
+            onDismiss = {
+                if(shownTravelStyleBottomSheet) shownTravelStyleBottomSheet = false
+                else if(shownDestinationTypeKeywordBottomSheet) shownDestinationTypeKeywordBottomSheet = false
+                else  shownTravelTypeKeywordBottomSheet = false
+            }
+        )
     }
-
-    if (shownDestinationTypeKeywordBottomSheet) {
-        DestinationTypeKeywordBottomSheet(
-            onSelect = {
-                destinationTypeKeyword = it
-                shownDestinationTypeKeywordBottomSheet = false
-            },
-            onDismiss = { shownDestinationTypeKeywordBottomSheet = false })
-    }
-
-    if (shownTravelTypeKeywordBottomSheet) {
-        TravelTypeKeywordBottomSheet(
-            onSelect = {
-                travelTypeKeyword = it
-                shownTravelTypeKeywordBottomSheet = false
-            },
-            onDismiss = { shownTravelTypeKeywordBottomSheet = false })
-    }
+//    if (shownTravelStyleBottomSheet) {
+//        TravelStyleKeywordBottomSheet(
+//            onSelect = {
+//                travelStyle = it
+//                shownTravelStyleBottomSheet = false
+//            },
+//            onDismiss = { shownTravelStyleBottomSheet = false })
+//    }
+//
+//    if (shownDestinationTypeKeywordBottomSheet) {
+//        DestinationTypeKeywordBottomSheet(
+//            onSelect = {
+//                destinationTypeKeyword = it
+//                shownDestinationTypeKeywordBottomSheet = false
+//            },
+//            onDismiss = { shownDestinationTypeKeywordBottomSheet = false })
+//    }
+//
+//    if (shownTravelTypeKeywordBottomSheet) {
+//        TravelTypeKeywordBottomSheet(
+//            onSelect = {
+//                travelTypeKeyword = it
+//                shownTravelTypeKeywordBottomSheet = false
+//            },
+//            onDismiss = { shownTravelTypeKeywordBottomSheet = false })
+//    }
 
     if (shownAreaBottomSheet) {
         AreaBottomSheet(onSelect = {
@@ -272,7 +298,7 @@ fun MapScreen(
                 } else {
                     lineDetailCourses?.let {
                         viewModel.refresh(it)
-                        Toast.makeText(context, "캐릭터 수집 액션", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "캐릭터를 수집하고 있습니다.", Toast.LENGTH_SHORT).show()
 
                     }
                 }
@@ -325,7 +351,7 @@ fun MapScreen(
                 } else {
                     lineDetailCourses?.let {
                         viewModel.collectCharacter(id)
-                        Toast.makeText(context, "캐릭터 수집 액션", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "캐릭터를 수집하고 있습니다", Toast.LENGTH_SHORT).show()
                     }
                 }
 

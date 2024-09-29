@@ -46,9 +46,11 @@ fun LoadingScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            LottieImage(
-                lottieRes = R.raw.loading
-            )
+            Image(painter = painterResource(id = R.drawable.ic_loading), contentDescription = null)
+
+//            LottieImage(
+//                lottieRes = R.raw.loading
+//            )
 //            Spacer(modifier = Modifier.size(5.dp))
 //            Text(
 //                text = "여행지를 불러오고 있습니다.",

@@ -20,7 +20,7 @@ data class Mission(
     val collectionCount : Int = 0,
     val collectedCount : Int = 0,
     val status: String = "",
-    val characters : List<Character>
+    val characters : List<Character> = emptyList()
 ) {
     val statusType: MissionStatus by lazy {
         MissionStatus.entries.find {

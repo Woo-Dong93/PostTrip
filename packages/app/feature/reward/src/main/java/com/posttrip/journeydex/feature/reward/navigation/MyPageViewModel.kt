@@ -34,15 +34,13 @@ class MyPageViewModel @Inject constructor(
     val courses: StateFlow<List<Course>> = _courses.asStateFlow()
 
     fun getLikedCourses() {
-        if (courses.value.isEmpty())
-
-            viewModelScope.launch {
-                travelRepository.getLikedCourse()
-                    .catch {
-                    }.collect {
-                        _courses.emit(it.courses)
-                    }
-            }
+        viewModelScope.launch {
+            travelRepository.getLikedCourse()
+                .catch {
+                }.collect {
+                    _courses.emit(it.courses)
+                }
+        }
     }
     fun getMissions() {
         viewModelScope.launch {

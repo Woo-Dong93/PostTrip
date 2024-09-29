@@ -39,6 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -54,7 +55,7 @@ enum class AllMissionScreenTab(val title: String) {
 @Composable
 fun AllMissionScreen(
     onBackClick: () -> Unit,
-    onMissionClick : (Mission) -> Unit,
+    onMissionClick: (Mission) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: AllMissionViewModel = hiltViewModel()
 ) {
@@ -80,8 +81,8 @@ fun AllMissionScreen(
 fun AllMissionScreen(
     missions: List<Mission>,
     selectedTab: AllMissionScreenTab,
-    onMissionClick : (Mission) -> Unit,
-    onTabClick : (AllMissionScreenTab) -> Unit,
+    onMissionClick: (Mission) -> Unit,
+    onTabClick: (AllMissionScreenTab) -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -108,11 +109,16 @@ fun AllMissionScreen(
             }
         )
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 14.dp).height(46.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 14.dp)
+                .height(46.dp),
 
-        ){
+            ) {
             TabCard(
-                modifier = Modifier.height(46.dp).weight(1f),
+                modifier = Modifier
+                    .height(46.dp)
+                    .weight(1f),
                 tab = AllMissionScreenTab.Course,
                 selected = selectedTab == AllMissionScreenTab.Course,
                 onClick = {
@@ -120,7 +126,9 @@ fun AllMissionScreen(
                 }
             )
             TabCard(
-                modifier = Modifier.height(46.dp).weight(1f),
+                modifier = Modifier
+                    .height(46.dp)
+                    .weight(1f),
                 tab = AllMissionScreenTab.Event,
                 selected = selectedTab == AllMissionScreenTab.Event,
                 onClick = {
@@ -128,14 +136,14 @@ fun AllMissionScreen(
                 }
             )
         }
-        when(selectedTab){
+        when (selectedTab) {
             AllMissionScreenTab.Course -> {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(horizontal = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    items(missions){
+                    items(missions) {
                         MissionItem(
                             missionName = it.title,
                             status = it.statusType,
@@ -146,11 +154,12 @@ fun AllMissionScreen(
                     }
                 }
             }
+
             AllMissionScreenTab.Event -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
-                ){
+                ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
@@ -176,11 +185,13 @@ fun AllMissionScreen(
 fun TabCard(
     selected: Boolean,
     tab: AllMissionScreenTab,
-    onClick : () -> Unit,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier.clip(RoundedCornerShape(14.dp)).clickable { onClick() },
+        modifier = modifier
+            .clip(RoundedCornerShape(14.dp))
+            .clickable { onClick() },
         colors = CardDefaults.cardColors(
             containerColor = if (selected) Color(0xFF48484A) else Color(0xFFF6F5F6),
         ),
@@ -224,8 +235,8 @@ fun MissionCard(title: String, location: String, status: String, imageUrl: Strin
                     .fillMaxWidth()
                     .weight(1f)
             ) {
-                Text(text = title,)
-                Text(text = location, )
+                Text(text = title)
+                Text(text = location)
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = status,
@@ -243,7 +254,7 @@ fun MissionCard(title: String, location: String, status: String, imageUrl: Strin
 }
 
 @Composable
-fun MissionItem(missionName: String, status: MissionStatus,onClick: () -> Unit) {
+fun MissionItem(missionName: String, status: MissionStatus, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -255,18 +266,19 @@ fun MissionItem(missionName: String, status: MissionStatus,onClick: () -> Unit) 
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(
-            modifier = Modifier.wrapContentHeight().weight(1f)
-        ) {
-            Text(text = missionName)
-
-        }
+        Text(
+            modifier = Modifier.weight(1f),
+            text = missionName,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
         Spacer(Modifier.size(8.dp))
         Text(
             text = status.title,
             color = Color.Black,
             fontSize = 12.sp,
             textAlign = TextAlign.Center,
+            maxLines = 1,
             modifier = Modifier
                 .background(Color(status.colorLong), shape = RoundedCornerShape(4.dp))
                 .width(62.dp)

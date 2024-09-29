@@ -1,5 +1,6 @@
 package com.posttrip.journeydex.feature.map
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -9,9 +10,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kakao.vectormap.LatLng
+import com.posttrip.journeydex.core.data.model.request.MissionBody
 import com.posttrip.journeydex.core.data.model.request.SearchCourse
 import com.posttrip.journeydex.core.data.model.response.CourseList
 import com.posttrip.journeydex.core.data.model.travel.Course
+import com.posttrip.journeydex.core.data.repository.MissionRepository
 import com.posttrip.journeydex.core.data.repository.TravelRepository
 import com.posttrip.journeydex.core.data.util.LoginCached
 import com.posttrip.journeydex.feature.map.util.DistanceCalculator.calculateDistance
@@ -27,18 +30,23 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.timeout
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
     private val travelRepository: TravelRepository,
+    private val missionRepository: MissionRepository,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     val contentId: String? = savedStateHandle.get<String>("contentId")
@@ -92,7 +100,7 @@ class MapViewModel @Inject constructor(
             courses?.copy(
                 courses = mCourses.map {
                     it.copy(
-                        enabledToCollect = calculateDistance(my?.x ?: 0.0,my?.y  ?: 0.0,it.y.toDouble(),it.x.toDouble()) <= 180
+                        enabledToCollect = calculateDistance(my?.x ?: 0.0,my?.y  ?: 0.0,it.y.toDouble(),it.x.toDouble()) <= 5000
                     )
                 }
             )
@@ -112,25 +120,19 @@ class MapViewModel @Inject constructor(
             viewModelScope.launch {
                 delay(300)
                 _shownLoading.emit(true)
-                val courses =travelRepository.getCachedCourse(contentId!!)
-                if(courses == null){
-                    delay(2700)
-                    travelRepository.getCourseDetail(contentId!!).catch {
-                        _shownLoading.emit(false)
-                    }.collect {
-
-                        emitDetails(CourseList(
-                            course = it.data,
-                            courses = it.data.courseList.map {
-                                it.copy(isDetail = true)
-                            }
-                        ))
-                        _shownLoading.emit(false)
-                    }
-                }else {
-                    delay(2700)
+                delay(2700)
+                travelRepository.getCourseDetail(contentId!!).catch {
+                    Log.d("12323","${it}")
                     _shownLoading.emit(false)
-                    emitDetails(courses)
+                }.collect {
+
+                    emitDetails(CourseList(
+                        course = it.data,
+                        courses = it.data.courseList.map {
+                            it.copy(isDetail = true)
+                        }
+                    ))
+                    _shownLoading.emit(false)
                 }
 
             }
@@ -144,7 +146,19 @@ class MapViewModel @Inject constructor(
     fun getCourse(id : String) {
         viewModelScope.launch {
             travelRepository.getCourse(LoginCached.kakaoId)
+                .timeout(3.seconds) // 3초 동안 응답이 없으면 TimeoutException 발생
+                .retryWhen { cause, attempt ->
+                    // 최대 3번 시도, TimeoutException일 때만 재시도
+                    if (attempt < 2 && cause is kotlinx.coroutines.TimeoutCancellationException) {
+                        delay(1000) // 재시도 전에 잠시 대기 (1초)
+                        true // 재시도 수행
+                    } else {
+                        _shownLoading.emit(false)
+                        false // 재시도 중단
+                    }
+                }
                 .catch {
+                    Log.d("12323","${it}")
 
                 }.collect { course ->
                     _courses.emit(course.courses)
@@ -157,7 +171,19 @@ class MapViewModel @Inject constructor(
         viewModelScope.launch {
             _shownLoading.emit(true)
             travelRepository.getCourseDetail(course.contentId)
+                .timeout(3.seconds) // 3초 동안 응답이 없으면 TimeoutException 발생
+                .retryWhen { cause, attempt ->
+                    // 최대 3번 시도, TimeoutException일 때만 재시도
+                    if (attempt < 2 && cause is kotlinx.coroutines.TimeoutCancellationException) {
+                        delay(1000) // 재시도 전에 잠시 대기 (1초)
+                        true // 재시도 수행
+                    } else {
+                        _shownLoading.emit(false)
+                        false // 재시도 중단
+                    }
+                }
                 .catch {
+                    Log.d("12323","${it}")
 
                 }.collect {
                     delay(1000)
@@ -204,14 +230,39 @@ class MapViewModel @Inject constructor(
             travelRepository.collectCharacter(
                 id
             ).catch {
+                Log.d("12323","${it}")
 
             }.collect {
                 val course = normalDetailCourses.value?.course!!
                 _shownLoading.emit(true)
                 travelRepository.getCourseDetail(course.contentId)
+                    .timeout(3.seconds) // 3초 동안 응답이 없으면 TimeoutException 발생
+                    .retryWhen { cause, attempt ->
+                        // 최대 3번 시도, TimeoutException일 때만 재시도
+                        if (attempt < 2 && cause is kotlinx.coroutines.TimeoutCancellationException) {
+                            delay(1000) // 재시도 전에 잠시 대기 (1초)
+                            true // 재시도 수행
+                        } else {
+                            _shownLoading.emit(false)
+                            false // 재시도 중단
+                        }
+                    }
                     .catch {
 
                     }.collect {
+                        if(it.data.mission.title.isNotEmpty()){
+                            missionRepository.startMission(
+                                MissionBody(
+                                    LoginCached.kakaoId,
+                                    id = it.data.mission.id,
+                                    status = "ACTIVE"
+
+                                    )
+                            ).catch {
+
+                            }.collect()
+                        }
+
                         delay(1000)
                         val courseList = CourseList(
                             course = it.data,
@@ -219,8 +270,8 @@ class MapViewModel @Inject constructor(
                                 it.copy(isDetail = true)
                             }
                         )
-                        travelRepository.cacheCourse(contentId = course.contentId,
-                            courseList)
+//                        travelRepository.cacheCourse(contentId = course.contentId,
+//                            courseList)
                         emitDetails(courseList)
                     }
             }

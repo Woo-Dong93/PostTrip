@@ -19,6 +19,12 @@ data class OnboardingStepModel(
         else type == targetString
     }
 
+    fun isEnabled() : Boolean{
+        return if(index == 0) style.isNotEmpty()
+        else if(index == 1)  destination.isNotEmpty()
+        else type.isNotEmpty()
+    }
+
     companion object {
         const val STYLE_HEALING = "healing"
         const val STYLE_CULTURE = "culture"

@@ -304,11 +304,11 @@ fun MissionLevel(
             Spacer(
                 Modifier.size(6.dp)
             )
-            MissionButton(
-                text = "시작하기",
-                onClick = onClick,
-                enabled = true
-            )
+//            MissionButton(
+//                text = "시작하기",
+//                onClick = onClick,
+//                enabled = true
+//            )
 
         } else if (mission.statusType == MissionStatus.COMPLETED) {
             MissionBar(
@@ -327,7 +327,7 @@ fun MissionLevel(
                 enabled = false
             )
         } else {
-            if (mission.collectedCount == mission.collectionCount) {
+            if (mission.collectedCount >= mission.collectionCount) {
                 MissionBar(
                     modifier = Modifier
                         .height(8.dp)
@@ -339,7 +339,7 @@ fun MissionLevel(
                     Modifier.size(6.dp)
                 )
                 MissionButton(
-                    text = "미션완료",
+                    text = "쿠폰받기",
                     onClick = onClick,
                     enabled = true
                 )
